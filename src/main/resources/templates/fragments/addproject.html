@@ -1,0 +1,21 @@
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{index(title='Add project')}">
+<head>
+    <title>Add project</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <form method="post" name="f" th:action="@{/addproject}">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" class="form-control"/>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">Add</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
+

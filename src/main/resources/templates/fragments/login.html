@@ -1,0 +1,24 @@
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{index(title='Sign in')}">
+<head>
+    <title>Please Login</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <form method="post" name="f" th:action="@{/login}">
+        <div class="form-group">
+        <legend>Please Login</legend>
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" class="form-control"/>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" class="form-control"/>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Log in</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
+

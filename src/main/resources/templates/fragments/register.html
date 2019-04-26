@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{index(title='Sign up')}">
+<head>
+    <title>Create new account</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <form action="#" method="post" th:object="${user}">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input class="form-control" id="username" placeholder="Username" th:field="*{username}" type="text">
+        </div>
+        <div class="form-group">
+            <label for="email">Email address</label>
+            <input class="form-control" id="email" placeholder="Enter email" th:field="*{email}" type="email">
+            <small class="form-text text-muted" id="emailHelp">We'll never share your email with anyone else.</small>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input class="form-control" id="password" placeholder="Password" th:field="*{password}" type="password">
+        </div>
+        <div class="form-group">
+            <label for="passwordRepeat">Repeat Password</label>
+            <input class="form-control" id="passwordRepeat" placeholder="Password Repeat" th:field="*{passwordRepeat}"
+                   type="password">
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+</div>
+
+</body>
+</html>

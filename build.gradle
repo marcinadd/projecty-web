@@ -1,0 +1,31 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.4.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.projecty'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile group: 'org.springframework.security', name: 'spring-security-core', version: '5.1.5.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.1.5.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-security-web', version: '5.1.5.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-security-config', version: '5.1.5.RELEASE'
+    compile("org.springframework.boot:spring-boot-starter-security")
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    compile group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect', version: '2.4.1'
+    runtimeOnly 'mysql:mysql-connector-java'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompile group: 'com.h2database', name: 'h2', version: '1.4.199'
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.2'
+
+}
