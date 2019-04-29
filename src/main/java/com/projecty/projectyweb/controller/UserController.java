@@ -1,6 +1,5 @@
 package com.projecty.projectyweb.controller;
 
-import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.service.user.UserService;
 import com.projecty.projectyweb.validator.UserValidator;
@@ -46,13 +45,12 @@ public class UserController {
     }
 
     @GetMapping("login")
-    public String login(Model model) {
-        model.addAttribute("user", new User());
+    public String login() {
         return "fragments/login";
     }
 
     @GetMapping("index")
-    public String index(){
+    public String index() {
         return "index";
     }
 

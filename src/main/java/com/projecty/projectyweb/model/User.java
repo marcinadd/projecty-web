@@ -4,7 +4,6 @@ import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -28,7 +27,7 @@ public class User {
 //    private Collection<Role> roles;
 
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "users")
     private List<Project> projects;
 
 

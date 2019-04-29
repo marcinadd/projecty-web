@@ -3,18 +3,30 @@
       layout:decorate="~{index(title='Add project')}">
 <head>
     <title>Add project</title>
+
 </head>
 <body>
 <div layout:fragment="content">
-    <form method="post" name="f" th:action="@{/addproject}">
+    <form method="post" name="f">
         <div class="form-group">
             <label for="name">Name</label>
             <input id="name" name="name" type="text" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <input type="button" class="btn-success" id="add">+</input>
+            <input type="button" class="btn btn-danger" id="remove">-</input>
+        </div>
+        <div class="form-group" id="users">
+
         </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-success">Add</button>
         </div>
     </form>
+</div>
+
+<div layout:fragment="scripts">
+    <script th:src="@{/js/entry-user-list.js}"></script>
 </div>
 </body>
 </html>

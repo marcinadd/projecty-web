@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -35,6 +38,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByUsernameAndPassword() {
         return null;
+    }
+
+    @Override
+    public List<User> findByUsernames(List<String> usernames) {
+        List<User> users = new ArrayList<>();
+
+        for (String username : usernames
+        ) {
+            User user = userRepository.findByUsername(username);
+            if (user != null) {
+                users.add(user);
+            }
+        }
+        return users;
     }
 
 

@@ -2,6 +2,8 @@ package com.projecty.projectyweb.service.user;
 
 import com.projecty.projectyweb.model.User;
 
+import java.util.List;
+
 
 public interface UserService {
     void save(User user);
@@ -11,5 +13,7 @@ public interface UserService {
     User findByEmail(String email);
 
     User findByUsernameAndPassword();
+
+    List<User> findByUsernames(List<String> usernames);
 
 }

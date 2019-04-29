@@ -1,6 +1,7 @@
 package com.projecty.projectyweb.controller;
 
 import com.projecty.projectyweb.model.Project;
+import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.service.project.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,38 +9,41 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-//@Controller
-//@RequestMapping("project")
+import java.util.List;
+
+@Controller
+@RequestMapping("project")
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
     @GetMapping("addproject")
-    public String addProject(Model model){
-        model.addAttribute("project", new Project());
+    public String addProject() {
         return "fragments/addproject";
     }
 
-    @PostMapping
-    public String addProjectProcess(@ModelAttribute Project project, BindingResult bindingResult, Model model){
-        System.out.println("Aaa");
-        System.out.println(project);
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (principal instanceof UserDetails) {
-            String username = ((UserDetails) principal).getUsername();
-            System.out.println(username);
-
+    @PostMapping("addproject")
+    public String addProjectProcess(@ModelAttribute Project project,
+                                    @RequestParam List<String> usernames, BindingResult bindingResult, Model model) {
+        //Get currentUser
+        Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentUsername = null;
+        if (currentUser instanceof UserDetails) {
+            currentUsername = ((UserDetails) currentUser).getUsername();
         }
+
+        usernames.add(currentUsername);
+        List<User> users = projectService.findUsersByUsernames(usernames);
+        users.forEach(System.out::println);
+
+        project.setUsers(projectService.findUsersByUsernames(usernames));
+        System.out.println(project);
         projectService.save(project);
         return "index";
-    }
 
+    }
 
 
 }

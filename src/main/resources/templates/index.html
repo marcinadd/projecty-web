@@ -107,14 +107,17 @@
 </footer>
 
 <!-- Bootstrap core JavaScript -->
-<script th:src="@{vendor/jquery/jquery.min.js}"></script>
-<script th:src="@{vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
 <!-- Plugin JavaScript -->
-<script th:src="@{vendor/jquery-easing/jquery.easing.min.js}"></script>
+<script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
 
 <!-- Custom JavaScript for this theme -->
-<script th:src="@{js/scrolling-nav.js}"></script>
+<script th:src="@{/js/scrolling-nav.js}"></script>
+
+<!-- Custom scripts -->
+<div layout:fragment="scripts"></div>
 
 </body>
 

@@ -1,7 +1,6 @@
 package com.projecty.projectyweb.model;
 
 
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public class Project {
 
     private String name;
 
-    @ManyToMany(mappedBy ="projects")
+    @ManyToMany
     private List<User> users;
 
     @OneToMany
