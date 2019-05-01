@@ -3,6 +3,8 @@ package com.projecty.projectyweb.service.user;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,17 @@ public class UserServiceImpl implements UserService {
             }
         }
         return users;
+    }
+
+    @Override
+    public User getCurrentUser() {
+        Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentUsername = null;
+        if (currentUser instanceof UserDetails) {
+            currentUsername = ((UserDetails) currentUser).getUsername();
+        }
+
+        return findByUsername(currentUsername);
     }
 
 

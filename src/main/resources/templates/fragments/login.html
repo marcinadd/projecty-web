@@ -1,6 +1,6 @@
-<html xmlns:th="https://www.thymeleaf.org"
+<html layout:decorate="~{index(title='Sign in')}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{index(title='Sign in')}">
+      xmlns:th="https://www.thymeleaf.org">
 <head>
     <title>Please Login</title>
 </head>
@@ -8,14 +8,14 @@
 <div layout:fragment="content">
     <form method="post" name="f" th:action="@{/login}">
         <div class="form-group">
-        <legend>Please Login</legend>
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" class="form-control"/>
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" class="form-control"/>
+            <legend>Please Login</legend>
+            <label for="username">Username</label>
+            <input class="form-control" id="username" name="username" type="text"/>
+            <label for="password">Password</label>
+            <input class="form-control" id="password" name="password" type="password"/>
         </div>
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Log in</button>
+            <button class="btn btn-primary" type="submit">Log in</button>
         </div>
     </form>
 </div>

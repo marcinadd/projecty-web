@@ -1,6 +1,6 @@
-<html xmlns:th="https://www.thymeleaf.org"
+<html layout:decorate="~{index(title='Add project')}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{index(title='Add project')}">
+      xmlns:th="https://www.thymeleaf.org">
 <head>
     <title>Add project</title>
 
@@ -10,17 +10,17 @@
     <form method="post" name="f">
         <div class="form-group">
             <label for="name">Name</label>
-            <input id="name" name="name" type="text" class="form-control"/>
+            <input class="form-control" id="name" name="name" type="text"/>
         </div>
         <div class="form-group">
-            <input type="button" class="btn-success" id="add">+</input>
-            <input type="button" class="btn btn-danger" id="remove">-</input>
+            <input class="btn-success" id="add" type="button">+</input>
+            <input class="btn btn-danger" id="remove" type="button">-</input>
         </div>
         <div class="form-group" id="users">
 
         </div>
         <div class="form-actions">
-            <button type="submit" class="btn btn-success">Add</button>
+            <button class="btn btn-success" type="submit">Add</button>
         </div>
     </form>
 </div>

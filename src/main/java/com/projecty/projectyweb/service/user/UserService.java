@@ -16,4 +16,6 @@ public interface UserService {
 
     List<User> findByUsernames(List<String> usernames);
 
+    User getCurrentUser();
+
 }

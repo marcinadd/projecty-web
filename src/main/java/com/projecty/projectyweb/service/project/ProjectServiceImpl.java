@@ -23,10 +23,6 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.save(project);
     }
 
-    @Override
-    public List<User> findUsersByUsernames(List<String> usernames) {
-        return userService.findByUsernames(usernames);
-    }
 
 
 }

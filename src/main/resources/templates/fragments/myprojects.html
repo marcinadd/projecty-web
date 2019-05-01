@@ -1,0 +1,30 @@
+<html   xmlns:th="https://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{index(title='My projects')}"
+        >
+<head>
+    <title>Add project</title>
+
+</head>
+<body>
+<div layout:fragment="content">
+    <h1> List of projects </h1>
+        <ul class="container" th:each="project: ${projects}">
+<!--         Name-->
+            <div class="row">
+                <div class="mx-auto" th:text="${project.name}">
+                </div>
+            </div>
+            <p> Użytkownicy </p>
+            <div class="row">
+                <div class="mx-auto">
+                    <ul class="list-group" th:each="user: ${project.users}">
+                        <li class="list-group-item" th:text="${user.username + ' ' + user.email}"></li>
+                    </ul>
+                </div>
+            </div>
+        </ul>
+</div>
+</body>
+</html>
+

@@ -8,5 +8,4 @@ import java.util.List;
 public interface ProjectService {
     void save(Project project);
 
-    List<User> findUsersByUsernames(List<String> usernames);
 }
