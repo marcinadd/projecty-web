@@ -1,21 +1,27 @@
-<html layout:decorate="~{index(title='Add project')}"
+<html layout:decorate="~{index(title='Add tasks')}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Add project</title>
-
+    <title>Add tasks</title>
 </head>
 <body>
 <div layout:fragment="content">
+
+    <p>Add Task to project <span th:text="${project.name}"></span><p/>
+
     <form method="post" name="f">
+<!--        <div class="form-group">-->
+<!--            <label for="projectSelect">Select project</label>-->
+<!--            <select class="form-control" id="projectSelect" th:each="project: ${projects}">-->
+<!--                <option th:text="${project.name}"></option>-->
+<!--            </select>-->
+<!--        </div>-->
+
         <div class="form-group">
             <label for="name">Name</label>
             <input class="form-control" id="name" name="name" type="text"/>
         </div>
-        <div class="form-group">
-            <input class="btn btn-success" id="add" type="button" value="+"></input>
-            <input class="btn btn-danger" id="remove" type="button" value="-"></input>
-        </div>
+
         <div class="form-group" id="users">
 
         </div>

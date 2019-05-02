@@ -1,13 +1,12 @@
 package com.projecty.projectyweb.service.project;
 
 import com.projecty.projectyweb.model.Project;
-import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -23,6 +22,10 @@ public class ProjectServiceImpl implements ProjectService {
         projectRepository.save(project);
     }
 
+    @Override
+    public Optional<Project> findById(Long id) {
+        return projectRepository.findById(id);
+    }
 
 
 }

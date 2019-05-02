@@ -5,7 +5,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-public class Project{
+public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,7 +16,6 @@ public class Project{
     private List<User> users;
 
     @OneToMany
-    @JoinColumn(name = "task_id")
     private List<Task> tasks;
 
 

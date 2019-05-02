@@ -1,11 +1,11 @@
 package com.projecty.projectyweb.service.project;
 
 import com.projecty.projectyweb.model.Project;
-import com.projecty.projectyweb.model.User;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface ProjectService {
     void save(Project project);
 
+    Optional<Project> findById(Long id);
 }
