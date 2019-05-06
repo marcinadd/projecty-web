@@ -32,15 +32,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username);
     }
 
-    @Override
-    public User findByEmail(String email) {
-        return null;
-    }
-
-    @Override
-    public User findByUsernameAndPassword() {
-        return null;
-    }
 
     @Override
     public List<User> findByUsernames(List<String> usernames) {
@@ -48,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
         for (String username : usernames
         ) {
-            User user = userRepository.findByUsername(username);
+            User user = findByUsername(username);
             if (user != null) {
                 users.add(user);
             }
@@ -66,6 +57,5 @@ public class UserServiceImpl implements UserService {
 
         return findByUsername(currentUsername);
     }
-
 
 }

@@ -10,10 +10,6 @@ public interface UserService {
 
     User findByUsername(String username);
 
-    User findByEmail(String email);
-
-    User findByUsernameAndPassword();
-
     List<User> findByUsernames(List<String> usernames);
 
     User getCurrentUser();

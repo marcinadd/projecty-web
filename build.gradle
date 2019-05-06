@@ -27,5 +27,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile group: 'com.h2database', name: 'h2', version: '1.4.199'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.2'
+    testCompile group: 'org.springframework.security', name: 'spring-security-test', version: '5.1.5.RELEASE'
 
 }
