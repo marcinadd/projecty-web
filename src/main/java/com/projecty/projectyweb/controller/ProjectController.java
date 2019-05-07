@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,9 +36,13 @@ public class ProjectController {
 
     @PostMapping("addproject")
     public RedirectView addProjectProcess(@ModelAttribute Project project,
-                                          @RequestParam List<String> usernames, BindingResult bindingResult, Model model) {
+                                          @RequestParam(required = false) List<String> usernames, BindingResult bindingResult, Model model) {
 
-        List<User> users = userService.findByUsernames(usernames);
+        List<User> users = new ArrayList<>();
+        if (usernames != null) {
+            users.addAll(userService.findByUsernames(usernames));
+        }
+
         users.add(userService.getCurrentUser());
         users.forEach(System.out::println);
 
@@ -55,8 +60,7 @@ public class ProjectController {
     public String myProjects(Model model) {
         User current = userService.getCurrentUser();
         model.addAttribute("projects", current.getProjects());
-        current.getProjects().forEach(System.out::println);
-        return "/fragments/myprojects";
+        return "fragments/myprojects";
     }
 
     @GetMapping("{projectId}/addtasks")

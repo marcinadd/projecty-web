@@ -87,12 +87,14 @@ public class User {
         this.projects = projects;
     }
 
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", registrationDate=" + registrationDate +
                 ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", passwordRepeat='" + passwordRepeat + '\'' +
                 '}';
