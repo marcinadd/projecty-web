@@ -1,0 +1,18 @@
+<html layout:decorate="~{index(title='Tasklist')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org"
+>
+<head>
+    <title>Tasklist</title>
+
+</head>
+<body>
+<div layout:fragment="content">
+    <h1> Tasks for project: <i><span th:text="${project.name}"></span></i></h1>
+    <ul class="list-group" th:each="task: ${project.tasks}">
+        <li class="list-group-item" th:text="${task.name}"></li>
+    </ul>
+</div>
+</body>
+</html>
+

@@ -15,7 +15,7 @@
                 <div class="mx-auto" th:text="${project.name}">
                 </div>
             </div>
-            <p> Użytkownicy </p>
+            <p> Users </p>
             <div class="row">
                 <div class="mx-auto">
                     <ul class="list-group" th:each="user: ${project.users}">
@@ -25,7 +25,9 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <button id="tasksListButton" class="btn btn-primary" type="button">Tasks list</button>
+                    <a href="">
+                        <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
+                    </a>
                 </div>
                 <div class="col">
                     <button id="addTaskButton" class="btn btn-success" type="button">Add task</button>
@@ -35,10 +37,6 @@
         </ul>
 </div>
 
-<div class="scripts">
-    <!--    For addTask form processing-->
-    <script th:src="@{/js/scrolling-nav.js}"></script>
-</div>
 </body>
 </html>
 
