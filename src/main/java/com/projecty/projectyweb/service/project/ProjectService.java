@@ -8,4 +8,6 @@ public interface ProjectService {
     void save(Project project);
 
     Optional<Project> findById(Long id);
+
+    boolean checkIfIsPresentAndContainsCurrentUser(Optional<Project> project);
 }

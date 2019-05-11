@@ -1,0 +1,39 @@
+<html layout:decorate="~{index(title='Manage Users')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org"
+>
+<head>
+    <title>Manage users</title>
+
+</head>
+<body>
+<div layout:fragment="content">
+    <h1> List of users for project: <b><span th:text="${project.name}"></span></b></h1>
+    <div class="container">
+        <ul class="list-group" th:each="user: ${project.users}">
+            <li class="list-group-item">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <p th:text="${user.username}"></p>
+                        </div>
+                        <div class="col">
+                            <p th:text="${user.email}"></p>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-danger disabled" th:if="${user.id == currentUser.id}">Remove</button>
+                            <a href="">
+                                <button class="btn btn-danger" th:unless="${user.id == currentUser.id}">Remove</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
+

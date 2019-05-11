@@ -27,5 +27,10 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findById(id);
     }
 
+    @Override
+    public boolean checkIfIsPresentAndContainsCurrentUser(Optional<Project> project) {
+        return project.isPresent() && project.get().getUsers().contains(userService.getCurrentUser());
+    }
+
 
 }

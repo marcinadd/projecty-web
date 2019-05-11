@@ -31,9 +31,9 @@ public class TaskController {
     @Autowired
     TaskService taskService;
 
-    @GetMapping("{projectId}/addtasks")
+    @GetMapping("addtasks")
     public String addTasks(
-            @PathVariable Long projectId, Model model
+            @RequestParam Long projectId, Model model
     ) {
         User current = userService.getCurrentUser();
         Optional<Project> project = projectService.findById(projectId);
@@ -43,12 +43,12 @@ public class TaskController {
             return "fragments/addtasks";
         }
 
-        return "redirect:fragments/404";
+        return "redirect:/404";
     }
 
-    @PostMapping("{projectId}/addtasks")
+    @PostMapping("addtasks")
     public RedirectView addTasksPost(
-            @PathVariable Long projectId,
+            @RequestParam Long projectId,
             @ModelAttribute Task task,
             BindingResult bindingResult
     ) {
@@ -67,21 +67,20 @@ public class TaskController {
 
     }
 
-    @GetMapping("{projectId}/tasklist")
+    @GetMapping("tasklist")
     public String taskList(
-            @PathVariable Long projectId,
+            @RequestParam Long projectId,
             Model model
     ) {
         User current = userService.getCurrentUser();
         Optional<Project> project = projectService.findById(projectId);
 
-        if (project.isPresent() &&
-                current.getProjects().contains(project.get())) {
+        if (projectService.checkIfIsPresentAndContainsCurrentUser(project)) {
             model.addAttribute("project", project.get());
 
             return "fragments/tasklist";
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project Not Found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
 

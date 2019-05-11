@@ -1,40 +1,54 @@
-<html   xmlns:th="https://www.thymeleaf.org"
-        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-        layout:decorate="~{index(title='My projects')}"
-        >
+<html layout:decorate="~{index(title='My projects')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org"
+>
 <head>
-    <title>Add project</title>
+    <title>My projects</title>
 
 </head>
 <body>
 <div layout:fragment="content">
     <h1> List of projects </h1>
-        <ul class="container" th:each="project: ${projects}">
-<!--         Name-->
-            <div class="row">
-                <div class="mx-auto" th:text="${project.name}">
+    <div class="container">
+        <a class="my-2" th:href="@{/project/addproject}">
+            <button class="btn btn-success">Add new project</button>
+        </a>
+
+        <ul class="list-group" th:each="project: ${projects}">
+            <li class="list-group-item my-2">
+                <!--         Name-->
+                <div class="row">
+                    <div class="mx-auto" th:text="${project.name}">
+                    </div>
                 </div>
-            </div>
-            <p> Users </p>
-            <div class="row">
-                <div class="mx-auto">
-                    <ul class="list-group" th:each="user: ${project.users}">
-                        <li class="list-group-item" th:text="${user.username + ' ' + user.email}"></li>
-                    </ul>
+                <p> Users </p>
+                <div class="row">
+                    <div class="mx-auto">
+                        <ul class="list-group" th:each="user: ${project.users}">
+                            <li class="list-group-item" th:text="${user.username + ' ' + user.email}"></li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <a href="">
-                        <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
-                    </a>
+                <div class="row">
+                    <div class="col">
+                        <a th:href="@{/project/tasklist(projectId=${project.id})}">
+                            <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a th:href="@{/project/addtasks(projectId=${project.id})}">
+                            <button class="btn btn-success" id="addTaskButton" type="button">Add task</button>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a th:href="@{/project/manageusers(projectId=${project.id})}">
+                            <button class="btn btn-warning" id="manageUsersButton" type="button">Manage users</button>
+                        </a>
+                    </div>
                 </div>
-                <div class="col">
-                    <button id="addTaskButton" class="btn btn-success" type="button">Add task</button>
-                </div>
-            </div>
-            <hr>
+            </li>
         </ul>
+    </div>
 </div>
 
 </body>

@@ -81,12 +81,12 @@ public class TaskControllerTest {
     @Test
     @WithMockUser(username = "user")
     public void givenRequestOnMyProject_shouldReturnMyprojectsViewWithTask() throws Exception {
-        mockMvc.perform(get("/project/1/tasklist"))
+        mockMvc.perform(get("/project/tasklist?projectId=1"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("fragments/tasklist"))
                 .andExpect(model().attribute("project", hasProperty("name", Matchers.equalTo("Test"))))
                 .andExpect(model().attribute("project", hasProperty("tasks", hasItem(Matchers.<Task>hasProperty("name", Matchers.equalTo("Test task"))))));
     }
-    
+
 
 }
