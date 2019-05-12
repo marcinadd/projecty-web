@@ -22,7 +22,7 @@
                         </div>
                         <div class="col">
                             <button class="btn btn-danger disabled" th:if="${user.id == currentUser.id}">Remove</button>
-                            <a href="">
+                            <a th:href="@{/project/deleteuser(projectId=${project.id}, userId=${user.id})}">
                                 <button class="btn btn-danger" th:unless="${user.id == currentUser.id}">Remove</button>
                             </a>
                         </div>

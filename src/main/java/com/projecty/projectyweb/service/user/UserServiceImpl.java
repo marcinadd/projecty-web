@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -19,7 +20,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
 
     @Override
     public void save(User user) {
@@ -31,7 +31,6 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
-
 
     @Override
     public List<User> findByUsernames(List<String> usernames) {
@@ -48,14 +47,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
     public User getCurrentUser() {
         Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String currentUsername = null;
         if (currentUser instanceof UserDetails) {
             currentUsername = ((UserDetails) currentUser).getUsername();
         }
-
         return findByUsername(currentUsername);
     }
-
 }

@@ -3,6 +3,7 @@ package com.projecty.projectyweb.service.user;
 import com.projecty.projectyweb.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface UserService {
@@ -12,6 +13,7 @@ public interface UserService {
 
     List<User> findByUsernames(List<String> usernames);
 
-    User getCurrentUser();
+    Optional<User> findById(Long id);
 
+    User getCurrentUser();
 }

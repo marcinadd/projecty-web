@@ -65,7 +65,6 @@ public class ProjectController {
             @RequestParam Long projectId,
             Model model) {
 
-        User user = userService.getCurrentUser();
         Optional<Project> project = projectService.findById(projectId);
 
         if (projectService.checkIfIsPresentAndContainsCurrentUser(project)) {
@@ -79,7 +78,37 @@ public class ProjectController {
 
     }
 
+    @GetMapping("deleteuser")
+    public RedirectView deleteUser(
+            @RequestParam Long projectId,
+            @RequestParam Long userId) {
+        Optional<Project> optionalProject = projectService.findById(projectId);
 
+        User current = userService.getCurrentUser();
+        Optional<User> toDelete = userService.findById(userId);
+
+        if (toDelete.isPresent() && !toDelete.get().equals(current)
+                && projectService.checkIfIsPresentAndContainsCurrentUser(optionalProject)) {
+            System.out.println("Try to remove!");
+            System.out.println(optionalProject.get());
+            Project project = optionalProject.get();
+            List<User> users = project.getUsers();
+            users.remove(toDelete.get());
+            project.setUsers(users);
+            System.out.println(optionalProject.get());
+            projectService.save(project);
+        } else if (toDelete.isPresent() && toDelete.get().equals(current)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        RedirectView redirectView = new RedirectView("manageusers?projectId=" + projectId);
+        redirectView.setContextRelative(true);
+
+        return redirectView;
+
+    }
 
 
 }

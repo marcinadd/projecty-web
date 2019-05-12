@@ -12,7 +12,7 @@ public class Project {
 
     private String name;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private List<User> users;
 
     @OneToMany
