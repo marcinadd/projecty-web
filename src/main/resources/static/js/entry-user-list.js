@@ -13,13 +13,13 @@ function addSetOnClickListener() {
 var counter = 0;
 var prefix="userEntry";
 
-
 function addUserEntry() {
     var users = document.getElementById("users");
     var newUser = document.createElement("input");
     newUser.setAttribute("type", "text");
     newUser.setAttribute("class", "form-control");
     newUser.setAttribute("name", "usernames");
+    newUser.setAttribute("placeholder", "Enter username");
     counter++;
     newUser.setAttribute("id", prefix + counter.toString());
     users.appendChild(newUser);
@@ -28,7 +28,6 @@ function addUserEntry() {
 function removeUserEntry() {
     if (counter>0){
         var entry = document.getElementById(prefix+counter);
-        console.log("OKKKKKK");
         entry.parentNode.removeChild(entry);
         counter--;
     }

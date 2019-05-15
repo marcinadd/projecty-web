@@ -43,7 +43,7 @@ public class ProjectControllerTest {
         user.setUsername("user");
         User user1 = new User();
         user1.setId(2L);
-        user1.setUsername("user2");
+        user1.setUsername("user1");
         project = new Project();
         project.setName("Test");
         project.setId(1L);
@@ -119,4 +119,14 @@ public class ProjectControllerTest {
                 .andExpect(redirectedUrl("manageusers?projectId=1"))
                 .andExpect(status().isFound());
     }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnPostFormManageUsers_shouldRedirectToManageUsers() throws Exception {
+        mockMvc.perform(post("/project/manageusers?projectId=1")
+                .param("usernames", "user1"))
+                .andExpect(redirectedUrl("manageusers?projectId=1"))
+                .andExpect(status().isFound());
+    }
+
 }

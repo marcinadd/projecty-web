@@ -28,12 +28,27 @@
                         </div>
                     </div>
                 </div>
-
             </li>
         </ul>
+        <form method="post">
+            <div class="form-group">
+                <label>Add users</label><br>
+                <input class="btn btn-success" id="add" type="button" value="+"></input>
+                <input class="btn btn-danger" id="remove" type="button" value="-"></input>
+            </div>
+            <div class="form-group" id="users">
+
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-success" type="submit">Add</button>
+            </div>
+        </form>
+
     </div>
 </div>
-
+<div layout:fragment="scripts">
+    <script th:src="@{/js/entry-user-list.js}"></script>
+</div>
 </body>
 </html>
 

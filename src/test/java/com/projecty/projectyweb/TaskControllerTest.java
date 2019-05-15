@@ -79,7 +79,7 @@ public class TaskControllerTest {
 
 
     @Test
-    @WithMockUser(username = "user")
+    @WithMockUser
     public void givenRequestOnMyProject_shouldReturnMyprojectsViewWithTask() throws Exception {
         mockMvc.perform(get("/project/tasklist?projectId=1"))
                 .andExpect(status().isOk())

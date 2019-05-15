@@ -22,7 +22,6 @@ import java.util.Optional;
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
-
     @Autowired
     private UserService userService;
 
@@ -33,7 +32,7 @@ public class ProjectController {
 
     @PostMapping("addproject")
     public RedirectView addProjectProcess(@ModelAttribute Project project,
-                                          @RequestParam(required = false) List<String> usernames, BindingResult bindingResult, Model model) {
+                                          @RequestParam(required = false) List<String> usernames, BindingResult bindingResult) {
 
         List<User> users = new ArrayList<>();
         if (usernames != null) {
@@ -50,7 +49,6 @@ public class ProjectController {
         RedirectView redirectView = new RedirectView("/project/myprojects");
         redirectView.setContextRelative(true);
         return redirectView;
-
     }
 
     @GetMapping("myprojects")
@@ -74,8 +72,32 @@ public class ProjectController {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
 
+    @PostMapping("manageusers")
+    public RedirectView addUserToExistingProject(
+            @RequestParam Long projectId,
+            @RequestParam(required = false) List<String> usernames
+    ) {
+        Optional<Project> optionalProject = projectService.findById(projectId);
+        if (projectService.checkIfIsPresentAndContainsCurrentUser(optionalProject)) {
+            Project project = optionalProject.get();
+            List<User> toAddUsers = new ArrayList<>();
 
+            for (String username : usernames
+            ) {
+                User toAddUser = userService.findByUsername(username);
+                if (toAddUser != null) {
+                    toAddUsers.add(toAddUser);
+                }
+            }
+            project.getUsers().addAll(toAddUsers);
+            projectService.save(project);
+        }
+
+        RedirectView redirectView = new RedirectView("manageusers?projectId=" + projectId);
+        redirectView.setContextRelative(true);
+        return redirectView;
     }
 
     @GetMapping("deleteuser")
@@ -89,13 +111,10 @@ public class ProjectController {
 
         if (toDelete.isPresent() && !toDelete.get().equals(current)
                 && projectService.checkIfIsPresentAndContainsCurrentUser(optionalProject)) {
-            System.out.println("Try to remove!");
-            System.out.println(optionalProject.get());
             Project project = optionalProject.get();
             List<User> users = project.getUsers();
             users.remove(toDelete.get());
             project.setUsers(users);
-            System.out.println(optionalProject.get());
             projectService.save(project);
         } else if (toDelete.isPresent() && toDelete.get().equals(current)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -105,10 +124,6 @@ public class ProjectController {
 
         RedirectView redirectView = new RedirectView("manageusers?projectId=" + projectId);
         redirectView.setContextRelative(true);
-
         return redirectView;
-
     }
-
-
 }
