@@ -72,12 +72,9 @@ public class TaskController {
             @RequestParam Long projectId,
             Model model
     ) {
-        User current = userService.getCurrentUser();
         Optional<Project> project = projectService.findById(projectId);
-
-        if (projectService.checkIfIsPresentAndContainsCurrentUser(project)) {
+        if (project.isPresent() && projectService.isCurrentUserProjectUser(project.get())) {
             model.addAttribute("project", project.get());
-
             return "fragments/tasklist";
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);

@@ -14,34 +14,50 @@
             <button class="btn btn-success">Add new project</button>
         </a>
 
-        <ul class="list-group" th:each="project: ${projects}">
+        <ul class="list-group" th:each="role: ${roles}">
             <li class="list-group-item my-2">
                 <!--         Name-->
                 <div class="row">
-                    <div class="mx-auto" th:text="${project.name}">
+                    <div class="mx-auto" th:text="${role.project.name}">
                     </div>
                 </div>
                 <p> Users </p>
                 <div class="row">
                     <div class="mx-auto">
-                        <ul class="list-group" th:each="user: ${project.users}">
-                            <li class="list-group-item" th:text="${user.username + ' ' + user.email}"></li>
-                        </ul>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Username</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Role</th>
+                            </tr>
+                            </thead>
+                            <tbody th:each="roleObj: ${role.project.roles}">
+                            <tr>
+                                <td th:text="${roleObj.user.username}"></td>
+                                <td th:text="${roleObj.user.email}"></td>
+                                <td th:text="${roleObj.name}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!--                        <ul class="list-group" th:each="roleObj: ${role.project.roles}">-->
+                        <!--                            <li class="list-group-item" th:text="${roleObj.user.username + ' ' + roleObj.user.email + ' '+roleObj.name}"></li>-->
+                        <!--                        </ul>-->
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
-                        <a th:href="@{/project/tasklist(projectId=${project.id})}">
+                        <a th:href="@{/project/tasklist(projectId=${role.project.id})}">
                             <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
                         </a>
                     </div>
                     <div class="col">
-                        <a th:href="@{/project/addtasks(projectId=${project.id})}">
+                        <a th:href="@{/project/addtasks(projectId=${role.project.id})}">
                             <button class="btn btn-success" id="addTaskButton" type="button">Add task</button>
                         </a>
                     </div>
                     <div class="col">
-                        <a th:href="@{/project/manageusers(projectId=${project.id})}">
+                        <a th:href="@{/project/manageusers(projectId=${role.project.id})}">
                             <button class="btn btn-warning" id="manageUsersButton" type="button">Manage users</button>
                         </a>
                     </div>

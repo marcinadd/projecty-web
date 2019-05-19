@@ -1,8 +1,11 @@
 package com.projecty.projectyweb.controller;
 
 import com.projecty.projectyweb.model.Project;
+import com.projecty.projectyweb.model.Role;
+import com.projecty.projectyweb.model.Roles;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.service.project.ProjectService;
+import com.projecty.projectyweb.service.role.RoleService;
 import com.projecty.projectyweb.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,9 @@ public class ProjectController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RoleService roleService;
+
     @GetMapping("addproject")
     public String addProject() {
         return "fragments/addproject";
@@ -34,18 +40,31 @@ public class ProjectController {
     public RedirectView addProjectProcess(@ModelAttribute Project project,
                                           @RequestParam(required = false) List<String> usernames, BindingResult bindingResult) {
 
-        List<User> users = new ArrayList<>();
+        User currentUser = userService.getCurrentUser();
+        List<Role> roles = new ArrayList<>();
         if (usernames != null) {
-            users.addAll(userService.findByUsernames(usernames));
+
+            for (String username : usernames
+            ) {
+                User user = userService.findByUsername(username);
+                if (user != null) {
+                    Role role = new Role();
+                    role.setProject(project);
+                    role.setUser(user);
+                    role.setName(Roles.USER.toString());
+                    roles.add(role);
+                }
+            }
         }
 
-        users.add(userService.getCurrentUser());
-        users.forEach(System.out::println);
-
-        project.setUsers(users);
+        Role admin = new Role();
+        admin.setProject(project);
+        admin.setUser(currentUser);
+        admin.setName(Roles.ADMIN.toString());
+        roles.add(admin);
+        project.setRoles(roles);
         System.out.println(project);
         projectService.save(project);
-
         RedirectView redirectView = new RedirectView("/project/myprojects");
         redirectView.setContextRelative(true);
         return redirectView;
@@ -54,7 +73,8 @@ public class ProjectController {
     @GetMapping("myprojects")
     public String myProjects(Model model) {
         User current = userService.getCurrentUser();
-        model.addAttribute("projects", current.getProjects());
+        model.addAttribute("roles", current.getRoles());
+        System.out.println(current.getRoles());
         return "fragments/myprojects";
     }
 
@@ -65,7 +85,7 @@ public class ProjectController {
 
         Optional<Project> project = projectService.findById(projectId);
 
-        if (projectService.checkIfIsPresentAndContainsCurrentUser(project)) {
+        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             model.addAttribute("project", project.get());
             model.addAttribute("currentUser", userService.getCurrentUser());
             return "fragments/manageusers";
@@ -80,7 +100,7 @@ public class ProjectController {
             @RequestParam(required = false) List<String> usernames
     ) {
         Optional<Project> optionalProject = projectService.findById(projectId);
-        if (projectService.checkIfIsPresentAndContainsCurrentUser(optionalProject)) {
+        if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
             Project project = optionalProject.get();
             List<User> toAddUsers = new ArrayList<>();
 
@@ -109,8 +129,9 @@ public class ProjectController {
         User current = userService.getCurrentUser();
         Optional<User> toDelete = userService.findById(userId);
 
+
         if (toDelete.isPresent() && !toDelete.get().equals(current)
-                && projectService.checkIfIsPresentAndContainsCurrentUser(optionalProject)) {
+                && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
             Project project = optionalProject.get();
             List<User> users = project.getUsers();
             users.remove(toDelete.get());

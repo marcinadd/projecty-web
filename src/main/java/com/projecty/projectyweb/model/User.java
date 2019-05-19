@@ -5,7 +5,6 @@ import org.springframework.data.annotation.CreatedDate;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Entity
 public class User {
     @Id
@@ -22,10 +21,11 @@ public class User {
     @Transient
     private String passwordRepeat;
 
-    //TODO Implement roles and add role class to git
-//    @ManyToMany
-//    private Collection<Role> roles;
-
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Role> roles;
 
     @ManyToMany(mappedBy = "users")
     private List<Project> projects;
@@ -87,6 +87,13 @@ public class User {
         this.projects = projects;
     }
 
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
 
     @Override
     public String toString() {

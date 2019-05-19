@@ -12,11 +12,14 @@ public class Project {
 
     private String name;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     private List<User> users;
 
     @OneToMany
     private List<Task> tasks;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Role> roles;
 
 
     public Long getId() {
@@ -51,6 +54,15 @@ public class Project {
         this.tasks = tasks;
     }
 
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+
     @Override
     public String toString() {
         return "Project{" +
@@ -58,6 +70,7 @@ public class Project {
                 ", name='" + name + '\'' +
                 ", users=" + users +
                 ", tasks=" + tasks +
+                ", roles=" + roles +
                 '}';
     }
 }

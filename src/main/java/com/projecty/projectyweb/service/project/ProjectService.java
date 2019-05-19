@@ -9,5 +9,9 @@ public interface ProjectService {
 
     Optional<Project> findById(Long id);
 
-    boolean checkIfIsPresentAndContainsCurrentUser(Optional<Project> project);
+    String checkCurrentUserAccessLevel(Project project);
+
+    boolean isCurrentUserProjectAdmin(Project project);
+
+    boolean isCurrentUserProjectUser(Project project);
 }

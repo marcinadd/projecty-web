@@ -1,6 +1,8 @@
 package com.projecty.projectyweb;
 
 import com.projecty.projectyweb.model.Project;
+import com.projecty.projectyweb.model.Role;
+import com.projecty.projectyweb.model.Roles;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.UserRepository;
@@ -48,14 +50,16 @@ public class ProjectControllerTest {
         project.setName("Test");
         project.setId(1L);
 
-        List<Project> projects = new ArrayList<>();
-        projects.add(project);
-        List<User> users = new ArrayList<>();
-        users.add(user);
-        users.add(user1);
+        List<Role> roles = new ArrayList<>();
+        Role role = new Role();
+        role.setUser(user);
+        role.setProject(project);
+        role.setName(Roles.ADMIN.toString());
+        roles.add(role);
 
-        project.setUsers(users);
-        user.setProjects(projects);
+
+        project.setRoles(roles);
+        user.setRoles(roles);
 
         Mockito.when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(user);
@@ -76,6 +80,7 @@ public class ProjectControllerTest {
     public void givenRequestOnMyProject_shouldReturnMyprojectsView() throws Exception {
         mockMvc.perform(get("/project/myprojects"))
                 .andExpect(status().isOk())
+                .andExpect(model().attributeExists("roles"))
                 .andExpect(view().name("fragments/myprojects"));
     }
 
