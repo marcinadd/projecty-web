@@ -10,26 +10,33 @@
 <div layout:fragment="content">
     <h1> List of users for project: <b><span th:text="${project.name}"></span></b></h1>
     <div class="container">
-        <ul class="list-group" th:each="user: ${project.users}">
-            <li class="list-group-item">
-                <div class="container">
-                    <div class="row">
-                        <div class="col">
-                            <p th:text="${user.username}"></p>
-                        </div>
-                        <div class="col">
-                            <p th:text="${user.email}"></p>
-                        </div>
-                        <div class="col">
-                            <button class="btn btn-danger disabled" th:if="${user.id == currentUser.id}">Remove</button>
-                            <a th:href="@{/project/deleteuser(projectId=${project.id}, userId=${user.id})}">
-                                <button class="btn btn-danger" th:unless="${user.id == currentUser.id}">Remove</button>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </li>
-        </ul>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Role Name</th>
+                <th scope="col">Remove</th>
+            </tr>
+            </thead>
+            <tbody th:each="role: ${project.roles}">
+            <tr>
+                <td th:text="${role.user.username}"></td>
+
+                <td th:text="${role.user.email}"></td>
+
+                <td th:text="${role.name}"></td>
+
+                <td>
+                    <button class="btn btn-danger disabled" th:if="${role.user.id == currentUser.id}">Remove
+                    </button>
+                    <a th:href="@{/project/deleteuser(projectId=${project.id}, userId=${role.user.id})}">
+                        <button class="btn btn-danger" th:unless="${role.user.id == currentUser.id}">Remove
+                        </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
         <form method="post">
             <div class="form-group">
                 <label>Add users</label><br>

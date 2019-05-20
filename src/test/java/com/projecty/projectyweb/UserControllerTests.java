@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringRunner.class)
-public class UserControllerTest {
+public class UserControllerTests {
 
     private MockMvc mockMvc;
 
@@ -22,7 +22,6 @@ public class UserControllerTest {
         UserController userController = new UserController();
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
-
 
     @Test
     public void givenRequestOnLoginForm_shouldReturnLoginView() throws Exception {
@@ -37,6 +36,4 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("fragments/register"));
     }
-
-
 }

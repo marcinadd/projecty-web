@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ProjectyWebApplication.class)
 @AutoConfigureMockMvc
-public class ProjectControllerTest {
+public class ProjectControllerTests {
 
     @MockBean
     UserRepository userRepository;
@@ -36,7 +36,9 @@ public class ProjectControllerTest {
     ProjectRepository projectRepository;
     @Autowired
     private MockMvc mockMvc;
+
     private Project project;
+    private Role role;
 
     @Before
     public void setup() {
@@ -51,7 +53,7 @@ public class ProjectControllerTest {
         project.setId(1L);
 
         List<Role> roles = new ArrayList<>();
-        Role role = new Role();
+        role = new Role();
         role.setUser(user);
         role.setProject(project);
         role.setName(Roles.ADMIN.toString());

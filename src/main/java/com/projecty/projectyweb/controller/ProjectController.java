@@ -4,8 +4,8 @@ import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Role;
 import com.projecty.projectyweb.model.Roles;
 import com.projecty.projectyweb.model.User;
+import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
-import com.projecty.projectyweb.service.role.RoleService;
 import com.projecty.projectyweb.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,8 @@ public class ProjectController {
     private UserService userService;
 
     @Autowired
-    private RoleService roleService;
+    private RoleRepository roleRepository;
+
 
     @GetMapping("addproject")
     public String addProject() {
@@ -102,16 +103,20 @@ public class ProjectController {
         Optional<Project> optionalProject = projectService.findById(projectId);
         if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
             Project project = optionalProject.get();
-            List<User> toAddUsers = new ArrayList<>();
+            List<Role> toAddRoles = new ArrayList<>();
 
             for (String username : usernames
             ) {
                 User toAddUser = userService.findByUsername(username);
                 if (toAddUser != null) {
-                    toAddUsers.add(toAddUser);
+                    Role role = new Role();
+                    role.setUser(toAddUser);
+                    role.setProject(project);
+                    role.setName(Roles.USER.toString());
+                    toAddRoles.add(role);
                 }
             }
-            project.getUsers().addAll(toAddUsers);
+            project.getRoles().addAll(toAddRoles);
             projectService.save(project);
         }
 
@@ -125,24 +130,22 @@ public class ProjectController {
             @RequestParam Long projectId,
             @RequestParam Long userId) {
         Optional<Project> optionalProject = projectService.findById(projectId);
-
         User current = userService.getCurrentUser();
-        Optional<User> toDelete = userService.findById(userId);
+        Optional<User> toDeleteOptionalUser = userService.findById(userId);
+        if (toDeleteOptionalUser.isPresent() && !toDeleteOptionalUser.get().equals(current)
+                && optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
 
-
-        if (toDelete.isPresent() && !toDelete.get().equals(current)
-                && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
+            Role toDeleteRole = roleRepository.findRoleByUserAndProject(toDeleteOptionalUser.get(), optionalProject.get());
             Project project = optionalProject.get();
-            List<User> users = project.getUsers();
-            users.remove(toDelete.get());
-            project.setUsers(users);
+            List<Role> roles = project.getRoles();
+            roles.remove(toDeleteRole);
+            project.setRoles(roles);
             projectService.save(project);
-        } else if (toDelete.isPresent() && toDelete.get().equals(current)) {
+        } else if (toDeleteOptionalUser.isPresent() && toDeleteOptionalUser.get().equals(current)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-
         RedirectView redirectView = new RedirectView("manageusers?projectId=" + projectId);
         redirectView.setContextRelative(true);
         return redirectView;

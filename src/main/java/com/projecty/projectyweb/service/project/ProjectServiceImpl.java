@@ -49,6 +49,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public boolean isCurrentUserProjectUser(Project project) {
-        return checkCurrentUserAccessLevel(project).equals(Roles.USER.toString());
+        String accessLevel = checkCurrentUserAccessLevel(project);
+        return accessLevel.equals(Roles.ADMIN.toString()) || accessLevel.equals(Roles.USER.toString());
     }
 }

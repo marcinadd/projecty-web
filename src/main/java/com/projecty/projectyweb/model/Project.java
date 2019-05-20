@@ -12,9 +12,6 @@ public class Project {
 
     private String name;
 
-    @ManyToMany
-    private List<User> users;
-
     @OneToMany
     private List<Task> tasks;
 
@@ -36,14 +33,6 @@ public class Project {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
     }
 
     public List<Task> getTasks() {
@@ -68,7 +57,6 @@ public class Project {
         return "Project{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", users=" + users +
                 ", tasks=" + tasks +
                 ", roles=" + roles +
                 '}';

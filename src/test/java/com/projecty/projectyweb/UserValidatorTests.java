@@ -20,7 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
-public class UserValidatorTest {
+public class UserValidatorTests {
 
     @Autowired
     private UserValidator userValidator;

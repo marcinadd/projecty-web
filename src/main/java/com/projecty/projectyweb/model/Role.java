@@ -9,6 +9,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // TODO Remove this redundancy
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

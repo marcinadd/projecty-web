@@ -1,9 +1,8 @@
 package com.projecty.projectyweb;
 
-import com.projecty.projectyweb.model.Project;
-import com.projecty.projectyweb.model.Task;
-import com.projecty.projectyweb.model.User;
+import com.projecty.projectyweb.model.*;
 import com.projecty.projectyweb.repository.ProjectRepository;
+import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.repository.TaskRepository;
 import com.projecty.projectyweb.repository.UserRepository;
 import org.hamcrest.Matchers;
@@ -31,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ProjectyWebApplication.class)
 @AutoConfigureMockMvc
-public class TaskControllerTest {
+public class TaskControllerTests {
 
     @MockBean
     UserRepository userRepository;
@@ -39,6 +38,9 @@ public class TaskControllerTest {
     ProjectRepository projectRepository;
     @MockBean
     TaskRepository taskRepository;
+    @MockBean
+    RoleRepository roleRepository;
+
     @Autowired
     private MockMvc mockMvc;
     private Project project;
@@ -58,25 +60,25 @@ public class TaskControllerTest {
         task.setName("Test task");
         tasks.add(task);
 
-        List<User> users = new ArrayList<>();
-        users.add(user);
+        List<Role> roles = new ArrayList<>();
+        Role role = new Role();
+        role.setUser(user);
+        role.setProject(project);
+        role.setName(Roles.ADMIN.toString());
+        roles.add(role);
 
         project.setTasks(tasks);
-        project.setUsers(users);
+        project.setRoles(roles);
 
-        List<Project> projects = new ArrayList<>();
-        projects.add(project);
-        user.setProjects(projects);
+        user.setRoles(roles);
 
         Mockito.when(projectRepository.save(project))
                 .thenReturn(project);
-
-
         Mockito.when(projectRepository.findById(1L))
                 .thenReturn(Optional.ofNullable(project));
-
+        Mockito.when(roleRepository.findRoleByUserAndProject(user, project))
+                .thenReturn(role);
     }
-
 
     @Test
     @WithMockUser
@@ -87,6 +89,4 @@ public class TaskControllerTest {
                 .andExpect(model().attribute("project", hasProperty("name", Matchers.equalTo("Test"))))
                 .andExpect(model().attribute("project", hasProperty("tasks", hasItem(Matchers.<Task>hasProperty("name", Matchers.equalTo("Test task"))))));
     }
-
-
 }
