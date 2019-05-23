@@ -51,15 +51,23 @@
                             <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col" th:if="${role.name == 'ADMIN'}">
                         <a th:href="@{/project/addtasks(projectId=${role.project.id})}">
                             <button class="btn btn-success" id="addTaskButton" type="button">Add task</button>
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col" th:if="${role.name == 'ADMIN'}">
                         <a th:href="@{/project/manageusers(projectId=${role.project.id})}">
                             <button class="btn btn-warning" id="manageUsersButton" type="button">Manage users</button>
                         </a>
+                    </div>
+                    <div class="col" th:if="${role.name == 'ADMIN'}">
+                        <form method="POST" th:action="@{/project/deleteproject(projectId=${role.project.id})}">
+                            <button class="btn btn-danger" type="submit">Delete project</button>
+                        </form>
+                        <!--                        <a th:href="@{/project/deleteproject(projectId=${role.project.id})}">-->
+                        <!--                            <button class="btn btn-danger" id="removeProjectButton" type="button">Remove project</button>-->
+                        <!--                        </a>-->
                     </div>
                 </div>
             </li>

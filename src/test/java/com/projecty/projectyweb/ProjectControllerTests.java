@@ -5,6 +5,7 @@ import com.projecty.projectyweb.model.Role;
 import com.projecty.projectyweb.model.Roles;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.ProjectRepository;
+import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,11 +36,12 @@ public class ProjectControllerTests {
     UserRepository userRepository;
     @MockBean
     ProjectRepository projectRepository;
+    @MockBean
+    RoleRepository roleRepository;
     @Autowired
     private MockMvc mockMvc;
 
     private Project project;
-    private Role role;
 
     @Before
     public void setup() {
@@ -48,33 +51,58 @@ public class ProjectControllerTests {
         User user1 = new User();
         user1.setId(2L);
         user1.setUsername("user1");
+
         project = new Project();
         project.setName("Test");
         project.setId(1L);
 
         List<Role> roles = new ArrayList<>();
-        role = new Role();
+
+        Role role = new Role();
+        role.setId(1L);
         role.setUser(user);
         role.setProject(project);
         role.setName(Roles.ADMIN.toString());
         roles.add(role);
 
+        Role role1 = new Role();
+        role1.setId(2L);
+        role1.setUser(user1);
+        role1.setProject(project);
+        role1.setName(Roles.USER.toString());
+        roles.add(role1);
+
+
+        List<Role> rolesUser = new ArrayList<>();
+        rolesUser.add(role);
+        user.setRoles(rolesUser);
+
+        List<Role> rolesUser1 = new ArrayList<>();
+        rolesUser1.add(role1);
+        user1.setRoles(rolesUser1);
 
         project.setRoles(roles);
-        user.setRoles(roles);
 
         Mockito.when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(user);
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
                 .thenReturn(user1);
         Mockito.when(userRepository.findById(user.getId()))
-                .thenReturn(java.util.Optional.of(user));
+                .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findById(user1.getId()))
-                .thenReturn(java.util.Optional.of(user1));
+                .thenReturn(Optional.of(user1));
         Mockito.when(projectRepository.save(project))
                 .thenReturn(project);
         Mockito.when(projectRepository.findById(project.getId()))
-                .thenReturn(java.util.Optional.ofNullable(project));
+                .thenReturn(Optional.ofNullable(project));
+        Mockito.when(roleRepository.findById(1L))
+                .thenReturn(Optional.of(role));
+        Mockito.when(roleRepository.findRoleByUserAndProject(user, project))
+                .thenReturn(role);
+        Mockito.when(roleRepository.findById(2L))
+                .thenReturn(Optional.of(role1));
+        Mockito.when(roleRepository.findRoleByUserAndProject(user1, project))
+                .thenReturn(role1);
     }
 
     @Test
@@ -115,14 +143,14 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteCurrentUser_shouldReturnForbidden() throws Exception {
-        mockMvc.perform(get("/project/deleteuser?projectId=1&userId=1"))
+        mockMvc.perform(post("/project/deleteuser?projectId=1&userId=1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnDeleteUser_shouldRedirectToManageUsers() throws Exception {
-        mockMvc.perform(get("/project/deleteuser?projectId=1&userId=2"))
+        mockMvc.perform(post("/project/deleteuser?projectId=1&userId=2"))
                 .andExpect(redirectedUrl("manageusers?projectId=1"))
                 .andExpect(status().isFound());
     }
@@ -134,6 +162,13 @@ public class ProjectControllerTests {
                 .param("usernames", "user1"))
                 .andExpect(redirectedUrl("manageusers?projectId=1"))
                 .andExpect(status().isFound());
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnChangeRole_shouldRedirect() throws Exception {
+        mockMvc.perform(post("/project/changerole?projectId=1&roleId=2"))
+                .andExpect(status().is3xxRedirection());
     }
 
 }

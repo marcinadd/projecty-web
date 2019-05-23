@@ -4,6 +4,7 @@ import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Role;
 import com.projecty.projectyweb.model.Roles;
 import com.projecty.projectyweb.model.User;
+import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.user.UserService;
@@ -14,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ public class ProjectController {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @GetMapping("addproject")
     public String addProject() {
@@ -71,6 +75,15 @@ public class ProjectController {
         return redirectView;
     }
 
+    @PostMapping("deleteproject")
+    public String deleteProject(@RequestParam Long projectId) {
+        Optional<Project> project = projectService.findById(projectId);
+        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
+            projectRepository.delete(project.get());
+        }
+        return "redirect:/project/myprojects/";
+    }
+
     @GetMapping("myprojects")
     public String myProjects(Model model) {
         User current = userService.getCurrentUser();
@@ -108,7 +121,7 @@ public class ProjectController {
             for (String username : usernames
             ) {
                 User toAddUser = userService.findByUsername(username);
-                if (toAddUser != null) {
+                if (toAddUser != null && roleRepository.findRoleByUserAndProject(toAddUser, project) == null) {
                     Role role = new Role();
                     role.setUser(toAddUser);
                     role.setProject(project);
@@ -125,7 +138,7 @@ public class ProjectController {
         return redirectView;
     }
 
-    @GetMapping("deleteuser")
+    @PostMapping("deleteuser")
     public RedirectView deleteUser(
             @RequestParam Long projectId,
             @RequestParam Long userId) {
@@ -149,5 +162,31 @@ public class ProjectController {
         RedirectView redirectView = new RedirectView("manageusers?projectId=" + projectId);
         redirectView.setContextRelative(true);
         return redirectView;
+    }
+
+    @PostMapping("changerole")
+    public String changeRole(
+            @RequestParam Long projectId,
+            @RequestParam Long roleId,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        Optional<Role> optionalRole = roleRepository.findById(roleId);
+        if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get()) && optionalRole.isPresent()) {
+            Role role = optionalRole.get();
+            if (role.getName().equals(Roles.ADMIN.toString())) {
+                role.setName(Roles.USER.toString());
+            } else {
+                role.setName(Roles.ADMIN.toString());
+            }
+            roleRepository.save(role);
+            redirectAttributes.addAttribute("projectId", projectId);
+            redirectAttributes.addAttribute("roleId", roleId);
+            return "redirect:/project/manageusers";
+        } else if (optionalProject.isPresent() && optionalRole.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 }
