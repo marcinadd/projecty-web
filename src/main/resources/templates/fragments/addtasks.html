@@ -10,24 +10,23 @@
     <p>Add Task to project <span th:text="${project.name}"></span><p/>
 
     <form method="post" name="f">
-<!--        <div class="form-group">-->
-<!--            <label for="projectSelect">Select project</label>-->
-<!--            <select class="form-control" id="projectSelect" th:each="project: ${projects}">-->
-<!--                <option th:text="${project.name}"></option>-->
-<!--            </select>-->
-<!--        </div>-->
-
         <div class="form-group">
             <label for="name">Name</label>
             <input class="form-control" id="name" name="name" type="text"/>
         </div>
-
-        <div class="form-group" id="users">
-
+        <div class="form-group" id="users"></div>
+        <div>
+            <label for="startDate">Start date</label>
+            <input class="form-control" id="startDate" name="startDate" type="date">
+        </div>
+        <div>
+            <label for="startDate">End date</label>
+            <input class="form-control" id="endDate" name="endDate" type="date">
         </div>
         <div class="form-actions">
             <button class="btn btn-success" type="submit">Add</button>
         </div>
+
     </form>
 </div>
 
@@ -36,4 +35,3 @@
 </div>
 </body>
 </html>
-

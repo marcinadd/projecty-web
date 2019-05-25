@@ -89,4 +89,6 @@ public class TaskControllerTests {
                 .andExpect(model().attribute("project", hasProperty("name", Matchers.equalTo("Test"))))
                 .andExpect(model().attribute("project", hasProperty("tasks", hasItem(Matchers.<Task>hasProperty("name", Matchers.equalTo("Test task"))))));
     }
+
+
 }

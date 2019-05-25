@@ -6,6 +6,7 @@ import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.task.TaskService;
 import com.projecty.projectyweb.service.user.UserService;
+import com.projecty.projectyweb.validator.TaskValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -13,8 +14,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +36,9 @@ public class TaskController {
     @Autowired
     RoleRepository roleRepository;
 
+    @Autowired
+    TaskValidator taskValidator;
+
 
     @GetMapping("addtasks")
     public String addTasks(
@@ -49,21 +54,25 @@ public class TaskController {
     }
 
     @PostMapping("addtasks")
-    public RedirectView addTasksPost(
+    public String addTasksPost(
             @RequestParam Long projectId,
-            @ModelAttribute Task task,
-            BindingResult bindingResult
+            @ModelAttribute @Valid Task task,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
     ) {
+        taskValidator.validate(task, bindingResult);
+        redirectAttributes.addAttribute("projectId", projectId);
         Optional<Project> project = projectService.findById(projectId);
-        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
+        if (bindingResult.hasErrors()) {
+            return "redirect:/project/addtasks";
+        } else if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
             taskService.save(task);
+            return "redirect:/project/tasklist";
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        RedirectView redirectView = new RedirectView("/project/myprojects");
-        redirectView.setContextRelative(true);
-        return redirectView;
-
     }
 
     @GetMapping("tasklist")
@@ -79,6 +88,4 @@ public class TaskController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
-
-
 }

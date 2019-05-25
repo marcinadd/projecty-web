@@ -9,9 +9,23 @@
 <body>
 <div layout:fragment="content">
     <h1> Tasks for project: <i><span th:text="${project.name}"></span></i></h1>
-    <ul class="list-group" th:each="task: ${project.tasks}">
-        <li class="list-group-item" th:text="${task.name}"></li>
-    </ul>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Task</th>
+            <th scope="col">Start date</th>
+            <th scope="col">End date</th>
+            <th scope="col">Done</th>
+        </tr>
+        </thead>
+        <tbody th:each="task: ${project.tasks}">
+        <tr>
+            <td th:text="${task.name}"></td>
+            <td th:text="${task.startDate}"></td>
+            <td th:text="${task.endDate}"></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 </body>
 </html>
