@@ -160,7 +160,7 @@ public class ProjectControllerTests {
     public void givenRequestOnPostFormManageUsers_shouldRedirectToManageUsers() throws Exception {
         mockMvc.perform(post("/project/manageusers?projectId=1")
                 .param("usernames", "user1"))
-                .andExpect(redirectedUrl("manageusers?projectId=1"))
+                .andExpect(redirectedUrl("/project/manageusers?projectId=1"))
                 .andExpect(status().isFound());
     }
 
@@ -170,5 +170,4 @@ public class ProjectControllerTests {
         mockMvc.perform(post("/project/changerole?projectId=1&roleId=2"))
                 .andExpect(status().is3xxRedirection());
     }
-
 }

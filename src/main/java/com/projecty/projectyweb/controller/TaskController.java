@@ -2,6 +2,7 @@ package com.projecty.projectyweb.controller;
 
 import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Task;
+import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.task.TaskService;
@@ -22,9 +23,11 @@ import java.util.Optional;
 @Controller
 @RequestMapping("project")
 public class TaskController {
-
     @Autowired
     UserService userService;
+
+    @Autowired
+    ProjectRepository projectRepository;
 
     @Autowired
     ProjectService projectService;
@@ -42,7 +45,7 @@ public class TaskController {
     public String addTasks(
             @RequestParam Long projectId, Model model
     ) {
-        Optional<Project> project = projectService.findById(projectId);
+        Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             model.addAttribute("project", project.get());
             model.addAttribute("task", new Task());
@@ -62,7 +65,7 @@ public class TaskController {
     ) {
         taskValidator.validate(task, bindingResult);
         redirectAttributes.addAttribute("projectId", projectId);
-        Optional<Project> project = projectService.findById(projectId);
+        Optional<Project> project = projectRepository.findById(projectId);
         if (bindingResult.hasErrors()) {
             project.ifPresent(model::addAttribute);
             return "fragments/addtasks";
@@ -81,7 +84,7 @@ public class TaskController {
             @RequestParam Long projectId,
             Model model
     ) {
-        Optional<Project> project = projectService.findById(projectId);
+        Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectUser(project.get())) {
             model.addAttribute("project", project.get());
             return "fragments/tasklist";
