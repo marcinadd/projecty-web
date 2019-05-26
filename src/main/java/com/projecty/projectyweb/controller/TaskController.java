@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +38,6 @@ public class TaskController {
     @Autowired
     TaskValidator taskValidator;
 
-
     @GetMapping("addtasks")
     public String addTasks(
             @RequestParam Long projectId, Model model
@@ -47,6 +45,7 @@ public class TaskController {
         Optional<Project> project = projectService.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             model.addAttribute("project", project.get());
+            model.addAttribute("task", new Task());
             return "fragments/addtasks";
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -56,15 +55,17 @@ public class TaskController {
     @PostMapping("addtasks")
     public String addTasksPost(
             @RequestParam Long projectId,
-            @ModelAttribute @Valid Task task,
+            @ModelAttribute Task task,
             BindingResult bindingResult,
+            Model model,
             RedirectAttributes redirectAttributes
     ) {
         taskValidator.validate(task, bindingResult);
         redirectAttributes.addAttribute("projectId", projectId);
         Optional<Project> project = projectService.findById(projectId);
         if (bindingResult.hasErrors()) {
-            return "redirect:/project/addtasks";
+            project.ifPresent(model::addAttribute);
+            return "fragments/addtasks";
         } else if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);

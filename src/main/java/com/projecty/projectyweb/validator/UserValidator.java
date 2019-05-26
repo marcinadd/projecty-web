@@ -13,8 +13,7 @@ import java.util.regex.Pattern;
 
 @Component
 public class UserValidator implements Validator {
-
-    public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
+    private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     @Autowired
@@ -28,22 +27,18 @@ public class UserValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", "username.empty");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "email.empty");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.empty");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "passwordRepeat", "passwordRepeat.empty");
 
         User user = (User) target;
 
-
         if (!user.getPassword().equals(user.getPasswordRepeat())) {
             errors.rejectValue("passwordRepeat", "passwordRepeat.diff");
         }
 
-
         if (userRepository.findByUsername(user.getUsername()) != null) {
             errors.rejectValue("username", "username.exists");
         }
-
 
         if (user.getPassword().length() < 8) {
             errors.rejectValue("password", "password.short");
@@ -55,13 +50,9 @@ public class UserValidator implements Validator {
 
         if (user.getEmail() != null) {
             Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(user.getEmail());
-            if (!matcher.find()) {
+            if (!matcher.matches()) {
                 errors.rejectValue("email", "email.invalid");
             }
         }
-
-
-
-
     }
 }

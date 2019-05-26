@@ -16,11 +16,12 @@ public class TaskValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         Task task = (Task) target;
-        ValidationUtils.rejectIfEmpty(errors, "startDate", "startDate.empty");
-        ValidationUtils.rejectIfEmpty(errors, "endDate", "endDate.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "name.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "startDate", "startDate.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "endDate", "endDate.empty");
 
         if (task.getStartDate() != null && task.getEndDate() != null && task.getStartDate().after(task.getEndDate())) {
-            errors.rejectValue("startDate", "startDate.greaterThanEndDate");
+            errors.rejectValue("startDate", "start_date.greater_than_end_date");
         }
     }
 }

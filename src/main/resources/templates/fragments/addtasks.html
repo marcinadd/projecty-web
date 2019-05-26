@@ -6,10 +6,13 @@
 </head>
 <body>
 <div layout:fragment="content">
-
     <p>Add Task to project <span th:text="${project.name}"></span><p/>
-
-    <form method="post" name="f">
+    <form action="#" method="post" th:object="${task}">
+        <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}">
+            <ul>
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
         <div class="form-group">
             <label for="name">Name</label>
             <input class="form-control" id="name" name="name" type="text"/>
@@ -26,7 +29,6 @@
         <div class="form-actions">
             <button class="btn btn-success" type="submit">Add</button>
         </div>
-
     </form>
 </div>
 

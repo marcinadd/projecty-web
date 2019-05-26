@@ -8,6 +8,11 @@
 <body>
 <div layout:fragment="content">
     <form action="#" method="post" th:object="${user}">
+        <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}">
+            <ul>
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
         <div class="form-group">
             <label for="username">Username</label>
             <input class="form-control" id="username" placeholder="Username" th:field="*{username}" type="text">
@@ -29,6 +34,5 @@
         <button class="btn btn-primary" type="submit">Submit</button>
     </form>
 </div>
-
 </body>
 </html>

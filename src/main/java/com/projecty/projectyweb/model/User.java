@@ -10,14 +10,16 @@ public class User {
     @Id
     @GeneratedValue
     private Long id;
+
     @CreatedDate
     private LocalDateTime registrationDate;
 
-
     private String username;
+
     private String email;
 
     private String password;
+
     @Transient
     private String passwordRepeat;
 
@@ -27,7 +29,6 @@ public class User {
     )
     private List<Role> roles;
 
-    
     public Long getId() {
         return id;
     }

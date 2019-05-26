@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.validation.Valid;
+
 
 @Controller
 //@RequestMapping("user")
@@ -21,7 +23,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     @RequestMapping("register")
     public String welcome(Model model) {
         model.addAttribute("user", new User());
@@ -29,19 +30,17 @@ public class UserController {
     }
 
     @PostMapping("register")
-    public String register(@ModelAttribute User user, BindingResult bindingResult, Model model) {
+    public String register(@Valid @ModelAttribute User user, BindingResult bindingResult, Model model) {
         System.out.println("ok");
         userValidator.validate(user, bindingResult);
 
         if (bindingResult.hasErrors()) {
-            return "/fragments/register";
+            System.out.println("errrors");
+            return "fragments/register";
         }
-
         userService.save(user);
-
-
         System.out.println("Validation ok");
-        return "fragments/register";
+        return "redirect:/project/myprojects";
     }
 
     @GetMapping("login")
