@@ -11,10 +11,10 @@ import com.projecty.projectyweb.validator.TaskValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -42,52 +42,52 @@ public class TaskController {
     TaskValidator taskValidator;
 
     @GetMapping("addtasks")
-    public String addTasks(
-            @RequestParam Long projectId, Model model
+    public ModelAndView addTasks(
+            @RequestParam Long projectId
     ) {
+        ModelAndView modelAndView = new ModelAndView("fragments/addtasks");
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
-            model.addAttribute("project", project.get());
-            model.addAttribute("task", new Task());
-            return "fragments/addtasks";
+            modelAndView.addObject("project", project.get());
+            modelAndView.addObject("task", new Task());
+            return modelAndView;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("addtasks")
-    public String addTasksPost(
+    public ModelAndView addTasksPost(
             @RequestParam Long projectId,
             @ModelAttribute Task task,
             BindingResult bindingResult,
-            Model model,
             RedirectAttributes redirectAttributes
     ) {
         taskValidator.validate(task, bindingResult);
         redirectAttributes.addAttribute("projectId", projectId);
         Optional<Project> project = projectRepository.findById(projectId);
         if (bindingResult.hasErrors()) {
-            project.ifPresent(model::addAttribute);
-            return "fragments/addtasks";
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("fragments/addtasks");
+            project.ifPresent(modelAndView::addObject);
+            return modelAndView;
         } else if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
             taskService.save(task);
-            return "redirect:/project/tasklist";
+            return new ModelAndView("redirect:/project/tasklist");
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("tasklist")
-    public String taskList(
-            @RequestParam Long projectId,
-            Model model
+    public ModelAndView taskList(
+            @RequestParam Long projectId
     ) {
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectUser(project.get())) {
-            model.addAttribute("project", project.get());
-            return "fragments/tasklist";
+            return new ModelAndView("fragments/tasklist", "project", project.get());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

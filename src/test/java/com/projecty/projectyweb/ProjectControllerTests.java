@@ -151,7 +151,7 @@ public class ProjectControllerTests {
     @WithMockUser
     public void givenRequestOnDeleteUser_shouldRedirectToManageUsers() throws Exception {
         mockMvc.perform(post("/project/deleteuser?projectId=1&userId=2"))
-                .andExpect(redirectedUrl("manageusers?projectId=1"))
+                .andExpect(redirectedUrl("/project/manageusers?projectId=1"))
                 .andExpect(status().isFound());
     }
 

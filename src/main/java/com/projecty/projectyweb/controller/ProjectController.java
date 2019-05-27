@@ -13,10 +13,10 @@ import com.projecty.projectyweb.validator.ProjectValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
@@ -46,9 +46,8 @@ public class ProjectController {
     private ProjectValidator projectValidator;
 
     @GetMapping("addproject")
-    public String addProject(Model model) {
-        model.addAttribute("project", new Project());
-        return "fragments/addproject";
+    public ModelAndView addProject() {
+        return new ModelAndView("fragments/addproject", "project", new Project());
     }
 
     @PostMapping("addproject")
@@ -96,24 +95,24 @@ public class ProjectController {
     }
 
     @GetMapping("myprojects")
-    public String myProjects(Model model) {
-        User current = userService.getCurrentUser();
-        model.addAttribute("roles", current.getRoles());
-        System.out.println(current.getRoles());
-        return "fragments/myprojects";
+    public ModelAndView myProjects() {
+        return new ModelAndView(
+                "fragments/myprojects",
+                "roles",
+                userService.getCurrentUser().getRoles()
+        );
     }
 
     @GetMapping("manageusers")
-    public String manageUsers(
-            @RequestParam Long projectId,
-            Model model
+    public ModelAndView manageUsers(
+            @RequestParam Long projectId
     ) {
+        ModelAndView modelAndView = new ModelAndView("fragments/manageusers");
         Optional<Project> project = projectRepository.findById(projectId);
-
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
-            model.addAttribute("project", project.get());
-            model.addAttribute("currentUser", userService.getCurrentUser());
-            return "fragments/manageusers";
+            modelAndView.addObject("project", project.get());
+            modelAndView.addObject("currentUser", userService.getCurrentUser());
+            return modelAndView;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -172,7 +171,7 @@ public class ProjectController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         redirectAttributes.addAttribute("projectId", projectId);
-        return "redirect:/manageusers";
+        return "redirect:/project/manageusers";
     }
 
     @PostMapping("changerole")
