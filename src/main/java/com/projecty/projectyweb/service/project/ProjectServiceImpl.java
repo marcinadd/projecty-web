@@ -9,9 +9,6 @@ import com.projecty.projectyweb.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
-
 @Service
 public class ProjectServiceImpl implements ProjectService {
     @Autowired
@@ -26,11 +23,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void save(Project project) {
         projectRepository.save(project);
-    }
-
-    @Override
-    public Optional<Project> findById(Long id) {
-        return projectRepository.findById(id);
     }
 
     @Override

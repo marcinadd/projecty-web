@@ -8,10 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,36 +24,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    @Override
-    public List<User> findByUsernames(List<String> usernames) {
-        List<User> users = new ArrayList<>();
-
-        for (String username : usernames
-        ) {
-            User user = findByUsername(username);
-            if (user != null) {
-                users.add(user);
-            }
-        }
-        return users;
-    }
-
-    @Override
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
-    }
-
-    @Override
     public User getCurrentUser() {
         Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String currentUsername = null;
         if (currentUser instanceof UserDetails) {
             currentUsername = ((UserDetails) currentUser).getUsername();
         }
-        return findByUsername(currentUsername);
+        return userRepository.findByUsername(currentUsername);
     }
 }

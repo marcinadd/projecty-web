@@ -5,18 +5,17 @@ import com.projecty.projectyweb.service.user.UserService;
 import com.projecty.projectyweb.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
 
 @Controller
-//@RequestMapping("user")
 public class UserController {
     @Autowired
     private UserValidator userValidator;
@@ -24,22 +23,17 @@ public class UserController {
     private UserService userService;
 
     @RequestMapping("register")
-    public String welcome(Model model) {
-        model.addAttribute("user", new User());
-        return "fragments/register";
+    public ModelAndView register() {
+        return new ModelAndView("fragments/register", "user", new User());
     }
 
     @PostMapping("register")
-    public String register(@Valid @ModelAttribute User user, BindingResult bindingResult, Model model) {
-        System.out.println("ok");
+    public String registerPost(@Valid @ModelAttribute User user, BindingResult bindingResult) {
         userValidator.validate(user, bindingResult);
-
         if (bindingResult.hasErrors()) {
-            System.out.println("errrors");
             return "fragments/register";
         }
         userService.save(user);
-        System.out.println("Validation ok");
         return "redirect:/project/myprojects";
     }
 
@@ -52,6 +46,4 @@ public class UserController {
     public String index() {
         return "index";
     }
-
-
 }

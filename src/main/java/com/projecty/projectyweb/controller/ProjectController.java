@@ -6,18 +6,18 @@ import com.projecty.projectyweb.model.Roles;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.RoleRepository;
+import com.projecty.projectyweb.repository.UserRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.user.UserService;
 import com.projecty.projectyweb.validator.ProjectValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -28,7 +28,13 @@ import java.util.Optional;
 @RequestMapping("project")
 public class ProjectController {
     @Autowired
-    private ProjectService projectService;
+    ProjectService projectService;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private UserService userService;
@@ -37,15 +43,11 @@ public class ProjectController {
     private RoleRepository roleRepository;
 
     @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
     private ProjectValidator projectValidator;
 
     @GetMapping("addproject")
-    public String addProject(Model model) {
-        model.addAttribute("project", new Project());
-        return "fragments/addproject";
+    public ModelAndView addProject() {
+        return new ModelAndView("fragments/addproject", "project", new Project());
     }
 
     @PostMapping("addproject")
@@ -62,7 +64,7 @@ public class ProjectController {
             if (usernames != null) {
                 for (String username : usernames
                 ) {
-                    User user = userService.findByUsername(username);
+                    User user = userRepository.findByUsername(username);
                     if (user != null) {
                         Role role = new Role();
                         role.setProject(project);
@@ -78,14 +80,14 @@ public class ProjectController {
             admin.setName(Roles.ADMIN.toString());
             roles.add(admin);
             project.setRoles(roles);
-            projectService.save(project);
+            projectRepository.save(project);
         }
         return "redirect:/project/myprojects";
     }
 
     @PostMapping("deleteproject")
     public String deleteProject(@RequestParam Long projectId) {
-        Optional<Project> project = projectService.findById(projectId);
+        Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             projectRepository.delete(project.get());
         }
@@ -93,42 +95,43 @@ public class ProjectController {
     }
 
     @GetMapping("myprojects")
-    public String myProjects(Model model) {
-        User current = userService.getCurrentUser();
-        model.addAttribute("roles", current.getRoles());
-        System.out.println(current.getRoles());
-        return "fragments/myprojects";
+    public ModelAndView myProjects() {
+        return new ModelAndView(
+                "fragments/myprojects",
+                "roles",
+                userService.getCurrentUser().getRoles()
+        );
     }
 
     @GetMapping("manageusers")
-    public String manageUsers(
-            @RequestParam Long projectId,
-            Model model
+    public ModelAndView manageUsers(
+            @RequestParam Long projectId
     ) {
-        Optional<Project> project = projectService.findById(projectId);
-
+        ModelAndView modelAndView = new ModelAndView("fragments/manageusers");
+        Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
-            model.addAttribute("project", project.get());
-            model.addAttribute("currentUser", userService.getCurrentUser());
-            return "fragments/manageusers";
+            modelAndView.addObject("project", project.get());
+            modelAndView.addObject("currentUser", userService.getCurrentUser());
+            return modelAndView;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("manageusers")
-    public RedirectView addUserToExistingProject(
+    public String addUserToExistingProject(
             @RequestParam Long projectId,
-            @RequestParam(required = false) List<String> usernames
+            @RequestParam(required = false) List<String> usernames,
+            RedirectAttributes redirectAttributes
     ) {
-        Optional<Project> optionalProject = projectService.findById(projectId);
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
             Project project = optionalProject.get();
             List<Role> toAddRoles = new ArrayList<>();
 
             for (String username : usernames
             ) {
-                User toAddUser = userService.findByUsername(username);
+                User toAddUser = userRepository.findByUsername(username);
                 if (toAddUser != null && roleRepository.findRoleByUserAndProject(toAddUser, project) == null) {
                     Role role = new Role();
                     role.setUser(toAddUser);
@@ -138,22 +141,21 @@ public class ProjectController {
                 }
             }
             project.getRoles().addAll(toAddRoles);
-            projectService.save(project);
+            projectRepository.save(project);
         }
-
-        RedirectView redirectView = new RedirectView("manageusers?projectId=" + projectId);
-        redirectView.setContextRelative(true);
-        return redirectView;
+        redirectAttributes.addAttribute("projectId", projectId);
+        return "redirect:/project/manageusers";
     }
 
     @PostMapping("deleteuser")
-    public RedirectView deleteUser(
+    public String deleteUser(
             @RequestParam Long projectId,
-            @RequestParam Long userId
+            @RequestParam Long userId,
+            RedirectAttributes redirectAttributes
     ) {
-        Optional<Project> optionalProject = projectService.findById(projectId);
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
         User current = userService.getCurrentUser();
-        Optional<User> toDeleteOptionalUser = userService.findById(userId);
+        Optional<User> toDeleteOptionalUser = userRepository.findById(userId);
         if (toDeleteOptionalUser.isPresent() && !toDeleteOptionalUser.get().equals(current)
                 && optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())
         ) {
@@ -162,15 +164,14 @@ public class ProjectController {
             List<Role> roles = project.getRoles();
             roles.remove(toDeleteRole);
             project.setRoles(roles);
-            projectService.save(project);
+            projectRepository.save(project);
         } else if (toDeleteOptionalUser.isPresent() && toDeleteOptionalUser.get().equals(current)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        RedirectView redirectView = new RedirectView("manageusers?projectId=" + projectId);
-        redirectView.setContextRelative(true);
-        return redirectView;
+        redirectAttributes.addAttribute("projectId", projectId);
+        return "redirect:/project/manageusers";
     }
 
     @PostMapping("changerole")
