@@ -24,6 +24,12 @@
             <td th:text="${task.name}"></td>
             <td th:text="${task.startDate}"></td>
             <td th:text="${task.endDate}"></td>
+            <td>
+                <form method="post"
+                      th:action="@{/project/deleteTask(projectId=${project.id}, taskId=${task.id})}">
+                    <button class="btn btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>

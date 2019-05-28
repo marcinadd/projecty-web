@@ -4,6 +4,7 @@ import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Task;
 import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.RoleRepository;
+import com.projecty.projectyweb.repository.TaskRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.task.TaskService;
 import com.projecty.projectyweb.service.user.UserService;
@@ -40,6 +41,9 @@ public class TaskController {
 
     @Autowired
     TaskValidator taskValidator;
+
+    @Autowired
+    TaskRepository taskRepository;
 
     @GetMapping("addtasks")
     public ModelAndView addTasks(
@@ -88,6 +92,25 @@ public class TaskController {
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectUser(project.get())) {
             return new ModelAndView("fragments/tasklist", "project", project.get());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("deleteTask")
+    public ModelAndView modelAndView(
+            @RequestParam Long projectId,
+            @RequestParam Long taskId,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Project> project = projectRepository.findById(projectId);
+        Optional<Task> task = taskRepository.findById(taskId);
+        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get()) && task.isPresent()) {
+            taskRepository.delete(task.get());
+            redirectAttributes.addAttribute("projectId", projectId);
+            return new ModelAndView("redirect:/project/tasklist");
+        } else if (project.isPresent() && task.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

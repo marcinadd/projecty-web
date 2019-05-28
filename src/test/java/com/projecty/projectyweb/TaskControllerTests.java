@@ -25,6 +25,7 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
@@ -48,29 +49,51 @@ public class TaskControllerTests {
     @Before
     public void setup() {
         User user = new User();
+        user.setId(1L);
         user.setUsername("user");
-        Mockito.when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(user);
+        User user1 = new User();
+        user1.setId(2L);
+        user1.setUsername("user1");
 
         project = new Project();
         project.setName("Test");
-
-        List<Task> tasks = new ArrayList<>();
-        Task task = new Task();
-        task.setName("Test task");
-        tasks.add(task);
+        project.setId(1L);
 
         List<Role> roles = new ArrayList<>();
+
         Role role = new Role();
+        role.setId(1L);
         role.setUser(user);
         role.setProject(project);
         role.setName(Roles.ADMIN.toString());
         roles.add(role);
 
-        project.setTasks(tasks);
+        Role role1 = new Role();
+        role1.setId(2L);
+        role1.setUser(user1);
+        role1.setProject(project);
+        role1.setName(Roles.USER.toString());
+        roles.add(role1);
+
+
+        List<Role> rolesUser = new ArrayList<>();
+        rolesUser.add(role);
+        user.setRoles(rolesUser);
+
+        List<Role> rolesUser1 = new ArrayList<>();
+        rolesUser1.add(role1);
+        user1.setRoles(rolesUser1);
+
         project.setRoles(roles);
 
-        user.setRoles(roles);
+
+        List<Task> tasks = new ArrayList<>();
+        Task task = new Task();
+        task.setId(1L);
+        task.setName("Test task");
+        tasks.add(task);
+
+        project.setTasks(tasks);
 
         Mockito.when(projectRepository.save(project))
                 .thenReturn(project);
@@ -78,6 +101,14 @@ public class TaskControllerTests {
                 .thenReturn(Optional.ofNullable(project));
         Mockito.when(roleRepository.findRoleByUserAndProject(user, project))
                 .thenReturn(role);
+        Mockito.when(roleRepository.findRoleByUserAndProject(user1, project))
+                .thenReturn(role1);
+        Mockito.when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+        Mockito.when(userRepository.findByUsername(user.getUsername()))
+                .thenReturn(user);
+        Mockito.when(userRepository.findByUsername(user1.getUsername()))
+                .thenReturn(user1);
     }
 
     @Test
@@ -88,6 +119,28 @@ public class TaskControllerTests {
                 .andExpect(view().name("fragments/tasklist"))
                 .andExpect(model().attribute("project", hasProperty("name", Matchers.equalTo("Test"))))
                 .andExpect(model().attribute("project", hasProperty("tasks", hasItem(Matchers.<Task>hasProperty("name", Matchers.equalTo("Test task"))))));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnDeleteTask_shouldRedirectToTaskListView() throws Exception {
+        mockMvc.perform(post("/project/deleteTask?projectId=1&taskId=1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/project/tasklist"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnDeleteTaskWhichNotExists_shouldReturn404() throws Exception {
+        mockMvc.perform(post("/project/deleteTask?projectId=1&taskId=2"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "user1")
+    public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnForbidden() throws Exception {
+        mockMvc.perform(post("/project/deleteTask?projectId=1&taskId=1"))
+                .andExpect(status().isForbidden());
     }
 
 
