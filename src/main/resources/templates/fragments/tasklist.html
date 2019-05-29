@@ -16,6 +16,7 @@
             <th scope="col">Start date</th>
             <th scope="col">End date</th>
             <th scope="col">Done</th>
+            <th scope="col">Change status</th>
             <th scope="col">Delete</th>
         </tr>
         </thead>
@@ -24,9 +25,24 @@
             <td th:text="${task.name}"></td>
             <td th:text="${task.startDate}"></td>
             <td th:text="${task.endDate}"></td>
+            <td th:text="${task.done}"></td>
+            <td>
+                <span th:if="${task.done}">
+                    <form method="post"
+                          th:action="@{/project/task/changeStatus(projectId=${project.id}, taskId=${task.id}, done=false)}">
+                        <button class="btn btn-danger" type="submit">Make undone</button>
+                    </form>
+                </span>
+                <span th:unless="${task.done}">
+                    <form method="post"
+                          th:action="@{/project/task/changeStatus(projectId=${project.id}, taskId=${task.id}, done=true)}">
+                        <button class="btn btn-success" type="submit">Make done</button>
+                    </form>
+                </span>
+            </td>
             <td>
                 <form method="post"
-                      th:action="@{/project/deleteTask(projectId=${project.id}, taskId=${task.id})}">
+                      th:action="@{/project/task/deleteTask(projectId=${project.id}, taskId=${task.id})}">
                     <button class="btn btn-danger" type="submit">Delete</button>
                 </form>
             </td>

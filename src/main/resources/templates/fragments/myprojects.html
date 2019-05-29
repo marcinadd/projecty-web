@@ -47,12 +47,12 @@
                 </div>
                 <div class="row">
                     <div class="col">
-                        <a th:href="@{/project/tasklist(projectId=${role.project.id})}">
+                        <a th:href="@{/project/task/tasklist(projectId=${role.project.id})}">
                             <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
                         </a>
                     </div>
                     <div class="col" th:if="${role.name == 'ADMIN'}">
-                        <a th:href="@{/project/addtasks(projectId=${role.project.id})}">
+                        <a th:href="@{/project/task/addtasks(projectId=${role.project.id})}">
                             <button class="btn btn-success" id="addTaskButton" type="button">Add task</button>
                         </a>
                     </div>

@@ -174,6 +174,7 @@ public class ProjectController {
         return "redirect:/project/manageusers";
     }
 
+    // TODO Fix possible conflict here while using on multiple users
     @PostMapping("changerole")
     public String changeRole(
             @RequestParam Long projectId,

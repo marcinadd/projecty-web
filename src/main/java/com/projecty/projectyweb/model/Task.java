@@ -22,6 +22,8 @@ public class Task {
 
     private Date endDate;
 
+    private boolean isDone;
+
     public Long getId() {
         return id;
     }
@@ -54,6 +56,14 @@ public class Task {
         this.endDate = endDate;
     }
 
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setDone(boolean done) {
+        isDone = done;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -61,6 +71,7 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
+                ", isDone=" + isDone +
                 '}';
     }
 }

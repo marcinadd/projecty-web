@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("project")
+@RequestMapping("project/task")
 public class TaskController {
     @Autowired
     UserService userService;
@@ -76,10 +76,11 @@ public class TaskController {
             project.ifPresent(modelAndView::addObject);
             return modelAndView;
         } else if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
+            task.setDone(false);
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
             taskService.save(task);
-            return new ModelAndView("redirect:/project/tasklist");
+            return new ModelAndView("redirect:/project/task/tasklist");
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -98,7 +99,7 @@ public class TaskController {
     }
 
     @PostMapping("deleteTask")
-    public ModelAndView modelAndView(
+    public ModelAndView deleteTaskPost(
             @RequestParam Long projectId,
             @RequestParam Long taskId,
             RedirectAttributes redirectAttributes
@@ -108,11 +109,33 @@ public class TaskController {
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get()) && task.isPresent()) {
             taskRepository.delete(task.get());
             redirectAttributes.addAttribute("projectId", projectId);
-            return new ModelAndView("redirect:/project/tasklist");
+            return new ModelAndView("redirect:/project/task/tasklist");
         } else if (project.isPresent() && task.isPresent()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PostMapping("changeStatus")
+    public ModelAndView changeStatusPost(
+            @RequestParam Long projectId,
+            @RequestParam Long taskId,
+            @RequestParam Boolean done,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Project> project = projectRepository.findById(projectId);
+        Optional<Task> task = taskRepository.findById(taskId);
+        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get()) && task.isPresent()) {
+            task.get().setDone(done);
+            taskRepository.save(task.get());
+            redirectAttributes.addAttribute("projectId", projectId);
+            return new ModelAndView("redirect:/project/task/tasklist");
+        } else if (project.isPresent() && task.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

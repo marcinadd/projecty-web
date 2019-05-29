@@ -114,7 +114,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnMyProject_shouldReturnMyprojectsViewWithTask() throws Exception {
-        mockMvc.perform(get("/project/tasklist?projectId=1"))
+        mockMvc.perform(get("/project/task/tasklist?projectId=1"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("fragments/tasklist"))
                 .andExpect(model().attribute("project", hasProperty("name", Matchers.equalTo("Test"))))
@@ -124,22 +124,30 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteTask_shouldRedirectToTaskListView() throws Exception {
-        mockMvc.perform(post("/project/deleteTask?projectId=1&taskId=1"))
+        mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/project/tasklist"));
-    }
-
-    @Test
-    @WithMockUser
-    public void givenRequestOnDeleteTaskWhichNotExists_shouldReturn404() throws Exception {
-        mockMvc.perform(post("/project/deleteTask?projectId=1&taskId=2"))
-                .andExpect(status().isNotFound());
+                .andExpect(view().name("redirect:/project/task/tasklist"));
     }
 
     @Test
     @WithMockUser(username = "user1")
     public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnForbidden() throws Exception {
-        mockMvc.perform(post("/project/deleteTask?projectId=1&taskId=1"))
+        mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnChangeStatus_shouldRedirectToTaskListView() throws Exception {
+        mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&done=true"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/project/task/tasklist"));
+    }
+
+    @Test
+    @WithMockUser(username = "user1")
+    public void givenRequestOnChangeStatusWhichUserWithoutPermissions_shouldReturnForbidden() throws Exception {
+        mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&done=true"))
                 .andExpect(status().isForbidden());
     }
 
