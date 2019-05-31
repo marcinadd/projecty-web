@@ -1,0 +1,28 @@
+<html layout:decorate="~{index(title='Message list')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Send message</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h2>Message list</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">DateTime</th>
+            <th scope="col">From</th>
+            <th scope="col">Message</th>
+        </tr>
+        </thead>
+        <tbody th:each="message: ${messages}">
+        <tr>
+            <td th:text="${message.sendDate}"></td>
+            <td th:text="${message.sender.username}"></td>
+            <td th:text="${message.text}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
