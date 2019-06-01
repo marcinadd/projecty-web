@@ -6,20 +6,29 @@
 </head>
 <body>
 <div layout:fragment="content">
+    <a th:href="@{/messages/sendMessage}">
+        <button class="btn btn-success">Send new message</button>
+    </a>
     <h2>Message list</h2>
     <table class="table">
         <thead>
         <tr>
-            <th scope="col">DateTime</th>
+            <th scope="col">Date</th>
             <th scope="col">From</th>
             <th scope="col">Message</th>
+            <th scope="col">View</th>
         </tr>
         </thead>
         <tbody th:each="message: ${messages}">
-        <tr>
-            <td th:text="${message.sendDate}"></td>
+        <tr th:classappend="${message.seenDate == null} ? bold">
+            <td th:text="${#dates.format(message.sendDate, 'yyyy.MM.dd HH:mm')}"></td>
             <td th:text="${message.sender.username}"></td>
             <td th:text="${message.text}"></td>
+            <td>
+                <a th:href="@{viewMessage(messageId=${message.id})}">
+                    <button class="btn btn-primary">View</button>
+                </a>
+            </td>
         </tr>
         </tbody>
     </table>

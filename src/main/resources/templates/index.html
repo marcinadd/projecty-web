@@ -44,9 +44,12 @@
                 </security>
                 <div sec:authorize="isAuthenticated()">
                     <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="#contact">
+                        <a class="nav-link js-scroll-trigger" th:href="@{/project/myprojects}">
                             <span sec:authentication="name">Name</span>
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" th:href="@{/messages/messageList}">Messages</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" th:href="@{/logout}">Log out</a>

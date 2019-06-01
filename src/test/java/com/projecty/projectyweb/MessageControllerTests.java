@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -50,6 +51,13 @@ public class MessageControllerTests {
         user1.setUsername("user1");
         user1.setEmail("user1@example.com");
 
+        message = new Message();
+        message.setId(1L);
+        message.setText("This is sample message");
+        recipientUsername = "user1";
+        message.setRecipient(user);
+        message.setSender(user1);
+
         Mockito.when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findById(user1.getId()))
@@ -58,11 +66,8 @@ public class MessageControllerTests {
                 .thenReturn(user);
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
                 .thenReturn(user1);
-
-        message = new Message();
-        message.setText("This is sample message");
-        recipientUsername = "user1";
-
+        Mockito.when(messageRepository.findById(message.getId()))
+                .thenReturn(Optional.ofNullable(message));
     }
 
     @Test
@@ -85,5 +90,17 @@ public class MessageControllerTests {
                 .andExpect(view().name("redirect:/messages/messageList"));
     }
 
+    @Test
+    @WithMockUser
+    public void givenRequestOnViewMessage_shouldReturnViewMessageView() throws Exception {
+        mockMvc.perform(get("/messages/viewMessage?messageId=1"))
+                .andExpect(status().isOk());
+    }
 
+    @Test
+    @WithMockUser
+    public void givenRequestOnViewMessageWhichNotExistsOrForbidden_shouldReturnNotFound() throws Exception {
+        mockMvc.perform(get("/messages/viewMessage?messageId=2"))
+                .andExpect(status().isNotFound());
+    }
 }

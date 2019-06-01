@@ -5,14 +5,18 @@ import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.MessageRepository;
 import com.projecty.projectyweb.repository.UserRepository;
 import com.projecty.projectyweb.service.user.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("messages")
@@ -61,5 +65,21 @@ public class MessageController {
         return new ModelAndView("redirect:/messages/messageList");
     }
 
-
+    @GetMapping("viewMessage")
+    public ModelAndView viewMessage(
+            @RequestParam Long messageId
+    ) {
+        Optional<Message> optionalMessage = messageRepository.findById(messageId);
+        User current = userService.getCurrentUser();
+        if (optionalMessage.isPresent() && optionalMessage.get().getRecipient().equals(current)) {
+            Message message = optionalMessage.get();
+            if (message.getSeenDate() == null) {
+                message.setSeenDate(new Timestamp(System.currentTimeMillis()));
+                messageRepository.save(message);
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return new ModelAndView("fragments/viewmessage", "message", optionalMessage.get());
+    }
 }

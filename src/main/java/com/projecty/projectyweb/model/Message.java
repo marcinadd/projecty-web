@@ -1,8 +1,10 @@
 package com.projecty.projectyweb.model;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.sql.Date;
+import java.util.Date;
 
 @Entity
 public class Message {
@@ -18,6 +20,8 @@ public class Message {
     @JoinColumn(name = "message_recipient_id")
     private User recipient;
 
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     private Date sendDate;
     private Date seenDate;
 
