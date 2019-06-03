@@ -8,4 +8,8 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByRecipient(User recipient);
+
+    List<Message> findBySender(User sender);
+
+    List<Message> findByRecipientAndSeenDateIsNull(User recipient);
 }

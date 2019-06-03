@@ -9,12 +9,14 @@
     <a th:href="@{/messages/sendMessage}">
         <button class="btn btn-success">Send new message</button>
     </a>
-    <h2>Message list</h2>
+    <h2 th:if="${type == 'received' || type == null}">Received Message List</h2>
+    <h2 th:if="${type == 'sent'}">Sent Message List</h2>
     <table class="table">
         <thead>
         <tr>
             <th scope="col">Date</th>
-            <th scope="col">From</th>
+            <th th:if="${type == 'received' || type == null}">From</th>
+            <th th:if="${type == 'sent'}">To</th>
             <th scope="col">Message</th>
             <th scope="col">View</th>
         </tr>
@@ -23,7 +25,7 @@
         <tr th:classappend="${message.seenDate == null} ? bold">
             <td th:text="${#dates.format(message.sendDate, 'yyyy.MM.dd HH:mm')}"></td>
             <td th:text="${message.sender.username}"></td>
-            <td th:text="${message.text}"></td>
+            <td th:text="${#strings.abbreviate(message.text,15)}"></td>
             <td>
                 <a th:href="@{viewMessage(messageId=${message.id})}">
                     <button class="btn btn-primary">View</button>

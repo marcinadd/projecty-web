@@ -82,6 +82,16 @@ public class MessageControllerTests {
 
     @Test
     @WithMockUser
+    public void givenRequestOnSendMessageToYourself_shouldReturnError() throws Exception {
+        mockMvc.perform(post("/messages/sendMessage")
+                .flashAttr("message", message)
+                .param("recipientUsername", "user"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("fragments/sendmessage"));
+    }
+
+    @Test
+    @WithMockUser
     public void givenRequestOnSendMessage_shouldRedirectToMessageList() throws Exception {
         mockMvc.perform(post("/messages/sendMessage")
                 .flashAttr("message", message)

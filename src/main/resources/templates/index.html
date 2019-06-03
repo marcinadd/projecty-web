@@ -31,10 +31,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/project/myprojects}">My projects</a>
-                </li>
-                <security sec:authorize="!isAuthenticated()">
+                <security sec:authorize="!isAuthenticated()" th:remove="tag">
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" th:href="@{/login}">Sign in</a>
                     </li>
@@ -42,14 +39,20 @@
                         <a class="nav-link js-scroll-trigger" th:href="@{/register}">Sign up</a>
                     </li>
                 </security>
-                <div sec:authorize="isAuthenticated()">
+                <div sec:authorize="isAuthenticated()" th:remove="tag">
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" th:href="@{/messages/messageList}">
+                            <div th:if="${@messageServiceImpl.getMessageCountForCurrentUser()>0}" th:remove="tag">
+                                <span class="text-warning"
+                                      th:text="${'('+@messageServiceImpl.getMessageCountForCurrentUser()}+')'"></span>
+                            </div>
+                            Messages
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" th:href="@{/project/myprojects}">
                             <span sec:authentication="name">Name</span>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" th:href="@{/messages/messageList}">Messages</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" th:href="@{/logout}">Log out</a>

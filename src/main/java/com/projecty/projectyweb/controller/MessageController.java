@@ -32,10 +32,26 @@ public class MessageController {
     }
 
     @GetMapping("messageList")
-    public ModelAndView messageList() {
-        User user = userService.getCurrentUser();
-        List<Message> messageList = messageRepository.findByRecipient(user);
-        return new ModelAndView("fragments/messagelist", "messages", messageList);
+    public ModelAndView messageList(
+            @RequestParam(required = false) String type
+    ) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/messagelist");
+        if (type == null || type.equals("received")) {
+            User user = userService.getCurrentUser();
+            List<Message> messages = messageRepository.findByRecipient(user);
+            modelAndView.addObject("messages", messages);
+            modelAndView.addObject("type", "received");
+            return modelAndView;
+        } else if (type.equals("sent")) {
+            User user = userService.getCurrentUser();
+            List<Message> messages = messageRepository.findBySender(user);
+            modelAndView.addObject("messages", messages);
+            modelAndView.addObject("type", "sent");
+            return modelAndView;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("sendMessage")
@@ -45,24 +61,28 @@ public class MessageController {
 
     @PostMapping("sendMessage")
     public ModelAndView sendMessagePost(
-            @Valid @ModelAttribute Message message,
             @RequestParam String recipientUsername,
+            @Valid @ModelAttribute Message message,
             BindingResult bindingResult
     ) {
         User recipient = userRepository.findByUsername(recipientUsername);
         User sender = userService.getCurrentUser();
-
         if (recipient == null) {
             // TODO Remove hardcored text here
             ObjectError objectError = new ObjectError("recipient", "Invalid recipient username");
+            bindingResult.addError(objectError);
+            return new ModelAndView("fragments/sendmessage");
+        } else if (sender == recipient) {
+            // TODO Remove hardcored text here
+            ObjectError objectError = new ObjectError("recipient", "You cannot send message to yourself");
             bindingResult.addError(objectError);
             return new ModelAndView("fragments/sendmessage");
         } else {
             message.setSender(sender);
             message.setRecipient(recipient);
             messageRepository.save(message);
+            return new ModelAndView("redirect:/messages/messageList");
         }
-        return new ModelAndView("redirect:/messages/messageList");
     }
 
     @GetMapping("viewMessage")
@@ -71,9 +91,9 @@ public class MessageController {
     ) {
         Optional<Message> optionalMessage = messageRepository.findById(messageId);
         User current = userService.getCurrentUser();
-        if (optionalMessage.isPresent() && optionalMessage.get().getRecipient().equals(current)) {
+        if (optionalMessage.isPresent() && (optionalMessage.get().getRecipient().equals(current) || optionalMessage.get().getSender().equals(current))) {
             Message message = optionalMessage.get();
-            if (message.getSeenDate() == null) {
+            if (optionalMessage.get().getRecipient() == current && message.getSeenDate() == null) {
                 message.setSeenDate(new Timestamp(System.currentTimeMillis()));
                 messageRepository.save(message);
             }
