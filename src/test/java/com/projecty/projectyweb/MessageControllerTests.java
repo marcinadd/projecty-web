@@ -132,7 +132,7 @@ public class MessageControllerTests {
     @WithMockUser
     public void givenRequestOnMessageListWithTypeSent_shouldReturnReceivedMessageListView() throws Exception {
         mockMvc.perform(get("/messages/messageList?type=sent"))
-                .andExpect(view().name("fragments/received-message-sent"));
+                .andExpect(view().name("fragments/sent-message-list"));
     }
 
 }

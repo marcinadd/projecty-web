@@ -26,6 +26,9 @@ public class Message {
     private Date seenDate;
 
     @NotBlank
+    private String title;
+
+    @NotBlank
     private String text;
 
     public Long getId() {
@@ -68,6 +71,14 @@ public class Message {
         this.seenDate = seenDate;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getText() {
         return text;
     }
@@ -75,5 +86,4 @@ public class Message {
     public void setText(String text) {
         this.text = text;
     }
-
 }

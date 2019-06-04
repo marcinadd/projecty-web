@@ -19,7 +19,7 @@
             <th scope="col">Date</th>
             <th scope="col">Seen date</th>
             <th scope="col">To</th>
-            <th scope="col">Message</th>
+            <th scope="col">Title</th>
             <th scope="col">View</th>
         </tr>
         </thead>
@@ -28,7 +28,7 @@
             <td th:text="${#dates.format(message.sendDate, 'yyyy.MM.dd HH:mm')}"></td>
             <td th:text="${#dates.format(message?.seenDate, 'yyyy.MM.dd HH:mm')}"></td>
             <td th:text="${message.recipient.username}"></td>
-            <td th:text="${#strings.abbreviate(message.text,15)}"></td>
+            <td th:text="${#strings.abbreviate(message?.title,15)}"></td>
             <td>
                 <a th:href="@{viewMessage(messageId=${message.id})}">
                     <button class="btn btn-primary">View</button>
