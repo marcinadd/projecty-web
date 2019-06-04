@@ -36,16 +36,17 @@ public class MessageController {
             @RequestParam(required = false) String type
     ) {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("fragments/messagelist");
         if (type == null || type.equals("received")) {
             User user = userService.getCurrentUser();
-            List<Message> messages = messageRepository.findByRecipient(user);
+            List<Message> messages = messageRepository.findByRecipientOrderBySendDateDesc(user);
+            modelAndView.setViewName("fragments/received-message-list");
             modelAndView.addObject("messages", messages);
             modelAndView.addObject("type", "received");
             return modelAndView;
         } else if (type.equals("sent")) {
             User user = userService.getCurrentUser();
-            List<Message> messages = messageRepository.findBySender(user);
+            List<Message> messages = messageRepository.findBySenderOrderBySendDateDesc(user);
+            modelAndView.setViewName("fragments/sent-message-list");
             modelAndView.addObject("messages", messages);
             modelAndView.addObject("type", "sent");
             return modelAndView;

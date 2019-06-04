@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
-    List<Message> findByRecipient(User recipient);
+    List<Message> findByRecipientOrderBySendDateDesc(User recipient);
 
-    List<Message> findBySender(User sender);
+    List<Message> findBySenderOrderBySendDateDesc(User sender);
 
     List<Message> findByRecipientAndSeenDateIsNull(User recipient);
 }

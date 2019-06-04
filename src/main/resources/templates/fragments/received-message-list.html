@@ -2,21 +2,23 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Send message</title>
+    <title>Received messages</title>
 </head>
 <body>
 <div layout:fragment="content">
+    <a th:href="@{/messages/messageList(type='sent')}">
+        <button class="btn btn-primary">Sent message list</button>
+    </a>
     <a th:href="@{/messages/sendMessage}">
         <button class="btn btn-success">Send new message</button>
     </a>
-    <h2 th:if="${type == 'received' || type == null}">Received Message List</h2>
-    <h2 th:if="${type == 'sent'}">Sent Message List</h2>
+    <h2>Received Message List</h2>
     <table class="table">
         <thead>
         <tr>
             <th scope="col">Date</th>
-            <th th:if="${type == 'received' || type == null}">From</th>
-            <th th:if="${type == 'sent'}">To</th>
+            <th scope="col">Seen date</th>
+            <th scope="col">From</th>
             <th scope="col">Message</th>
             <th scope="col">View</th>
         </tr>
@@ -24,6 +26,7 @@
         <tbody th:each="message: ${messages}">
         <tr th:classappend="${message.seenDate == null} ? bold">
             <td th:text="${#dates.format(message.sendDate, 'yyyy.MM.dd HH:mm')}"></td>
+            <td th:text="${#dates.format(message?.seenDate, 'yyyy.MM.dd HH:mm')}"></td>
             <td th:text="${message.sender.username}"></td>
             <td th:text="${#strings.abbreviate(message.text,15)}"></td>
             <td>

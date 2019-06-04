@@ -113,4 +113,26 @@ public class MessageControllerTests {
         mockMvc.perform(get("/messages/viewMessage?messageId=2"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnMessageList_shouldReturnReceivedMessageListView() throws Exception {
+        mockMvc.perform(get("/messages/messageList"))
+                .andExpect(view().name("fragments/received-message-list"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnMessageListWithTypeReceived_shouldReturnReceivedMessageListView() throws Exception {
+        mockMvc.perform(get("/messages/messageList?type=received"))
+                .andExpect(view().name("fragments/received-message-list"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnMessageListWithTypeSent_shouldReturnReceivedMessageListView() throws Exception {
+        mockMvc.perform(get("/messages/messageList?type=sent"))
+                .andExpect(view().name("fragments/received-message-sent"));
+    }
+
 }
