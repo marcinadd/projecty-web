@@ -10,3 +10,7 @@ header {
 section {
     padding: 150px 0;
 }
+
+.bold {
+    font-weight: bold;
+}

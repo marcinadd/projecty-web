@@ -1,0 +1,22 @@
+<html layout:decorate="~{index(title='View message')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>View message</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h2><b>View Message</b></h2>
+    <p><b>From: </b><span th:text="${message.sender.username}"></span></p>
+    <p><b>To: </b><span th:text="${message.recipient.username}"></span></p>
+    <p><b>Date: </b><span th:text="${#dates.format(message.sendDate, 'yyyy.MM.dd HH:mm:ss')}"></span></p>
+    <span class="border">
+        <p>
+            <b>Text: </b>
+            <br>
+            <span th:text="${message.text}"></span>
+        </p>
+    </span>
+</div>
+</body>
+</html>

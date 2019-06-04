@@ -23,11 +23,24 @@ public class User {
     @Transient
     private String passwordRepeat;
 
-    @OneToMany(mappedBy = "user",
+    @OneToMany(
+            mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     private List<Role> roles;
+    @OneToMany(
+            mappedBy = "sender",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Message> messagesFrom;
+    @OneToMany(
+            mappedBy = "recipient",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Message> messagesTo;
 
     public Long getId() {
         return id;
@@ -83,6 +96,22 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<Message> getMessagesFrom() {
+        return messagesFrom;
+    }
+
+    public void setMessagesFrom(List<Message> messagesFrom) {
+        this.messagesFrom = messagesFrom;
+    }
+
+    public List<Message> getMessagesTo() {
+        return messagesTo;
+    }
+
+    public void setMessagesTo(List<Message> messagesTo) {
+        this.messagesTo = messagesTo;
     }
 
     @Override
