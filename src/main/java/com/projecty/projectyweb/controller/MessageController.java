@@ -39,14 +39,14 @@ public class MessageController {
         if (type == null || type.equals("received")) {
             User user = userService.getCurrentUser();
             List<Message> messages = messageRepository.findByRecipientOrderBySendDateDesc(user);
-            modelAndView.setViewName("fragments/received-message-list");
+            modelAndView.setViewName("fragments/message/received-message-list");
             modelAndView.addObject("messages", messages);
             modelAndView.addObject("type", "received");
             return modelAndView;
         } else if (type.equals("sent")) {
             User user = userService.getCurrentUser();
             List<Message> messages = messageRepository.findBySenderOrderBySendDateDesc(user);
-            modelAndView.setViewName("fragments/sent-message-list");
+            modelAndView.setViewName("fragments/message/sent-message-list");
             modelAndView.addObject("messages", messages);
             modelAndView.addObject("type", "sent");
             return modelAndView;
@@ -57,7 +57,7 @@ public class MessageController {
 
     @GetMapping("sendMessage")
     public ModelAndView sendMessage() {
-        return new ModelAndView("fragments/sendmessage", "message", new Message());
+        return new ModelAndView("fragments/message/send-message", "message", new Message());
     }
 
     @PostMapping("sendMessage")
@@ -72,12 +72,12 @@ public class MessageController {
             // TODO Remove hardcored text here
             ObjectError objectError = new ObjectError("recipient", "Invalid recipient username");
             bindingResult.addError(objectError);
-            return new ModelAndView("fragments/sendmessage");
+            return new ModelAndView("fragments/message/send-message");
         } else if (sender == recipient) {
             // TODO Remove hardcored text here
             ObjectError objectError = new ObjectError("recipient", "You cannot send message to yourself");
             bindingResult.addError(objectError);
-            return new ModelAndView("fragments/sendmessage");
+            return new ModelAndView("fragments/message/send-message");
         } else {
             message.setSender(sender);
             message.setRecipient(recipient);
@@ -101,6 +101,6 @@ public class MessageController {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return new ModelAndView("fragments/viewmessage", "message", optionalMessage.get());
+        return new ModelAndView("fragments/message/view-message", "message", optionalMessage.get());
     }
 }

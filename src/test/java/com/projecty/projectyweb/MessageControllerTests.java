@@ -77,7 +77,7 @@ public class MessageControllerTests {
                 .flashAttr("message", message)
                 .param("recipientUsername", "notExistsUsername"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/sendmessage"));
+                .andExpect(view().name("fragments/message/send-message"));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class MessageControllerTests {
                 .flashAttr("message", message)
                 .param("recipientUsername", "user"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/sendmessage"));
+                .andExpect(view().name("fragments/message/send-message"));
     }
 
     @Test
@@ -118,21 +118,21 @@ public class MessageControllerTests {
     @WithMockUser
     public void givenRequestOnMessageList_shouldReturnReceivedMessageListView() throws Exception {
         mockMvc.perform(get("/messages/messageList"))
-                .andExpect(view().name("fragments/received-message-list"));
+                .andExpect(view().name("fragments/message/received-message-list"));
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnMessageListWithTypeReceived_shouldReturnReceivedMessageListView() throws Exception {
         mockMvc.perform(get("/messages/messageList?type=received"))
-                .andExpect(view().name("fragments/received-message-list"));
+                .andExpect(view().name("fragments/message/received-message-list"));
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnMessageListWithTypeSent_shouldReturnReceivedMessageListView() throws Exception {
         mockMvc.perform(get("/messages/messageList?type=sent"))
-                .andExpect(view().name("fragments/sent-message-list"));
+                .andExpect(view().name("fragments/message/sent-message-list"));
     }
 
 }

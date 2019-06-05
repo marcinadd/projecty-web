@@ -3,13 +3,10 @@ package com.projecty.projectyweb.controller;
 import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Task;
 import com.projecty.projectyweb.repository.ProjectRepository;
-import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.repository.TaskRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.task.TaskService;
-import com.projecty.projectyweb.service.user.UserService;
 import com.projecty.projectyweb.validator.TaskValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -24,32 +21,30 @@ import java.util.Optional;
 @Controller
 @RequestMapping("project/task")
 public class TaskController {
-    @Autowired
-    UserService userService;
 
-    @Autowired
-    ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
 
-    @Autowired
-    ProjectService projectService;
+    private final ProjectService projectService;
 
-    @Autowired
-    TaskService taskService;
+    private final TaskService taskService;
 
-    @Autowired
-    RoleRepository roleRepository;
+    private final TaskValidator taskValidator;
 
-    @Autowired
-    TaskValidator taskValidator;
+    private final TaskRepository taskRepository;
 
-    @Autowired
-    TaskRepository taskRepository;
+    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskService taskService, TaskValidator taskValidator, TaskRepository taskRepository) {
+        this.projectRepository = projectRepository;
+        this.projectService = projectService;
+        this.taskService = taskService;
+        this.taskValidator = taskValidator;
+        this.taskRepository = taskRepository;
+    }
 
     @GetMapping("addtasks")
     public ModelAndView addTasks(
             @RequestParam Long projectId
     ) {
-        ModelAndView modelAndView = new ModelAndView("fragments/addtasks");
+        ModelAndView modelAndView = new ModelAndView("fragments/task/add-task");
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             modelAndView.addObject("project", project.get());
@@ -72,7 +67,7 @@ public class TaskController {
         Optional<Project> project = projectRepository.findById(projectId);
         if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/addtasks");
+            modelAndView.setViewName("fragments/task/add-task");
             project.ifPresent(modelAndView::addObject);
             return modelAndView;
         } else if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
@@ -80,7 +75,7 @@ public class TaskController {
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
             taskService.save(task);
-            return new ModelAndView("redirect:/project/task/tasklist");
+            return new ModelAndView("redirect:/project/task/task-list");
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -92,7 +87,7 @@ public class TaskController {
     ) {
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectUser(project.get())) {
-            return new ModelAndView("fragments/tasklist", "project", project.get());
+            return new ModelAndView("fragments/task/task-list", "project", project.get());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

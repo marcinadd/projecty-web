@@ -111,7 +111,7 @@ public class ProjectControllerTests {
         mockMvc.perform(get("/project/myprojects"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("roles"))
-                .andExpect(view().name("fragments/myprojects"));
+                .andExpect(view().name("fragments/project/my-projects"));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class ProjectControllerTests {
     public void givenRequestOnAddProject_shouldReturnAddprojectView() throws Exception {
         mockMvc.perform(get("/project/addproject"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/addproject"));
+                .andExpect(view().name("fragments/project/add-project"));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ProjectControllerTests {
         mockMvc.perform(get("/project/manageusers?projectId=1")
                 .flashAttr("project", project))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/manageusers"));
+                .andExpect(view().name("fragments/project/manage-users"));
     }
 
     @Test

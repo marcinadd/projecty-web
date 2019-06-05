@@ -10,7 +10,6 @@ import com.projecty.projectyweb.repository.UserRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.user.UserService;
 import com.projecty.projectyweb.validator.ProjectValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -27,27 +26,30 @@ import java.util.Optional;
 @Controller
 @RequestMapping("project")
 public class ProjectController {
-    @Autowired
-    ProjectService projectService;
+    private final ProjectService projectService;
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    private ProjectValidator projectValidator;
+    private final ProjectValidator projectValidator;
+
+    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator) {
+        this.projectService = projectService;
+        this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
+        this.userService = userService;
+        this.roleRepository = roleRepository;
+        this.projectValidator = projectValidator;
+    }
 
     @GetMapping("addproject")
     public ModelAndView addProject() {
-        return new ModelAndView("fragments/addproject", "project", new Project());
+        return new ModelAndView("fragments/project/add-project", "project", new Project());
     }
 
     @PostMapping("addproject")
@@ -57,7 +59,7 @@ public class ProjectController {
     ) {
         projectValidator.validate(project, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "fragments/addproject";
+            return "fragments/project/add-project";
         } else {
             User currentUser = userService.getCurrentUser();
             List<Role> roles = new ArrayList<>();
@@ -97,7 +99,7 @@ public class ProjectController {
     @GetMapping("myprojects")
     public ModelAndView myProjects() {
         return new ModelAndView(
-                "fragments/myprojects",
+                "fragments/project/my-projects",
                 "roles",
                 userService.getCurrentUser().getRoles()
         );
@@ -107,7 +109,7 @@ public class ProjectController {
     public ModelAndView manageUsers(
             @RequestParam Long projectId
     ) {
-        ModelAndView modelAndView = new ModelAndView("fragments/manageusers");
+        ModelAndView modelAndView = new ModelAndView("fragments/project/manage-users");
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             modelAndView.addObject("project", project.get());

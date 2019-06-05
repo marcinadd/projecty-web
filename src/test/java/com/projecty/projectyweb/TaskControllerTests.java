@@ -44,7 +44,6 @@ public class TaskControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
-    private Project project;
 
     @Before
     public void setup() {
@@ -55,7 +54,7 @@ public class TaskControllerTests {
         user1.setId(2L);
         user1.setUsername("user1");
 
-        project = new Project();
+        Project project = new Project();
         project.setName("Test");
         project.setId(1L);
 
@@ -116,7 +115,7 @@ public class TaskControllerTests {
     public void givenRequestOnMyProject_shouldReturnMyprojectsViewWithTask() throws Exception {
         mockMvc.perform(get("/project/task/tasklist?projectId=1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/tasklist"))
+                .andExpect(view().name("fragments/task/task-list"))
                 .andExpect(model().attribute("project", hasProperty("name", Matchers.equalTo("Test"))))
                 .andExpect(model().attribute("project", hasProperty("tasks", hasItem(Matchers.<Task>hasProperty("name", Matchers.equalTo("Test task"))))));
     }
@@ -127,6 +126,14 @@ public class TaskControllerTests {
         mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/project/task/tasklist"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnAddTask_shouldReturnAddTaskView() throws Exception {
+        mockMvc.perform(get("/project/task/addtasks?projectId=1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("fragments/task/add-task"));
     }
 
     @Test
