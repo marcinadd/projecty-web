@@ -3,12 +3,12 @@ package com.projecty.projectyweb.controller;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.service.user.UserService;
 import com.projecty.projectyweb.validator.UserValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
@@ -35,7 +35,7 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             return "fragments/user/register";
         }
-        userService.save(user);
+        userService.saveWithPasswordEncrypt(user);
         return "redirect:/project/myprojects";
     }
 
@@ -47,5 +47,33 @@ public class UserController {
     @GetMapping("index")
     public String index() {
         return "index";
+    }
+
+    @GetMapping("settings")
+    public ModelAndView settings() {
+        return new ModelAndView("fragments/user/settings", "user", userService.getCurrentUser());
+    }
+
+    @PostMapping("changePassword")
+    public String changePasswordPost(
+            @RequestParam(required = false) String currentPassword,
+            @RequestParam(required = false) String newPassword,
+            @RequestParam(required = false) String repeatPassword
+
+    ) {
+        User user = userService.getCurrentUser();
+        if (userService.checkIfPasswordMatches(user, currentPassword)) {
+            user.setPassword(newPassword);
+            user.setPasswordRepeat(repeatPassword);
+            BindingResult results = userService.validate(user);
+            if (results.getErrorCount() == 1 && results.getFieldErrors("username").size() == 1) {
+                userService.saveWithPasswordEncrypt(user);
+                return "redirect:/settings";
+            }
+        } else {
+            ObjectError objectError = new ObjectError("password", "Wrong current password");
+            //bindingResult.addError(objectError);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 }
