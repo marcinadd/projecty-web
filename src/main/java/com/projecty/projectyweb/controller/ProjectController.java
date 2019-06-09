@@ -8,6 +8,7 @@ import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.repository.UserRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
+import com.projecty.projectyweb.service.role.RoleService;
 import com.projecty.projectyweb.service.user.UserService;
 import com.projecty.projectyweb.validator.ProjectValidator;
 import org.springframework.http.HttpStatus;
@@ -38,13 +39,16 @@ public class ProjectController {
 
     private final ProjectValidator projectValidator;
 
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator) {
+    private final RoleService roleService;
+
+    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator, RoleService roleService) {
         this.projectService = projectService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.projectValidator = projectValidator;
+        this.roleService = roleService;
     }
 
     @GetMapping("addproject")
@@ -175,24 +179,19 @@ public class ProjectController {
         redirectAttributes.addAttribute("projectId", projectId);
         return "redirect:/project/manageusers";
     }
-
-    // TODO Fix possible conflict here while using on multiple users
-    @PostMapping("changerole")
-    public String changeRole(
+    
+    @PostMapping("changeRole")
+    public String changeRolePost(
             @RequestParam Long projectId,
             @RequestParam Long roleId,
+            @RequestParam String newRoleName,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Optional<Role> optionalRole = roleRepository.findById(roleId);
         if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get()) && optionalRole.isPresent()) {
             Role role = optionalRole.get();
-            if (role.getName().equals(Roles.ADMIN.toString())) {
-                role.setName(Roles.USER.toString());
-            } else {
-                role.setName(Roles.ADMIN.toString());
-            }
-            roleRepository.save(role);
+            roleService.changeRole(role, newRoleName);
             redirectAttributes.addAttribute("projectId", projectId);
             redirectAttributes.addAttribute("roleId", roleId);
             return "redirect:/project/manageusers";
