@@ -11,6 +11,7 @@ import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.role.RoleService;
 import com.projecty.projectyweb.service.user.UserService;
 import com.projecty.projectyweb.validator.ProjectValidator;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -20,9 +21,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_FAILED;
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @Controller
 @RequestMapping("project")
@@ -41,7 +43,9 @@ public class ProjectController {
 
     private final RoleService roleService;
 
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator, RoleService roleService) {
+    private final MessageSource messageSource;
+
+    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator, RoleService roleService, MessageSource messageSource) {
         this.projectService = projectService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -49,6 +53,7 @@ public class ProjectController {
         this.roleRepository = roleRepository;
         this.projectValidator = projectValidator;
         this.roleService = roleService;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("addproject")
@@ -59,45 +64,51 @@ public class ProjectController {
     @PostMapping("addproject")
     public String addProjectProcess(
             @Valid @ModelAttribute Project project,
-            @RequestParam(required = false) List<String> usernames, BindingResult bindingResult
+            @RequestParam(required = false) List<String> usernames,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
     ) {
         projectValidator.validate(project, bindingResult);
         if (bindingResult.hasErrors()) {
             return "fragments/project/add-project";
-        } else {
-            User currentUser = userService.getCurrentUser();
-            List<Role> roles = new ArrayList<>();
-            if (usernames != null) {
-                for (String username : usernames
-                ) {
-                    User user = userRepository.findByUsername(username);
-                    if (user != null) {
-                        Role role = new Role();
-                        role.setProject(project);
-                        role.setUser(user);
-                        role.setName(Roles.USER.toString());
-                        roles.add(role);
-                    }
+        }
+        User currentUser = userService.getCurrentUser();
+        List<Role> roles = new ArrayList<>();
+        if (usernames != null) {
+            for (String username : usernames
+            ) {
+                User user = userRepository.findByUsername(username);
+                if (user != null) {
+                    Role role = new Role();
+                    role.setProject(project);
+                    role.setUser(user);
+                    role.setName(Roles.USER.toString());
+                    roles.add(role);
+                    redirectAttributes.addFlashAttribute("redirectMessage", Collections.singletonList(messageSource.getMessage("project.delete.success", null, Locale.getDefault())));
                 }
             }
-            Role admin = new Role();
-            admin.setProject(project);
-            admin.setUser(currentUser);
-            admin.setName(Roles.ADMIN.toString());
-            roles.add(admin);
-            project.setRoles(roles);
-            projectRepository.save(project);
         }
+        Role admin = new Role();
+        admin.setProject(project);
+        admin.setUser(currentUser);
+        admin.setName(Roles.ADMIN.toString());
+        roles.add(admin);
+        project.setRoles(roles);
+        projectRepository.save(project);
+        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.add.success", null, Locale.getDefault())));
         return "redirect:/project/myprojects";
     }
 
     @PostMapping("deleteproject")
-    public String deleteProject(@RequestParam Long projectId) {
+    public String deleteProject(@RequestParam Long projectId, RedirectAttributes redirectAttributes) {
         Optional<Project> project = projectRepository.findById(projectId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
             projectRepository.delete(project.get());
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.delete.success", null, Locale.getDefault())));
+            return "redirect:/project/myprojects/";
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return "redirect:/project/myprojects/";
     }
 
     @GetMapping("myprojects")
@@ -134,7 +145,8 @@ public class ProjectController {
         if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
             Project project = optionalProject.get();
             List<Role> toAddRoles = new ArrayList<>();
-
+            List<String> messagesSuccess = new ArrayList<>();
+            List<String> messagesFailed = new ArrayList<>();
             for (String username : usernames
             ) {
                 User toAddUser = userRepository.findByUsername(username);
@@ -144,7 +156,16 @@ public class ProjectController {
                     role.setProject(project);
                     role.setName(Roles.USER.toString());
                     toAddRoles.add(role);
+                    messagesSuccess.add(messageSource.getMessage("role.add.success", new Object[]{role.getUser().getUsername(), project.getName()}, null, Locale.getDefault()));
+                } else {
+                    messagesFailed.add(messageSource.getMessage("role.add.failed", new Object[]{username, project.getName()}, null, Locale.getDefault()));
                 }
+            }
+            if (messagesSuccess.size() > 0) {
+                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, messagesSuccess);
+            }
+            if (messagesFailed.size() > 0) {
+                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED, messagesFailed);
             }
             project.getRoles().addAll(toAddRoles);
             projectRepository.save(project);
@@ -171,15 +192,16 @@ public class ProjectController {
             roles.remove(toDeleteRole);
             project.setRoles(roles);
             projectRepository.save(project);
+            redirectAttributes.addAttribute("projectId", projectId);
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("role.delete.success", null, Locale.getDefault())));
+            return "redirect:/project/manageusers";
         } else if (toDeleteOptionalUser.isPresent() && toDeleteOptionalUser.get().equals(current)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        redirectAttributes.addAttribute("projectId", projectId);
-        return "redirect:/project/manageusers";
     }
-    
+
     @PostMapping("changeRole")
     public String changeRolePost(
             @RequestParam Long projectId,
@@ -189,9 +211,11 @@ public class ProjectController {
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Optional<Role> optionalRole = roleRepository.findById(roleId);
-        if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get()) && optionalRole.isPresent()) {
+        if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get()) && optionalRole.isPresent() && roleService.isValidRoleName(newRoleName)) {
             Role role = optionalRole.get();
-            roleService.changeRole(role, newRoleName);
+            role.setName(newRoleName);
+            roleRepository.save(role);
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("role.change.success", new Object[]{role.getUser().getUsername()}, Locale.getDefault())));
             redirectAttributes.addAttribute("projectId", projectId);
             redirectAttributes.addAttribute("roleId", roleId);
             return "redirect:/project/manageusers";
