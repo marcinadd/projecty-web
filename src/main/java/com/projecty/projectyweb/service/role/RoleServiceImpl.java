@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.service.role;
 
+import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.model.Role;
 import com.projecty.projectyweb.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,4 +16,8 @@ public class RoleServiceImpl implements RoleService {
         roleRepository.save(role);
     }
 
+    @Override
+    public boolean isValidRoleName(String roleName) {
+        return AppConfig.ROLE_NAMES.contains(roleName);
+    }
 }

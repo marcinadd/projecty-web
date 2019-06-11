@@ -39,18 +39,20 @@
                     </form>
                 </td>
                 <td>
-                    <form method="POST"
-                          th:action="@{/project/changerole(projectId=${role.project.id}, roleId=${role.id})}">
-                        <button class="btn btn-success"
-                                th:if="${role.name == 'ADMIN'  && role.user.id != currentUser.id}" type="submit">Disable
-                            Admin
-                        </button>
-                        <button class="btn btn-danger" th:unless="${role.name == 'ADMIN'}" type="submit">Make Admin
+                    <form method="post"
+                          th:action="@{/project/changeRole(projectId=${role.project.id}, roleId=${role.id}, newRoleName='USER')}"
+                          th:if="${role.name == 'ADMIN'  && role.user.id != currentUser.id}">
+                        <button class="btn btn-success" type="submit">
+                            Disable Admin
                         </button>
                     </form>
-                    <!--                    <a th:href="@{/project/changeRole(projectId=${project.id}, roleId=${role.id})}">-->
-
-                    <!--                    </a>-->
+                    <form method="post"
+                          th:action="@{/project/changeRole(projectId=${role.project.id}, roleId=${role.id}, newRoleName='ADMIN')}"
+                          th:if="${role.name == 'USER'  && role.user.id != currentUser.id}">
+                        <button class="btn btn-danger" type="submit">
+                            Enable Admin
+                        </button>
+                    </form>
                 </td>
             </tr>
             </tbody>

@@ -7,6 +7,7 @@ import com.projecty.projectyweb.repository.TaskRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
 import com.projecty.projectyweb.service.task.TaskService;
 import com.projecty.projectyweb.validator.TaskValidator;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -15,13 +16,16 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @Controller
 @RequestMapping("project/task")
 public class TaskController {
-
     private final ProjectRepository projectRepository;
 
     private final ProjectService projectService;
@@ -32,12 +36,15 @@ public class TaskController {
 
     private final TaskRepository taskRepository;
 
-    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskService taskService, TaskValidator taskValidator, TaskRepository taskRepository) {
+    private final MessageSource messageSource;
+
+    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskService taskService, TaskValidator taskValidator, TaskRepository taskRepository, MessageSource messageSource) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.taskService = taskService;
         this.taskValidator = taskValidator;
         this.taskRepository = taskRepository;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("addtasks")
@@ -75,7 +82,8 @@ public class TaskController {
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
             taskService.save(task);
-            return new ModelAndView("redirect:/project/task/task-list");
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.add.success", new Object[]{task.getName(), project.get().getName()}, Locale.getDefault())));
+            return new ModelAndView("redirect:/project/task/tasklist");
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -102,6 +110,7 @@ public class TaskController {
         Optional<Project> project = projectRepository.findById(projectId);
         Optional<Task> task = taskRepository.findById(taskId);
         if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get()) && task.isPresent()) {
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.delete.success", new Object[]{task.get().getName()}, Locale.getDefault())));
             taskRepository.delete(task.get());
             redirectAttributes.addAttribute("projectId", projectId);
             return new ModelAndView("redirect:/project/task/tasklist");
@@ -125,6 +134,7 @@ public class TaskController {
             task.get().setDone(done);
             taskRepository.save(task.get());
             redirectAttributes.addAttribute("projectId", projectId);
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.change.success", new Object[]{task.get().getName()}, Locale.getDefault())));
             return new ModelAndView("redirect:/project/task/tasklist");
         } else if (project.isPresent() && task.isPresent()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);

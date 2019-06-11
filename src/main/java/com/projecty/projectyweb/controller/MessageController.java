@@ -5,6 +5,7 @@ import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.MessageRepository;
 import com.projecty.projectyweb.repository.UserRepository;
 import com.projecty.projectyweb.service.user.UserService;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -12,11 +13,16 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @Controller
 @RequestMapping("messages")
@@ -24,11 +30,13 @@ public class MessageController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
+    private final MessageSource messageSource;
 
-    public MessageController(UserService userService, MessageRepository messageRepository, UserRepository userRepository) {
+    public MessageController(UserService userService, MessageRepository messageRepository, UserRepository userRepository, MessageSource messageSource) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.messageRepository = messageRepository;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("messageList")
@@ -64,24 +72,24 @@ public class MessageController {
     public ModelAndView sendMessagePost(
             @RequestParam String recipientUsername,
             @Valid @ModelAttribute Message message,
-            BindingResult bindingResult
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
     ) {
         User recipient = userRepository.findByUsername(recipientUsername);
         User sender = userService.getCurrentUser();
         if (recipient == null) {
-            // TODO Remove hardcored text here
-            ObjectError objectError = new ObjectError("recipient", "Invalid recipient username");
+            ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.invalid", null, Locale.getDefault()));
             bindingResult.addError(objectError);
             return new ModelAndView("fragments/message/send-message");
         } else if (sender == recipient) {
-            // TODO Remove hardcored text here
-            ObjectError objectError = new ObjectError("recipient", "You cannot send message to yourself");
+            ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.yourself", null, Locale.getDefault()));
             bindingResult.addError(objectError);
             return new ModelAndView("fragments/message/send-message");
         } else {
             message.setSender(sender);
             message.setRecipient(recipient);
             messageRepository.save(message);
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("message.send.success", null, Locale.getDefault())));
             return new ModelAndView("redirect:/messages/messageList");
         }
     }
