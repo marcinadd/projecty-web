@@ -2,7 +2,6 @@ package com.projecty.projectyweb.controller;
 
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.service.user.UserService;
-import com.projecty.projectyweb.validator.UserValidator;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -22,12 +21,10 @@ import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGE
 
 @Controller
 public class UserController {
-    private final UserValidator userValidator;
     private final UserService userService;
     private final MessageSource messageSource;
 
-    public UserController(UserValidator userValidator, UserService userService, MessageSource messageSource) {
-        this.userValidator = userValidator;
+    public UserController(UserService userService, MessageSource messageSource) {
         this.userService = userService;
         this.messageSource = messageSource;
     }
@@ -39,7 +36,7 @@ public class UserController {
 
     @PostMapping("register")
     public String registerPost(@Valid @ModelAttribute User user, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        userValidator.validate(user, bindingResult);
+        userService.validateNewUser(user, bindingResult);
         if (bindingResult.hasErrors()) {
             return "fragments/user/register";
         }
@@ -66,15 +63,16 @@ public class UserController {
     public String changePasswordPost(
             @RequestParam(required = false) String currentPassword,
             @RequestParam(required = false) String newPassword,
-            @RequestParam(required = false) String repeatPassword
+            @RequestParam(required = false) String repeatPassword,
+            BindingResult bindingResult
 
     ) {
         User user = userService.getCurrentUser();
         if (userService.checkIfPasswordMatches(user, currentPassword)) {
             user.setPassword(newPassword);
             user.setPasswordRepeat(repeatPassword);
-            BindingResult results = userService.validate(user);
-            if (results.getErrorCount() == 1 && results.getFieldErrors("username").size() == 1) {
+            bindingResult = userService.validateExistingUser(user);
+            if (bindingResult.getErrorCount() == 1 && bindingResult.getFieldErrors("username").size() == 1) {
                 userService.saveWithPasswordEncrypt(user);
                 return "redirect:/settings";
             }

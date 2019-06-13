@@ -8,5 +8,8 @@ public interface UserService {
     void saveWithPasswordEncrypt(User user);
     User getCurrentUser();
     boolean checkIfPasswordMatches(User user, String password);
-    BindingResult validate(User user);
+
+    BindingResult validateExistingUser(User user);
+
+    void validateNewUser(User user, BindingResult bindingResult);
 }

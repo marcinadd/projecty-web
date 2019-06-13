@@ -1,8 +1,6 @@
 package com.projecty.projectyweb.validator;
 
 import com.projecty.projectyweb.model.User;
-import com.projecty.projectyweb.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -15,9 +13,6 @@ import java.util.regex.Pattern;
 public class UserValidator implements Validator {
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -34,10 +29,6 @@ public class UserValidator implements Validator {
 
         if (!user.getPassword().equals(user.getPasswordRepeat())) {
             errors.rejectValue("passwordRepeat", "passwordRepeat.diff");
-        }
-
-        if (userRepository.findByUsername(user.getUsername()) != null) {
-            errors.rejectValue("username", "username.exists");
         }
 
         if (user.getPassword().length() < 8) {

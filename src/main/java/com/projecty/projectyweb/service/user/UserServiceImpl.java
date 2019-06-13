@@ -3,7 +3,6 @@ package com.projecty.projectyweb.service.user;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.UserRepository;
 import com.projecty.projectyweb.validator.UserValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,14 +13,17 @@ import org.springframework.validation.DataBinder;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserValidator userValidator;
+    private final UserValidator userValidator;
+
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserValidator userValidator) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userValidator = userValidator;
+    }
 
     @Override
     public void saveWithPasswordEncrypt(User user) {
@@ -45,10 +47,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BindingResult validate(User user) {
+    public BindingResult validateExistingUser(User user) {
         DataBinder dataBinder = new DataBinder(user);
         dataBinder.setValidator(userValidator);
         dataBinder.validate();
         return dataBinder.getBindingResult();
+    }
+
+    @Override
+    public void validateNewUser(User user, BindingResult bindingResult) {
+        userValidator.validate(user, bindingResult);
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            bindingResult.rejectValue("username", "exists.user.username");
+        }
     }
 }
