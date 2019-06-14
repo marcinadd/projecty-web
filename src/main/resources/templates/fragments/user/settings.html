@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{index(title='Settings')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Settings</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container">
+        <div class="row border">
+            <div class="col">
+                <button class="btn btn-secondary">Account</button>
+            </div>
+        </div>
+        <div class="row my-2">
+            <h3>User info</h3>
+        </div>
+        <div class="row">
+            <form class="form-group">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input class="form-control" disabled id="username" th:placeholder="${user.username}" type="text">
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input class="form-control" id="email" th:placeholder="${user.email}" type="text">
+                </div>
+            </form>
+        </div>
+        <div class="row my-2">
+            <h3>Change password</h3>
+        </div>
+        <div class="row">
+            <form class="form-group" method="post" th:action="@{/changePassword}">
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input class="form-control" id="currentPassword" name="currentPassword" placeholder="password"
+                           type="password">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New password</label>
+                    <input class="form-control" id="newPassword" name="newPassword" placeholder="New password"
+                           type="password">
+                </div>
+                <div class="form-group">
+                    <label for="repeatPassword">Repeat new password</label>
+                    <input class="form-control" id="repeatPassword" name="repeatPassword"
+                           placeholder="Repeat new password" type="password">
+                </div>
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
