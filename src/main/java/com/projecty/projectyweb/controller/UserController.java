@@ -3,12 +3,9 @@ package com.projecty.projectyweb.controller;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.service.user.UserService;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -16,6 +13,7 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Locale;
 
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_FAILED;
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 
@@ -44,6 +42,7 @@ public class UserController {
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("user.register.success", new Object[]{user.getUsername()}, Locale.getDefault())));
         return "redirect:/login";
     }
+
     @GetMapping("login")
     public String login() {
         return "fragments/user/login";
@@ -64,22 +63,19 @@ public class UserController {
             @RequestParam(required = false) String currentPassword,
             @RequestParam(required = false) String newPassword,
             @RequestParam(required = false) String repeatPassword,
-            BindingResult bindingResult
+            RedirectAttributes redirectAttributes
 
     ) {
         User user = userService.getCurrentUser();
-        if (userService.checkIfPasswordMatches(user, currentPassword)) {
-            user.setPassword(newPassword);
-            user.setPasswordRepeat(repeatPassword);
-            bindingResult = userService.validateExistingUser(user);
-            if (bindingResult.getErrorCount() == 1 && bindingResult.getFieldErrors("username").size() == 1) {
-                userService.saveWithPasswordEncrypt(user);
-                return "redirect:/settings";
-            }
-        } else {
-            ObjectError objectError = new ObjectError("password", "Wrong current password");
-            //bindingResult.addError(objectError);
+        BindingResult bindingResult = userService.authUserAndValidatePassword(user, currentPassword, newPassword, repeatPassword);
+        if (bindingResult == null) {
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED, Collections.singletonList(messageSource.getMessage("user.password.authorize.failed", null, Locale.getDefault())));
+            return "redirect:/settings";
+        } else if (bindingResult.hasErrors()) {
+            return "fragments/user/settings";
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        userService.saveWithPasswordEncrypt(user);
+        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("user.password.change.success", null, Locale.getDefault())));
+        return "redirect:/settings";
     }
 }

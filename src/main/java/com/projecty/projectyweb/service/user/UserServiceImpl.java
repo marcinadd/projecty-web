@@ -47,11 +47,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BindingResult validateExistingUser(User user) {
-        DataBinder dataBinder = new DataBinder(user);
-        dataBinder.setValidator(userValidator);
-        dataBinder.validate();
-        return dataBinder.getBindingResult();
+    public void validateExistingUser(User user, BindingResult bindingResult) {
+        userValidator.validate(user, bindingResult);
     }
 
     @Override
@@ -60,5 +57,23 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findByUsername(user.getUsername()) != null) {
             bindingResult.rejectValue("username", "exists.user.username");
         }
+    }
+
+    @Override
+    public BindingResult authUserAndValidatePassword(
+            User user,
+            String currentPassword,
+            String newPassword,
+            String repeatPassword
+    ) {
+        if (checkIfPasswordMatches(user, currentPassword)) {
+            user.setPassword(newPassword);
+            user.setPasswordRepeat(repeatPassword);
+            DataBinder dataBinder = new DataBinder(user);
+            dataBinder.setValidator(userValidator);
+            dataBinder.validate();
+            return dataBinder.getBindingResult();
+        }
+        return null;
     }
 }

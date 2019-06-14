@@ -9,7 +9,13 @@ public interface UserService {
     User getCurrentUser();
     boolean checkIfPasswordMatches(User user, String password);
 
-    BindingResult validateExistingUser(User user);
-
+    void validateExistingUser(User user, BindingResult bindingResult);
     void validateNewUser(User user, BindingResult bindingResult);
+
+    BindingResult authUserAndValidatePassword(
+            User user,
+            String currentPassword,
+            String newPassword,
+            String repeatPassword
+    );
 }

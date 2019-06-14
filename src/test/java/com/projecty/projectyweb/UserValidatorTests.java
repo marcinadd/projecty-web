@@ -84,21 +84,6 @@ public class UserValidatorTests {
     }
 
     @Test
-    public void userNameExists() {
-        //given
-        User user = new User();
-        user.setUsername("admin");
-        user.setPassword("password");
-        user.setPasswordRepeat("password");
-        user.setEmail("user@example.com");
-        Errors errors = new BeanPropertyBindingResult(user, "user");
-        // when
-        userValidator.validate(user, errors);
-        // then
-        assertThat(errors.getFieldErrorCount("username"), greaterThanOrEqualTo(1));
-    }
-
-    @Test
     public void passwordTooShort() {
         //given
         User user = new User();
