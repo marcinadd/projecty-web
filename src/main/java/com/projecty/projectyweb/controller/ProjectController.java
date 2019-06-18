@@ -1,8 +1,8 @@
 package com.projecty.projectyweb.controller;
 
+import com.projecty.projectyweb.helpers.UserHelper;
 import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Role;
-import com.projecty.projectyweb.model.Roles;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.RoleRepository;
@@ -21,9 +21,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
-import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_FAILED;
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @Controller
@@ -45,7 +47,9 @@ public class ProjectController {
 
     private final MessageSource messageSource;
 
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator, RoleService roleService, MessageSource messageSource) {
+    private final UserHelper userHelper;
+
+    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator, RoleService roleService, MessageSource messageSource, UserHelper userHelper) {
         this.projectService = projectService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -54,6 +58,7 @@ public class ProjectController {
         this.projectValidator = projectValidator;
         this.roleService = roleService;
         this.messageSource = messageSource;
+        this.userHelper = userHelper;
     }
 
     @GetMapping("addproject")
@@ -72,29 +77,7 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
             return "fragments/project/add-project";
         }
-        User currentUser = userService.getCurrentUser();
-        List<Role> roles = new ArrayList<>();
-        if (usernames != null) {
-            for (String username : usernames
-            ) {
-                User user = userRepository.findByUsername(username);
-                if (user != null) {
-                    Role role = new Role();
-                    role.setProject(project);
-                    role.setUser(user);
-                    role.setName(Roles.USER.toString());
-                    roles.add(role);
-                    redirectAttributes.addFlashAttribute("redirectMessage", Collections.singletonList(messageSource.getMessage("project.delete.success", null, Locale.getDefault())));
-                }
-            }
-        }
-        Role admin = new Role();
-        admin.setProject(project);
-        admin.setUser(currentUser);
-        admin.setName(Roles.ADMIN.toString());
-        roles.add(admin);
-        project.setRoles(roles);
-        projectRepository.save(project);
+        projectService.createNewProjectAndSave(project, usernames, redirectAttributes);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.add.success", null, Locale.getDefault())));
         return "redirect:/project/myprojects";
     }
@@ -144,30 +127,8 @@ public class ProjectController {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
             Project project = optionalProject.get();
-            List<Role> toAddRoles = new ArrayList<>();
-            List<String> messagesSuccess = new ArrayList<>();
-            List<String> messagesFailed = new ArrayList<>();
-            for (String username : usernames
-            ) {
-                User toAddUser = userRepository.findByUsername(username);
-                if (toAddUser != null && roleRepository.findRoleByUserAndProject(toAddUser, project) == null) {
-                    Role role = new Role();
-                    role.setUser(toAddUser);
-                    role.setProject(project);
-                    role.setName(Roles.USER.toString());
-                    toAddRoles.add(role);
-                    messagesSuccess.add(messageSource.getMessage("role.add.success", new Object[]{role.getUser().getUsername(), project.getName()}, null, Locale.getDefault()));
-                } else {
-                    messagesFailed.add(messageSource.getMessage("role.add.failed", new Object[]{username, project.getName()}, null, Locale.getDefault()));
-                }
-            }
-            if (messagesSuccess.size() > 0) {
-                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, messagesSuccess);
-            }
-            if (messagesFailed.size() > 0) {
-                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED, messagesFailed);
-            }
-            project.getRoles().addAll(toAddRoles);
+            usernames = userHelper.removeExistingUsernamesInProject(usernames, project);
+            roleService.addRolesToProjectByUsernames(project, usernames);
             projectRepository.save(project);
         }
         redirectAttributes.addAttribute("projectId", projectId);
@@ -186,6 +147,7 @@ public class ProjectController {
         if (toDeleteOptionalUser.isPresent() && !toDeleteOptionalUser.get().equals(current)
                 && optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())
         ) {
+
             Role toDeleteRole = roleRepository.findRoleByUserAndProject(toDeleteOptionalUser.get(), optionalProject.get());
             Project project = optionalProject.get();
             List<Role> roles = project.getRoles();
