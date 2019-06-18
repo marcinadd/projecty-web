@@ -20,6 +20,7 @@ import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGE
 @Controller
 public class UserController {
     private final UserService userService;
+
     private final MessageSource messageSource;
 
     public UserController(UserService userService, MessageSource messageSource) {
