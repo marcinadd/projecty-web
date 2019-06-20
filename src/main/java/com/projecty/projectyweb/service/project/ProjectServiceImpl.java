@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.service.project;
 
+import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Role;
 import com.projecty.projectyweb.model.Roles;
@@ -10,9 +11,7 @@ import com.projecty.projectyweb.service.role.RoleService;
 import com.projecty.projectyweb.service.user.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -55,11 +54,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void createNewProjectAndSave(Project project, List<String> usernames, RedirectAttributes redirectAttributes) {
-        List<String> messagesSuccess = new ArrayList<>();
-        List<String> messagesFailed = new ArrayList<>();
+    public void createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {
         roleService.addCurrentUserToProjectAsAdmin(project);
-        roleService.addRolesToProjectByUsernames(project, usernames);
+        roleService.addRolesToProjectByUsernames(project, usernames, messages);
         projectRepository.save(project);
     }
 

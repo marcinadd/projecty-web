@@ -2,6 +2,8 @@ package com.projecty.projectyweb.service.role;
 
 import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.helpers.UserHelper;
+import com.projecty.projectyweb.misc.RedirectMessage;
+import com.projecty.projectyweb.misc.RedirectMessageTypes;
 import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Role;
 import com.projecty.projectyweb.model.Roles;
@@ -10,10 +12,12 @@ import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.RoleRepository;
 import com.projecty.projectyweb.repository.UserRepository;
 import com.projecty.projectyweb.service.user.UserService;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -22,13 +26,15 @@ public class RoleServiceImpl implements RoleService {
     private final UserService userService;
     private final UserHelper userHelper;
     private final ProjectRepository projectRepository;
+    private final MessageSource messageSource;
 
-    public RoleServiceImpl(RoleRepository roleRepository, UserRepository userRepository, UserService userService, UserHelper userHelper, ProjectRepository projectRepository) {
+    public RoleServiceImpl(RoleRepository roleRepository, UserRepository userRepository, UserService userService, UserHelper userHelper, ProjectRepository projectRepository, MessageSource messageSource) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.userService = userService;
         this.userHelper = userHelper;
         this.projectRepository = projectRepository;
+        this.messageSource = messageSource;
     }
 
     @Override
@@ -42,7 +48,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void addRolesToProjectByUsernames(Project project, List<String> usernames) {
+    public void addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
         List<Role> roles = new ArrayList<>();
         if (usernames != null) {
             usernames = userHelper.cleanUsernames(usernames);
@@ -55,6 +61,23 @@ public class RoleServiceImpl implements RoleService {
                     role.setUser(user);
                     role.setName(Roles.USER.toString());
                     roles.add(role);
+                    RedirectMessage message = new RedirectMessage();
+                    message.setType(RedirectMessageTypes.SUCCESS);
+                    String text = messageSource.getMessage(
+                            "role.add.success",
+                            new Object[]{username, project.getName()},
+                            Locale.getDefault());
+                    message.setText(text);
+                    messages.add(message);
+                } else {
+                    RedirectMessage message = new RedirectMessage();
+                    message.setType(RedirectMessageTypes.FAILED);
+                    String text = messageSource.getMessage(
+                            "role.add.not.found",
+                            new Object[]{username},
+                            Locale.getDefault());
+                    message.setText(text);
+                    messages.add(message);
                 }
             }
         }

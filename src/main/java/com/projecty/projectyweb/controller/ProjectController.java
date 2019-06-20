@@ -1,6 +1,7 @@
 package com.projecty.projectyweb.controller;
 
 import com.projecty.projectyweb.helpers.UserHelper;
+import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Role;
 import com.projecty.projectyweb.model.User;
@@ -21,10 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
@@ -77,7 +75,9 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
             return "fragments/project/add-project";
         }
-        projectService.createNewProjectAndSave(project, usernames, redirectAttributes);
+        List<RedirectMessage> redirectMessages = new ArrayList<>();
+        projectService.createNewProjectAndSave(project, usernames, redirectMessages);
+        redirectAttributes.addFlashAttribute("messages", redirectMessages);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.add.success", null, Locale.getDefault())));
         return "redirect:/project/myprojects";
     }
@@ -127,8 +127,10 @@ public class ProjectController {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
             Project project = optionalProject.get();
-            usernames = userHelper.removeExistingUsernamesInProject(usernames, project);
-            roleService.addRolesToProjectByUsernames(project, usernames);
+            List<RedirectMessage> redirectMessages = new ArrayList<>();
+            usernames = userHelper.removeExistingUsernamesInProject(usernames, project, redirectMessages);
+            roleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
+            redirectAttributes.addFlashAttribute("messages", redirectMessages);
             projectRepository.save(project);
         }
         redirectAttributes.addAttribute("projectId", projectId);

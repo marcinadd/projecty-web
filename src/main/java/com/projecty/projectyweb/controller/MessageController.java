@@ -3,21 +3,18 @@ package com.projecty.projectyweb.controller;
 import com.projecty.projectyweb.model.Message;
 import com.projecty.projectyweb.model.User;
 import com.projecty.projectyweb.repository.MessageRepository;
-import com.projecty.projectyweb.repository.UserRepository;
 import com.projecty.projectyweb.service.message.MessageService;
 import com.projecty.projectyweb.service.user.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -29,14 +26,15 @@ import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGE
 @RequestMapping("messages")
 public class MessageController {
     private final UserService userService;
-    private final UserRepository userRepository;
+
     private final MessageRepository messageRepository;
+
     private final MessageService messageService;
+
     private final MessageSource messageSource;
 
-    public MessageController(UserService userService, MessageRepository messageRepository, UserRepository userRepository, MessageService messageService, MessageSource messageSource) {
+    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, MessageSource messageSource) {
         this.userService = userService;
-        this.userRepository = userRepository;
         this.messageRepository = messageRepository;
         this.messageService = messageService;
         this.messageSource = messageSource;

@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.service.role;
 
+import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.model.Project;
 import com.projecty.projectyweb.model.Role;
 import com.projecty.projectyweb.model.User;
@@ -11,7 +12,7 @@ public interface RoleService {
 
     boolean isValidRoleName(String roleName);
 
-    void addRolesToProjectByUsernames(Project project, List<String> usernames);
+    void addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages);
 
     void addCurrentUserToProjectAsAdmin(Project project);
 

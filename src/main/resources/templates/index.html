@@ -83,6 +83,11 @@
                     <li class="list-group" th:text="${message}"></li>
                 </ul>
             </div>
+            <div class="col-lg-8 mx-auto" th:each="message: ${messages}" th:if="${messages != null}">
+                <div class="alert" th:classappend="${message.type}">
+                    <span th:text="${message.text}"></span>
+                </div>
+            </div>
             <div class="col-lg-8 mx-auto" layout:fragment="content">
                 <h2>About this page</h2>
                 <p class="lead">This is a great place to talk about your webpage. This template is purposefully unstyled
