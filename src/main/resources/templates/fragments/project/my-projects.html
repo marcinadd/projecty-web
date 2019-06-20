@@ -1,10 +1,9 @@
-<html layout:decorate="~{index(title='My projects')}"
+<html layout:decorate="~{index(title='Projects')}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:th="https://www.thymeleaf.org"
 >
 <head>
-    <title>My projects</title>
-
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Projects</title>
 </head>
 <body>
 <div layout:fragment="content">

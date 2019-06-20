@@ -134,7 +134,7 @@ public class TaskController {
             task.get().setDone(done);
             taskRepository.save(task.get());
             redirectAttributes.addAttribute("projectId", projectId);
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.change.success", new Object[]{task.get().getName()}, Locale.getDefault())));
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.status.change.success", new Object[]{task.get().getName()}, Locale.getDefault())));
             return new ModelAndView("redirect:/project/task/tasklist");
         } else if (project.isPresent() && task.isPresent()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);

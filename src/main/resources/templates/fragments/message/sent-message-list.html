@@ -1,8 +1,8 @@
-<html layout:decorate="~{index(title='Message list')}"
+<html layout:decorate="~{index(title='Sent message list')}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Sent messages</title>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Sent messages</title>
 </head>
 <body>
 <div layout:fragment="content">

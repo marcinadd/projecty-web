@@ -3,8 +3,7 @@
       xmlns:th="https://www.thymeleaf.org"
 >
 <head>
-    <title>Tasklist</title>
-
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Task list</title>
 </head>
 <body>
 <div layout:fragment="content">

@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.controller;
 
+import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.helpers.UserHelper;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.model.Project;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.util.*;
 
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES;
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @Controller
@@ -77,7 +79,7 @@ public class ProjectController {
         }
         List<RedirectMessage> redirectMessages = new ArrayList<>();
         projectService.createNewProjectAndSave(project, usernames, redirectMessages);
-        redirectAttributes.addFlashAttribute("messages", redirectMessages);
+        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES, redirectMessages);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.add.success", null, Locale.getDefault())));
         return "redirect:/project/myprojects";
     }
@@ -130,7 +132,7 @@ public class ProjectController {
             List<RedirectMessage> redirectMessages = new ArrayList<>();
             usernames = userHelper.removeExistingUsernamesInProject(usernames, project, redirectMessages);
             roleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
-            redirectAttributes.addFlashAttribute("messages", redirectMessages);
+            redirectAttributes.addFlashAttribute(AppConfig.REDIRECT_MESSAGES, redirectMessages);
             projectRepository.save(project);
         }
         redirectAttributes.addAttribute("projectId", projectId);

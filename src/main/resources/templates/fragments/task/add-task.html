@@ -1,8 +1,8 @@
-<html layout:decorate="~{index(title='Add tasks')}"
+<html layout:decorate="~{index(title='Add task')}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Add tasks</title>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Add task</title>
 </head>
 <body>
 <div layout:fragment="content">
