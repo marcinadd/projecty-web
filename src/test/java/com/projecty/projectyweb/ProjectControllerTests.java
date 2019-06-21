@@ -84,9 +84,9 @@ public class ProjectControllerTests {
         project.setRoles(roles);
 
         Mockito.when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(user);
+                .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
-                .thenReturn(user1);
+                .thenReturn(Optional.of(user1));
         Mockito.when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findById(user1.getId()))
@@ -98,11 +98,11 @@ public class ProjectControllerTests {
         Mockito.when(roleRepository.findById(1L))
                 .thenReturn(Optional.of(role));
         Mockito.when(roleRepository.findRoleByUserAndProject(user, project))
-                .thenReturn(role);
+                .thenReturn(Optional.of(role));
         Mockito.when(roleRepository.findById(2L))
                 .thenReturn(Optional.of(role1));
         Mockito.when(roleRepository.findRoleByUserAndProject(user1, project))
-                .thenReturn(role1);
+                .thenReturn(Optional.of(role1));
     }
 
     @Test
@@ -167,7 +167,7 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnChangeRole_shouldRedirect() throws Exception {
-        mockMvc.perform(post("/project/changerole?projectId=1&roleId=2"))
+        mockMvc.perform(post("/project/changeRole?projectId=1&roleId=2&newRoleName=USER"))
                 .andExpect(status().is3xxRedirection());
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -49,8 +50,8 @@ public class UserHelperImpl implements UserHelper {
     public List<String> removeExistingUsernamesInProject(List<String> usernames, Project project, List<RedirectMessage> messages) {
         List<String> newUsernames = new ArrayList<>();
         for (String username : usernames) {
-            User user = userRepository.findByUsername(username);
-            if (roleRepository.findRoleByUserAndProject(user, project) == null) {
+            Optional<User> user = userRepository.findByUsername(username);
+            if (user.isPresent() && !roleRepository.findRoleByUserAndProject(user.get(), project).isPresent()) {
                 newUsernames.add(username);
             } else {
                 RedirectMessage message = new RedirectMessage();

@@ -32,7 +32,7 @@ public class UserValidatorTests {
         User admin = new User();
         admin.setUsername("admin");
         admin.setEmail("admin@example.com");
-        Mockito.when(userRepository.findByUsername(admin.getUsername())).thenReturn(admin);
+        Mockito.when(userRepository.findByUsername(admin.getUsername())).thenReturn(java.util.Optional.of(admin));
     }
 
     @Test

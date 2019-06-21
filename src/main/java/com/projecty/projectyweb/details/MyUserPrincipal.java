@@ -12,14 +12,14 @@ import java.util.List;
 public class MyUserPrincipal implements UserDetails {
     private User user;
 
-    public MyUserPrincipal(User user) {
+    MyUserPrincipal(User user) {
         this.user = user;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
+        List<GrantedAuthority> list = new ArrayList<>();
 
         list.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return list;

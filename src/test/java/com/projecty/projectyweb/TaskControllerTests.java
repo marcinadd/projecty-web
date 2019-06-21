@@ -97,17 +97,17 @@ public class TaskControllerTests {
         Mockito.when(projectRepository.save(project))
                 .thenReturn(project);
         Mockito.when(projectRepository.findById(1L))
-                .thenReturn(Optional.ofNullable(project));
+                .thenReturn(Optional.of(project));
         Mockito.when(roleRepository.findRoleByUserAndProject(user, project))
-                .thenReturn(role);
+                .thenReturn(Optional.of(role));
         Mockito.when(roleRepository.findRoleByUserAndProject(user1, project))
-                .thenReturn(role1);
+                .thenReturn(Optional.of(role1));
         Mockito.when(taskRepository.findById(1L))
                 .thenReturn(Optional.of(task));
         Mockito.when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(user);
+                .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
-                .thenReturn(user1);
+                .thenReturn(Optional.of(user1));
     }
 
     @Test

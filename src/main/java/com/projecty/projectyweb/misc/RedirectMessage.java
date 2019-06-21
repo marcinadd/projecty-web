@@ -4,15 +4,6 @@ public class RedirectMessage {
     private String text;
     private RedirectMessageTypes type;
 
-    public RedirectMessage(String text, RedirectMessageTypes type) {
-        this.text = text;
-        this.type = type;
-    }
-
-    public RedirectMessage() {
-
-    }
-
     public String getText() {
         return text;
     }

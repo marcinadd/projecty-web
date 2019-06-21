@@ -46,7 +46,7 @@ public class UserControllerTests {
         user.setEmail("admin@example.com");
         user.setPassword(encoder.encode("password123"));
         Mockito.when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(user);
+                .thenReturn(java.util.Optional.ofNullable(user));
     }
 
     @Test

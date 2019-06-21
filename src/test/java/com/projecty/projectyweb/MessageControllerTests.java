@@ -54,6 +54,7 @@ public class MessageControllerTests {
         message = new Message();
         message.setId(1L);
         message.setText("This is sample message");
+        message.setTitle("sample title");
         recipientUsername = "user1";
         message.setRecipient(user);
         message.setSender(user1);
@@ -63,9 +64,9 @@ public class MessageControllerTests {
         Mockito.when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.of(user1));
         Mockito.when(userRepository.findByUsername(user.getUsername()))
-                .thenReturn(user);
+                .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
-                .thenReturn(user1);
+                .thenReturn(Optional.of(user1));
         Mockito.when(messageRepository.findById(message.getId()))
                 .thenReturn(Optional.ofNullable(message));
     }

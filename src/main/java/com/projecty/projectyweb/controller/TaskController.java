@@ -5,7 +5,6 @@ import com.projecty.projectyweb.model.Task;
 import com.projecty.projectyweb.repository.ProjectRepository;
 import com.projecty.projectyweb.repository.TaskRepository;
 import com.projecty.projectyweb.service.project.ProjectService;
-import com.projecty.projectyweb.service.task.TaskService;
 import com.projecty.projectyweb.validator.TaskValidator;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -30,18 +29,15 @@ public class TaskController {
 
     private final ProjectService projectService;
 
-    private final TaskService taskService;
-
     private final TaskValidator taskValidator;
 
     private final TaskRepository taskRepository;
 
     private final MessageSource messageSource;
 
-    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskService taskService, TaskValidator taskValidator, TaskRepository taskRepository, MessageSource messageSource) {
+    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, MessageSource messageSource) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
-        this.taskService = taskService;
         this.taskValidator = taskValidator;
         this.taskRepository = taskRepository;
         this.messageSource = messageSource;
@@ -81,7 +77,7 @@ public class TaskController {
             task.setDone(false);
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
-            taskService.save(task);
+            taskRepository.save(task);
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.add.success", new Object[]{task.getName(), project.get().getName()}, Locale.getDefault())));
             return new ModelAndView("redirect:/project/task/tasklist");
         } else {

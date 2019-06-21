@@ -42,9 +42,9 @@
                 <div sec:authorize="isAuthenticated()" th:remove="tag">
                     <li class="nav-item">
                         <a class="nav-link js-scroll-trigger" th:href="@{/messages/messageList}">
-                            <div th:if="${@messageServiceImpl.getMessageCountForCurrentUser()>0}" th:remove="tag">
+                            <div th:if="${@messageService.getMessageCountForCurrentUser()>0}" th:remove="tag">
                                 <span class="text-warning"
-                                      th:text="${'('+@messageServiceImpl.getMessageCountForCurrentUser()}+')'"></span>
+                                      th:text="${'('+@messageService.getMessageCountForCurrentUser()}+')'"></span>
                             </div>
                             Messages
                         </a>
