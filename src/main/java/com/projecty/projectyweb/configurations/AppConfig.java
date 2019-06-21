@@ -1,6 +1,6 @@
 package com.projecty.projectyweb.configurations;
 
-import com.projecty.projectyweb.model.Roles;
+import com.projecty.projectyweb.role.Roles;
 
 import java.util.Arrays;
 import java.util.List;

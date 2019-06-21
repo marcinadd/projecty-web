@@ -1,7 +1,7 @@
 package com.projecty.projectyweb;
 
-import com.projecty.projectyweb.model.Task;
-import com.projecty.projectyweb.validator.TaskValidator;
+import com.projecty.projectyweb.task.Task;
+import com.projecty.projectyweb.task.TaskValidator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

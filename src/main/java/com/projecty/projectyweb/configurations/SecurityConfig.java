@@ -1,6 +1,6 @@
 package com.projecty.projectyweb.configurations;
 
-import com.projecty.projectyweb.details.MyUserDetailsService;
+import com.projecty.projectyweb.user.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;

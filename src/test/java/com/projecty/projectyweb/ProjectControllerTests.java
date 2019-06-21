@@ -1,12 +1,12 @@
 package com.projecty.projectyweb;
 
-import com.projecty.projectyweb.model.Project;
-import com.projecty.projectyweb.model.Role;
-import com.projecty.projectyweb.model.Roles;
-import com.projecty.projectyweb.model.User;
-import com.projecty.projectyweb.repository.ProjectRepository;
-import com.projecty.projectyweb.repository.RoleRepository;
-import com.projecty.projectyweb.repository.UserRepository;
+import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.project.ProjectRepository;
+import com.projecty.projectyweb.role.Role;
+import com.projecty.projectyweb.role.RoleRepository;
+import com.projecty.projectyweb.role.Roles;
+import com.projecty.projectyweb.user.User;
+import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

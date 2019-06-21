@@ -1,7 +1,7 @@
 package com.projecty.projectyweb;
 
-import com.projecty.projectyweb.model.Project;
-import com.projecty.projectyweb.validator.ProjectValidator;
+import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.project.ProjectValidator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

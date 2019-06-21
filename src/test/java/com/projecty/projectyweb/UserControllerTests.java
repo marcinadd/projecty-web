@@ -1,8 +1,8 @@
 package com.projecty.projectyweb;
 
-import com.projecty.projectyweb.model.User;
-import com.projecty.projectyweb.repository.MessageRepository;
-import com.projecty.projectyweb.repository.UserRepository;
+import com.projecty.projectyweb.message.MessageRepository;
+import com.projecty.projectyweb.user.User;
+import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,10 +1,14 @@
 package com.projecty.projectyweb;
 
-import com.projecty.projectyweb.model.*;
-import com.projecty.projectyweb.repository.ProjectRepository;
-import com.projecty.projectyweb.repository.RoleRepository;
-import com.projecty.projectyweb.repository.TaskRepository;
-import com.projecty.projectyweb.repository.UserRepository;
+import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.project.ProjectRepository;
+import com.projecty.projectyweb.role.Role;
+import com.projecty.projectyweb.role.RoleRepository;
+import com.projecty.projectyweb.role.Roles;
+import com.projecty.projectyweb.task.Task;
+import com.projecty.projectyweb.task.TaskRepository;
+import com.projecty.projectyweb.user.User;
+import com.projecty.projectyweb.user.UserRepository;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
