@@ -1,0 +1,69 @@
+<html layout:decorate="~{index(title='Projects')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org"
+>
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Projects</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1> List of teams</h1>
+    <div class="container">
+        <a class="my-2" th:href="@{/team/addTeam}">
+            <button class="btn btn-success">Add new team</button>
+        </a>
+
+        <ul class="list-group" th:each="teamRole: ${teamRoles}">
+            <li class="list-group-item my-2">
+                <b><p>Team name</p></b>
+                <div class="row">
+                    <div class="mx-auto" th:text="${teamRole.team.name}">
+                    </div>
+                </div>
+                <p>Users</p>
+                <div class="row">
+                    <div class="mx-auto">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Username</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Role</th>
+                            </tr>
+                            </thead>
+                            <tbody th:each="teamRoleObj: ${teamRole.team.teamRoles}">
+                            <tr>
+                                <td th:text="${teamRoleObj.user.username}"></td>
+                                <td th:text="${teamRoleObj.user.email}"></td>
+                                <td th:text="${teamRoleObj.name}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <p>Projects</p>
+                <div class="row">
+                    <div class="mx-auto">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                            </tr>
+                            </thead>
+                            <tbody th:each="projectObj: ${teamRole.team.projects}">
+                            <tr>
+                                <td th:text="${projectObj.name}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
+

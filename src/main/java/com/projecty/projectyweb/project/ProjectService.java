@@ -43,7 +43,7 @@ public class ProjectService {
         return accessLevel.equals(Roles.ADMIN.toString()) || accessLevel.equals(Roles.USER.toString());
     }
 
-    public void createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {
+    void createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {
         roleService.addCurrentUserToProjectAsAdmin(project);
         roleService.addRolesToProjectByUsernames(project, usernames, messages);
         projectRepository.save(project);

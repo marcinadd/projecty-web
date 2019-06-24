@@ -2,6 +2,7 @@ package com.projecty.projectyweb.user;
 
 import com.projecty.projectyweb.message.Message;
 import com.projecty.projectyweb.role.Role;
+import com.projecty.projectyweb.team.role.TeamRole;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -31,6 +32,14 @@ public class User {
             orphanRemoval = true
     )
     private List<Role> roles;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<TeamRole> teamRoles;
+
     @OneToMany(
             mappedBy = "sender",
             cascade = CascadeType.ALL,
@@ -114,6 +123,14 @@ public class User {
 
     public void setMessagesTo(List<Message> messagesTo) {
         this.messagesTo = messagesTo;
+    }
+
+    public List<TeamRole> getTeamRoles() {
+        return teamRoles;
+    }
+
+    public void setTeamRoles(List<TeamRole> teamRoles) {
+        this.teamRoles = teamRoles;
     }
 
     @Override
