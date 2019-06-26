@@ -3,6 +3,7 @@ package com.projecty.projectyweb.team;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
+import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -24,13 +26,15 @@ public class TeamController {
     private final TeamService teamService;
     private final UserService userService;
     private final ProjectValidator projectValidator;
+    private final TeamRoleService teamRoleService;
 
-    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator) {
+    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService) {
         this.teamValidator = teamValidator;
         this.teamRepository = teamRepository;
         this.userService = userService;
         this.teamService = teamService;
         this.projectValidator = projectValidator;
+        this.teamRoleService = teamRoleService;
     }
 
     @GetMapping("addTeam")
@@ -71,7 +75,6 @@ public class TeamController {
         return modelAndView;
     }
 
-    // TODO Check if user has permission for add project to a team
     @PostMapping("addProjectTeam")
     public String addProjectTeam(
             @Valid @ModelAttribute Project project,
@@ -82,10 +85,37 @@ public class TeamController {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         if (bindingResult.hasErrors()) {
             return "fragments/team/add-project-team";
-        } else if (optionalTeam.isPresent()) {
+        } else if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
             teamService.createProjectForTeam(optionalTeam.get(), project);
             return "redirect:/team/myTeams";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("manageTeam")
+    public ModelAndView manageTeam(
+            @RequestParam Long teamId
+    ) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
+            return new ModelAndView("fragments/team/manage-team", "team", optionalTeam.get());
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("changeName")
+    public String changeNamePost(
+            @RequestParam Long teamId,
+            @RequestParam String newName,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
+            teamService.changeTeamName(optionalTeam.get(), newName);
+            redirectAttributes.addAttribute("teamId", teamId);
+            return "redirect:/team/myTeams";
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
 }

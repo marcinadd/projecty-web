@@ -58,7 +58,14 @@
                         </table>
                     </div>
                 </div>
-
+                <div class="row">
+                    <div class="col"
+                         th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
+                        <a th:href="@{/team/manageTeam(teamId=${teamRole.team.id})}">
+                            <button class="btn btn-warning" id="addTaskButton" type="button">Manage team</button>
+                        </a>
+                    </div>
+                </div>
             </li>
         </ul>
     </div>

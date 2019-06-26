@@ -23,14 +23,13 @@ public class TeamService {
         this.projectRepository = projectRepository;
     }
 
-    void createTeamAndSave(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
+    public Team createTeamAndSave(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
         teamRoleService.addCurrentUserToTeamAsManager(team);
         teamRoleService.addTeamRolesToTeamByUsernames(team, usernames, redirectMessages);
-        System.out.println(team);
-        teamRepository.save(team);
+        return teamRepository.save(team);
     }
 
-    void createProjectForTeam(Team team, Project project) {
+    public void createProjectForTeam(Team team, Project project) {
         project.setTeam(team);
         projectRepository.save(project);
         if (team.getProjects() == null) {
@@ -40,6 +39,11 @@ public class TeamService {
         } else {
             team.getProjects().add(project);
         }
+        teamRepository.save(team);
+    }
+
+    public void changeTeamName(Team team, String newName) {
+        team.setName(newName);
         teamRepository.save(team);
     }
 }

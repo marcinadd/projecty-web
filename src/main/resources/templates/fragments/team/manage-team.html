@@ -1,0 +1,107 @@
+<html layout:decorate="~{index(title='Manage team')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org"
+>
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Manage users</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row mb-3">
+        <h2>Manage team: <b><span th:text="${team.name}"></span></b></h2>
+    </div>
+    <div class="container">
+        <div class="row my-2">
+            <h3>Change team name</h3>
+        </div>
+        <form method="post" th:action="@{/team/changeName}">
+            <div class="form-group">
+                <input name="teamId" th:value="${team.id}" type="hidden">
+            </div>
+            <div class="form-group">
+                <label for="newName">New Name:</label>
+                <input class="form-control" id="newName" name="newName" th:placeholder="${team.name}" type="text">
+            </div>
+            <button class="btn btn-success" type="submit">Change</button>
+        </form>
+        <div class="row my-2">
+            <h3>Manage roles</h3>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Role Name</th>
+                <th scope="col">Remove</th>
+                <th scope="col">Change role</th>
+
+            </tr>
+            </thead>
+            <tbody th:each="teamRole: ${team.teamRoles}">
+            <tr>
+                <td th:text="${teamRole.user.username}"></td>
+
+                <td th:text="${teamRole.user.email}"></td>
+
+                <td th:text="${teamRole.name}"></td>
+
+                <td>
+                    <!--                    <button class="btn btn-danger disabled" th:if="${role.user.id == currentUser.id}">Remove-->
+                    <!--                    </button>-->
+                    <!--                    <form method="post"-->
+                    <!--                          th:action="@{/project/deleteuser(projectId=${project.id}, userId=${role.user.id})}"-->
+                    <!--                          th:unless="${role.user.id == currentUser.id}">-->
+                    <!--                        <button class="btn btn-danger" type="submit">Remove</button>-->
+                    <!--                    </form>-->
+                    <!--                </td>-->
+                    <!--                <td>-->
+                    <!--                    <form method="post"-->
+                    <!--                          th:action="@{/project/changeRole(projectId=${role.project.id}, roleId=${role.id}, newRoleName='USER')}"-->
+                    <!--                          th:if="${role.name == 'ADMIN'  && role.user.id != currentUser.id}">-->
+                    <!--                        <button class="btn btn-success" type="submit">-->
+                    <!--                            Disable Admin-->
+                    <!--                        </button>-->
+                    <!--                    </form>-->
+                    <!--                    <form method="post"-->
+                    <!--                          th:action="@{/project/changeRole(projectId=${role.project.id}, roleId=${role.id}, newRoleName='ADMIN')}"-->
+                    <!--                          th:if="${role.name == 'USER'  && role.user.id != currentUser.id}">-->
+                    <!--                        <button class="btn btn-danger" type="submit">-->
+                    <!--                            Enable Admin-->
+                    <!--                        </button>-->
+                    <!--                    </form>-->
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="row my-2">
+            <h3>Add users</h3>
+        </div>
+        <form method="post">
+            <div class="form-group">
+                <input class="btn btn-success" id="add" type="button" value="+"></input>
+                <input class="btn btn-danger" id="remove" type="button" value="-"></input>
+            </div>
+            <div class="form-group" id="users">
+
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-success" type="submit">Add</button>
+            </div>
+        </form>
+        <div class="row my-2">
+            <h3>Delete team</h3>
+        </div>
+
+        <form action="@{/team/deleteTeam(teamId=${team.id})}">
+            <button class="btn btn-danger">Delete team</button>
+        </form>
+
+    </div>
+</div>
+<div layout:fragment="scripts">
+    <script th:src="@{/js/entry-user-list.js}"></script>
+</div>
+</body>
+</html>
+

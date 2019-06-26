@@ -17,11 +17,13 @@ public class TeamRoleService {
     private final UserHelper userHelper;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final TeamRoleRepository teamRoleRepository;
 
-    public TeamRoleService(UserHelper userHelper, UserRepository userRepository, UserService userService) {
+    public TeamRoleService(UserHelper userHelper, UserRepository userRepository, UserService userService, TeamRoleRepository teamRoleRepository) {
         this.userHelper = userHelper;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.teamRoleRepository = teamRoleRepository;
     }
 
 
@@ -61,6 +63,12 @@ public class TeamRoleService {
         } else {
             team.getTeamRoles().add(teamRole);
         }
+    }
+
+    public boolean isCurrentUserTeamManager(Team team) {
+        User user = userService.getCurrentUser();
+        Optional<TeamRole> teamRole = teamRoleRepository.findByTeamAndAndUser(team, user);
+        return teamRole.map(role -> role.getName().equals(TeamRoles.MANAGER)).orElse(false);
     }
 
 }
