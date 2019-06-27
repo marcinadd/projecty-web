@@ -31,6 +31,7 @@ public class TeamRoleService {
         List<TeamRole> teamRoles = new ArrayList<>();
         if (usernames != null) {
             usernames = userHelper.cleanUsernames(usernames);
+            removeExistingTeamRoleUsernamesInTeam(usernames, team);
             for (String username : usernames
             ) {
                 Optional<User> user = userRepository.findByUsername(username);
@@ -69,6 +70,23 @@ public class TeamRoleService {
         User user = userService.getCurrentUser();
         Optional<TeamRole> teamRole = teamRoleRepository.findByTeamAndAndUser(team, user);
         return teamRole.map(role -> role.getName().equals(TeamRoles.MANAGER)).orElse(false);
+    }
+
+    public List<String> getTeamRoleUsernames(Team team) {
+        List<TeamRole> teamRoles = teamRoleRepository.findByTeam(team);
+        List<String> usernames = new ArrayList<>();
+        for (TeamRole teamRole : teamRoles
+        ) {
+            usernames.add(teamRole.getUser().getUsername());
+        }
+        return usernames;
+    }
+
+    private void removeExistingTeamRoleUsernamesInTeam(List<String> usernames, Team team) {
+        if (team.getId() != null) {
+            List<String> existingUsernames = getTeamRoleUsernames(team);
+            usernames.removeAll(existingUsernames);
+        }
     }
 
 }

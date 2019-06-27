@@ -1,11 +1,15 @@
 package com.projecty.projectyweb;
 
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.team.role.TeamRole;
+import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.team.role.TeamRoles;
 import com.projecty.projectyweb.user.User;
+import com.projecty.projectyweb.user.UserRepository;
+import com.projecty.projectyweb.user.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,8 +37,20 @@ public class TeamControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @MockBean
     private TeamRepository teamRepository;
+
+    @MockBean
+    private UserService userService;
+
+    @MockBean
+    private TeamRoleService teamRoleService;
+
+    @MockBean
+    private ProjectRepository projectRepository;
 
     private Team team;
     private Project project;
@@ -57,9 +74,21 @@ public class TeamControllerTests {
         project = new Project();
         project.setName("Sample");
 
+        userRepository.save(user);
         Mockito.when(teamRepository.findById(team.getId()))
                 .thenReturn(java.util.Optional.ofNullable(team));
 
+        Mockito.when(userService.getCurrentUser())
+                .thenReturn(user);
+
+        Mockito.when(teamRoleService.isCurrentUserTeamManager(team))
+                .thenReturn(true);
+
+        Mockito.when(teamRepository.save(any(Team.class)))
+                .thenReturn(team);
+
+        Mockito.when(projectRepository.save(any(Project.class)))
+                .thenReturn(project);
     }
 
     @Test
@@ -82,7 +111,15 @@ public class TeamControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnAddProjectTeam_shouldRedirectToMyTeams() throws Exception {
+    public void givenRequestOnAddTeamProject_shouldReturnAddTeamProjectView() throws Exception {
+        mockMvc.perform(get("/team/addProjectTeam"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("fragments/team/add-project-team"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnAddTeamProject_shouldRedirectToMyTeams() throws Exception {
         mockMvc.perform(post("/team/addProjectTeam")
                 .flashAttr("project", project)
                 .param("teamId", "1"))

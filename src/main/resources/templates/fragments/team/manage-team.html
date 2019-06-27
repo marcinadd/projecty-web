@@ -3,7 +3,7 @@
       xmlns:th="https://www.thymeleaf.org"
 >
 <head>
-    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Manage users</title>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Manage team</title>
 </head>
 <body>
 <div layout:fragment="content">
@@ -47,14 +47,14 @@
                 <td th:text="${teamRole.name}"></td>
 
                 <td>
-                    <!--                    <button class="btn btn-danger disabled" th:if="${role.user.id == currentUser.id}">Remove-->
-                    <!--                    </button>-->
+                    <button class="btn btn-danger disabled" th:if="${teamRole.user.id == currentUser.id}">Remove
+                    </button>
                     <!--                    <form method="post"-->
                     <!--                          th:action="@{/project/deleteuser(projectId=${project.id}, userId=${role.user.id})}"-->
-                    <!--                          th:unless="${role.user.id == currentUser.id}">-->
+                    <!--                          th:unless="${teamRole.user.id == currentUser.id}">-->
                     <!--                        <button class="btn btn-danger" type="submit">Remove</button>-->
                     <!--                    </form>-->
-                    <!--                </td>-->
+                </td>
                     <!--                <td>-->
                     <!--                    <form method="post"-->
                     <!--                          th:action="@{/project/changeRole(projectId=${role.project.id}, roleId=${role.id}, newRoleName='USER')}"-->
@@ -77,7 +77,7 @@
         <div class="row my-2">
             <h3>Add users</h3>
         </div>
-        <form method="post">
+        <form method="post" th:action="@{/team/addUsers(teamId=${team.id})}">
             <div class="form-group">
                 <input class="btn btn-success" id="add" type="button" value="+"></input>
                 <input class="btn btn-danger" id="remove" type="button" value="-"></input>
@@ -93,7 +93,7 @@
             <h3>Delete team</h3>
         </div>
 
-        <form action="@{/team/deleteTeam(teamId=${team.id})}">
+        <form th:action="@{/team/deleteTeam(teamId=${team.id})}">
             <button class="btn btn-danger">Delete team</button>
         </form>
 

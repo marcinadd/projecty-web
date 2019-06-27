@@ -4,6 +4,7 @@ import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
 import com.projecty.projectyweb.team.role.TeamRoleService;
+import com.projecty.projectyweb.user.UserHelper;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -27,14 +28,16 @@ public class TeamController {
     private final UserService userService;
     private final ProjectValidator projectValidator;
     private final TeamRoleService teamRoleService;
+    private final UserHelper userHelper;
 
-    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService) {
+    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService, UserHelper userHelper) {
         this.teamValidator = teamValidator;
         this.teamRepository = teamRepository;
         this.userService = userService;
         this.teamService = teamService;
         this.projectValidator = projectValidator;
         this.teamRoleService = teamRoleService;
+        this.userHelper = userHelper;
     }
 
     @GetMapping("addTeam")
@@ -98,7 +101,11 @@ public class TeamController {
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            return new ModelAndView("fragments/team/manage-team", "team", optionalTeam.get());
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("fragments/team/manage-team");
+            modelAndView.addObject("team", optionalTeam.get());
+            modelAndView.addObject("currentUser", userService.getCurrentUser());
+            return modelAndView;
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -113,7 +120,23 @@ public class TeamController {
         if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
             teamService.changeTeamName(optionalTeam.get(), newName);
             redirectAttributes.addAttribute("teamId", teamId);
-            return "redirect:/team/myTeams";
+            return "redirect:/team/manageTeam";
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("addUsers")
+    public String addUsersPost(
+            @RequestParam Long teamId,
+            @RequestParam(required = false) List<String> usernames,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
+            teamRoleService.addTeamRolesToTeamByUsernames(optionalTeam.get(), usernames, null);
+            teamRepository.save(optionalTeam.get());
+            redirectAttributes.addAttribute("teamId", teamId);
+            return "redirect:/team/manageTeam";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
