@@ -3,45 +3,34 @@ package com.projecty.projectyweb.team.role;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.user.User;
-import com.projecty.projectyweb.user.UserHelper;
-import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TeamRoleService {
-    private final UserHelper userHelper;
-    private final UserRepository userRepository;
     private final UserService userService;
     private final TeamRoleRepository teamRoleRepository;
 
-    public TeamRoleService(UserHelper userHelper, UserRepository userRepository, UserService userService, TeamRoleRepository teamRoleRepository) {
-        this.userHelper = userHelper;
-        this.userRepository = userRepository;
+    public TeamRoleService(UserService userService, TeamRoleRepository teamRoleRepository) {
         this.userService = userService;
         this.teamRoleRepository = teamRoleRepository;
     }
 
-
-    public void addTeamRolesToTeamByUsernames(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
+    public void addTeamMembersByUsernames(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
         List<TeamRole> teamRoles = new ArrayList<>();
         if (usernames != null) {
-            usernames = userHelper.cleanUsernames(usernames);
-            removeExistingTeamRoleUsernamesInTeam(usernames, team);
-            for (String username : usernames
+            System.out.println(usernames);
+            Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
+            removeExistingUsersInTeam(users, team);
+            for (User user : users
             ) {
-                Optional<User> user = userRepository.findByUsername(username);
-                if (user.isPresent()) {
-                    TeamRole teamRole = new TeamRole();
-                    teamRole.setTeam(team);
-                    teamRole.setUser(user.get());
-                    teamRole.setName(TeamRoles.MEMBER);
-                    teamRoles.add(teamRole);
-                }
+                TeamRole teamRole = new TeamRole();
+                teamRole.setTeam(team);
+                teamRole.setUser(user);
+                teamRole.setName(TeamRoles.MEMBER);
+                teamRoles.add(teamRole);
             }
         }
         if (team.getTeamRoles() == null) {
@@ -51,7 +40,7 @@ public class TeamRoleService {
         }
     }
 
-    public void addCurrentUserToTeamAsManager(Team team) {
+    public void addCurrentUserAsTeamManager(Team team) {
         User current = userService.getCurrentUser();
         TeamRole teamRole = new TeamRole();
         teamRole.setTeam(team);
@@ -72,20 +61,20 @@ public class TeamRoleService {
         return teamRole.map(role -> role.getName().equals(TeamRoles.MANAGER)).orElse(false);
     }
 
-    public List<String> getTeamRoleUsernames(Team team) {
+    private Set<User> getTeamRoleUsers(Team team) {
         List<TeamRole> teamRoles = teamRoleRepository.findByTeam(team);
-        List<String> usernames = new ArrayList<>();
+        Set<User> users = new HashSet<>();
         for (TeamRole teamRole : teamRoles
         ) {
-            usernames.add(teamRole.getUser().getUsername());
+            users.add(teamRole.getUser());
         }
-        return usernames;
+        return users;
     }
 
-    private void removeExistingTeamRoleUsernamesInTeam(List<String> usernames, Team team) {
+    private void removeExistingUsersInTeam(Set<User> users, Team team) {
         if (team.getId() != null) {
-            List<String> existingUsernames = getTeamRoleUsernames(team);
-            usernames.removeAll(existingUsernames);
+            Set<User> existingUsers = getTeamRoleUsers(team);
+            users.removeAll(existingUsers);
         }
     }
 

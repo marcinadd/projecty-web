@@ -24,8 +24,8 @@ public class TeamService {
     }
 
     public Team createTeamAndSave(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
-        teamRoleService.addCurrentUserToTeamAsManager(team);
-        teamRoleService.addTeamRolesToTeamByUsernames(team, usernames, redirectMessages);
+        teamRoleService.addCurrentUserAsTeamManager(team);
+        teamRoleService.addTeamMembersByUsernames(team, usernames, redirectMessages);
         return teamRepository.save(team);
     }
 

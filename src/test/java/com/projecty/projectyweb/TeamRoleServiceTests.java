@@ -72,7 +72,7 @@ public class TeamRoleServiceTests {
         List<String> usernames = new ArrayList<>();
         usernames.add(user.getUsername());
         usernames.add(user1.getUsername());
-        teamRoleService.addTeamRolesToTeamByUsernames(team, usernames, null);
+        teamRoleService.addTeamMembersByUsernames(team, usernames, null);
 
         Optional<Team> optionalTeam = teamRepository.findById(team.getId());
         if (optionalTeam.isPresent()) {
@@ -87,7 +87,7 @@ public class TeamRoleServiceTests {
     public void whenAddCurrentUserAsTeamManager_shouldReturnTeamWithCurrentUserAsTeamManager() {
         Team team = new Team();
         team.setName("Sample");
-        teamRoleService.addCurrentUserToTeamAsManager(team);
+        teamRoleService.addCurrentUserAsTeamManager(team);
         teamRepository.save(team);
 
         Optional<Team> optionalTeam = teamRepository.findById(team.getId());

@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
+@Deprecated
 public class UserHelper {
     private final UserService userService;
     private final UserRepository userRepository;
