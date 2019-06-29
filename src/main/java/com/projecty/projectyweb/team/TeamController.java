@@ -3,6 +3,8 @@ package com.projecty.projectyweb.team;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
+import com.projecty.projectyweb.team.role.TeamRole;
+import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
@@ -27,14 +29,16 @@ public class TeamController {
     private final UserService userService;
     private final ProjectValidator projectValidator;
     private final TeamRoleService teamRoleService;
+    private final TeamRoleRepository teamRoleRepository;
 
-    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService) {
+    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService, TeamRoleRepository teamRoleRepository) {
         this.teamValidator = teamValidator;
         this.teamRepository = teamRepository;
         this.userService = userService;
         this.teamService = teamService;
         this.projectValidator = projectValidator;
         this.teamRoleService = teamRoleService;
+        this.teamRoleRepository = teamRoleRepository;
     }
 
     @GetMapping("addTeam")
@@ -136,5 +140,40 @@ public class TeamController {
             return "redirect:/team/manageTeam";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("deleteTeamRole")
+    public String deleteTeamRole(
+            @RequestParam Long teamId,
+            @RequestParam Long teamRoleId,
+            RedirectAttributes redirectAttributes
+    ) {
+        // TODO: 6/28/19 Prevent from delete current user from team
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get()) && optionalTeamRole.isPresent()) {
+            teamRoleRepository.delete(optionalTeamRole.get());
+            redirectAttributes.addAttribute("teamId", teamId);
+            return "redirect:/team/manageTeam";
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("changeTeamRole")
+    public String changeTeamRolePost(
+            @RequestParam Long teamId,
+            @RequestParam Long teamRoleId,
+            @RequestParam String newRoleName,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get()) && optionalTeamRole.isPresent()) {
+            teamRoleService.changeTeamRole(optionalTeamRole.get(), newRoleName);
+            redirectAttributes.addAttribute("teamId", teamId);
+            return "redirect:/team/manageTeam";
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
     }
 }

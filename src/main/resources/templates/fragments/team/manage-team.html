@@ -33,7 +33,7 @@
                 <th scope="col">Username</th>
                 <th scope="col">E-mail</th>
                 <th scope="col">Role Name</th>
-                <th scope="col">Remove</th>
+                <th scope="col">Delete</th>
                 <th scope="col">Change role</th>
 
             </tr>
@@ -47,29 +47,29 @@
                 <td th:text="${teamRole.name}"></td>
 
                 <td>
-                    <button class="btn btn-danger disabled" th:if="${teamRole.user.id == currentUser.id}">Remove
+                    <button class="btn btn-danger disabled" th:if="${teamRole.user.id == currentUser.id}">Delete
                     </button>
-                    <!--                    <form method="post"-->
-                    <!--                          th:action="@{/project/deleteuser(projectId=${project.id}, userId=${role.user.id})}"-->
-                    <!--                          th:unless="${teamRole.user.id == currentUser.id}">-->
-                    <!--                        <button class="btn btn-danger" type="submit">Remove</button>-->
-                    <!--                    </form>-->
+                    <form method="post"
+                          th:action="@{/team/deleteTeamRole(teamRoleId=${teamRole.id}, teamId=${teamRole.team.id})}"
+                          th:unless="${teamRole.user.id == currentUser.id}">
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
                 </td>
-                    <!--                <td>-->
-                    <!--                    <form method="post"-->
-                    <!--                          th:action="@{/project/changeRole(projectId=${role.project.id}, roleId=${role.id}, newRoleName='USER')}"-->
-                    <!--                          th:if="${role.name == 'ADMIN'  && role.user.id != currentUser.id}">-->
-                    <!--                        <button class="btn btn-success" type="submit">-->
-                    <!--                            Disable Admin-->
-                    <!--                        </button>-->
-                    <!--                    </form>-->
-                    <!--                    <form method="post"-->
-                    <!--                          th:action="@{/project/changeRole(projectId=${role.project.id}, roleId=${role.id}, newRoleName='ADMIN')}"-->
-                    <!--                          th:if="${role.name == 'USER'  && role.user.id != currentUser.id}">-->
-                    <!--                        <button class="btn btn-danger" type="submit">-->
-                    <!--                            Enable Admin-->
-                    <!--                        </button>-->
-                    <!--                    </form>-->
+                <td>
+                    <form method="post"
+                          th:action="@{/team/changeTeamRole(teamId=${teamRole.team.id}, teamRoleId=${teamRole.id}, newRoleName='MEMBER')}"
+                          th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER  && teamRole.user.id != currentUser.id}">
+                        <button class="btn btn-danger" type="submit">
+                            Disable Manager
+                        </button>
+                    </form>
+                    <form method="post"
+                          th:action="@{/team/changeTeamRole(teamId=${teamRole.team.id}, teamRoleId=${teamRole.id}, newRoleName='MANAGER')}"
+                          th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MEMBER  && teamRole.user.id != currentUser.id}">
+                        <button class="btn btn-success" type="submit">
+                            Enable Manager
+                        </button>
+                    </form>
                 </td>
             </tr>
             </tbody>

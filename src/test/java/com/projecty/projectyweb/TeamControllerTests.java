@@ -79,6 +79,7 @@ public class TeamControllerTests {
         user2.setUsername("user2");
 
         TeamRole teamRole = new TeamRole();
+        teamRole.setId(4L);
         teamRole.setUser(user);
         teamRole.setName(TeamRoles.MANAGER);
         teamRole.setTeam(team);
@@ -119,6 +120,9 @@ public class TeamControllerTests {
                 .thenReturn(Collections.singleton(user1));
 
         Mockito.when(teamRoleRepository.findByTeamAndAndUser(team, user))
+                .thenReturn(java.util.Optional.of(teamRole));
+
+        Mockito.when(teamRoleRepository.findById(teamRole.getId()))
                 .thenReturn(java.util.Optional.of(teamRole));
 
     }
@@ -198,4 +202,24 @@ public class TeamControllerTests {
                 .andExpect(redirectedUrl("/team/manageTeam?teamId=1"));
     }
 
+    @Test
+    @WithMockUser
+    public void givenRequestOnDeleteTeamRole_shouldRedirectToManageUsers() throws Exception {
+        mockMvc.perform(post("/team/deleteTeamRole")
+                .param("teamId", "1")
+                .param("teamRoleId", "4"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/team/manageTeam?teamId=1"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnChangeTeamRole_shouldRedirectToManageUsers() throws Exception {
+        mockMvc.perform(post("/team/changeTeamRole")
+                .param("teamId", "1")
+                .param("teamRoleId", "4")
+                .param("newRoleName", String.valueOf(TeamRoles.MEMBER)))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/team/manageTeam?teamId=1"));
+    }
 }

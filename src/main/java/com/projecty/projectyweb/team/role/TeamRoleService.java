@@ -21,9 +21,8 @@ public class TeamRoleService {
     public void addTeamMembersByUsernames(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
         List<TeamRole> teamRoles = new ArrayList<>();
         if (usernames != null) {
-            System.out.println(usernames);
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
-            removeExistingUsersInTeam(users, team);
+            removeExistingUsersInTeamFromSet(users, team);
             for (User user : users
             ) {
                 TeamRole teamRole = new TeamRole();
@@ -71,11 +70,15 @@ public class TeamRoleService {
         return users;
     }
 
-    private void removeExistingUsersInTeam(Set<User> users, Team team) {
+    private void removeExistingUsersInTeamFromSet(Set<User> users, Team team) {
         if (team.getId() != null) {
             Set<User> existingUsers = getTeamRoleUsers(team);
             users.removeAll(existingUsers);
         }
     }
 
+    public void changeTeamRole(TeamRole teamRole, String newRoleName) throws IllegalArgumentException {
+        teamRole.setName(TeamRoles.valueOf(newRoleName));
+        teamRoleRepository.save(teamRole);
+    }
 }

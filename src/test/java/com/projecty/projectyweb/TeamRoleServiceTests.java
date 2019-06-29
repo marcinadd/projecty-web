@@ -71,6 +71,8 @@ public class TeamRoleServiceTests {
         team = teamRepository.save(team);
         List<String> usernames = new ArrayList<>();
         usernames.add(user.getUsername());
+        usernames.add(user.getUsername());
+        usernames.add(user1.getUsername());
         usernames.add(user1.getUsername());
         teamRoleService.addTeamMembersByUsernames(team, usernames, null);
 
@@ -128,5 +130,18 @@ public class TeamRoleServiceTests {
         assertThat(teamRoleService.isCurrentUserTeamManager(team), is(false));
     }
 
+    @Test
+    public void whenChangeTeamRole_shouldReturnRoleWithNewName() {
+        TeamRole teamRole = new TeamRole();
+        teamRole.setName(TeamRoles.MANAGER);
+        teamRoleService.changeTeamRole(teamRole, String.valueOf(TeamRoles.MEMBER));
+        assertThat(teamRole.getName(), is(TeamRoles.MEMBER));
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void whenChangeTeamRoleOnNotExists_shouldThrowException() {
+        TeamRole teamRole = new TeamRole();
+        teamRole.setName(TeamRoles.MANAGER);
+        teamRoleService.changeTeamRole(teamRole, "NotExistsRoleName");
+    }
 }
