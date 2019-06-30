@@ -69,7 +69,7 @@ public class TeamController {
                 userService.getCurrentUser().getTeamRoles());
     }
 
-    @GetMapping("addProjectTeam")
+    @GetMapping("addTeamProject")
     public ModelAndView addProjectForTeam() {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("fragments/team/add-project-team");
@@ -79,8 +79,23 @@ public class TeamController {
         return modelAndView;
     }
 
-    @PostMapping("addProjectTeam")
-    public String addProjectTeam(
+    @GetMapping(value = "addTeamProject", params = "teamId")
+    public ModelAndView addProjectForSpecifiedTeamPost(
+            @RequestParam Long teamId
+    ) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("fragments/team/add-project-specified-team");
+            modelAndView.addObject("team", optionalTeam.get());
+            modelAndView.addObject("project", new Project());
+            return modelAndView;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("addTeamProject")
+    public String addProjectTeamPost(
             @Valid @ModelAttribute Project project,
             @RequestParam Long teamId,
             BindingResult bindingResult
@@ -174,6 +189,18 @@ public class TeamController {
             return "redirect:/team/manageTeam";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
 
+    @GetMapping("projectList")
+    public ModelAndView projectList(@RequestParam Long teamId) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent() && teamRoleService.hasCurrentUserRoleInTeam(optionalTeam.get())) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("fragments/team/project-list");
+            modelAndView.addObject("team", optionalTeam.get());
+            modelAndView.addObject("projects", optionalTeam.get().getProjects());
+            return modelAndView;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 }

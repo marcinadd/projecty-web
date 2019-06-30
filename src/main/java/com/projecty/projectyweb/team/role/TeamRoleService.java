@@ -60,6 +60,11 @@ public class TeamRoleService {
         return teamRole.map(role -> role.getName().equals(TeamRoles.MANAGER)).orElse(false);
     }
 
+    public boolean hasCurrentUserRoleInTeam(Team team) {
+        User user = userService.getCurrentUser();
+        return teamRoleRepository.findByTeamAndAndUser(team, user).isPresent();
+    }
+
     private Set<User> getTeamRoleUsers(Team team) {
         List<TeamRole> teamRoles = teamRoleRepository.findByTeam(team);
         Set<User> users = new HashSet<>();

@@ -157,15 +157,26 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenGetRequestOnAddTeamProject_shouldReturnAddTeamProjectView() throws Exception {
-        mockMvc.perform(get("/team/addProjectTeam"))
+        mockMvc.perform(get("/team/addTeamProject"))
                 .andExpect(status().isOk())
+                .andExpect(model().attributeExists("project"))
                 .andExpect(view().name("fragments/team/add-project-team"));
     }
 
     @Test
     @WithMockUser
+    public void givenGetRequestOnAddTeamProjectForSpecifiedTeam_shouldReturnAddTeamProjectViewForSpecifiedTeam() throws Exception {
+        mockMvc.perform(get("/team/addTeamProject")
+                .param("teamId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("project"))
+                .andExpect(view().name("fragments/team/add-project-specified-team"));
+    }
+
+    @Test
+    @WithMockUser
     public void givenPostRequestOnAddTeamProject_shouldRedirectToMyTeams() throws Exception {
-        mockMvc.perform(post("/team/addProjectTeam")
+        mockMvc.perform(post("/team/addTeamProject")
                 .flashAttr("project", project)
                 .param("teamId", "1"))
                 .andExpect(status().isFound())
@@ -221,5 +232,14 @@ public class TeamControllerTests {
                 .param("newRoleName", String.valueOf(TeamRoles.MEMBER)))
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/team/manageTeam?teamId=1"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnProjectList_shouldReturnTeamProjectList() throws Exception {
+        mockMvc.perform(get("/team/projectList")
+                .param("teamId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("fragments/team/project-list"));
     }
 }

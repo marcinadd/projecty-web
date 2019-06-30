@@ -65,12 +65,21 @@
                             <button class="btn btn-warning" id="addTaskButton" type="button">Manage team</button>
                         </a>
                     </div>
+                    <div class="col">
+                        <a th:href="@{/team/projectList(teamId=${teamRole.team.id})}">
+                            <button class="btn btn-secondary" id="projectListButton" type="button">Project list</button>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a th:href="@{/team/addTeamProject(teamId=${teamRole.team.id})}">
+                            <button class="btn btn-success" id="addProjectButton" type="button">Add project</button>
+                        </a>
+                    </div>
                 </div>
             </li>
         </ul>
     </div>
 </div>
-
 </body>
 </html>
 
