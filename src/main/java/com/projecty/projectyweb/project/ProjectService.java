@@ -5,6 +5,10 @@ import com.projecty.projectyweb.role.Role;
 import com.projecty.projectyweb.role.RoleRepository;
 import com.projecty.projectyweb.role.RoleService;
 import com.projecty.projectyweb.role.Roles;
+import com.projecty.projectyweb.team.role.TeamRole;
+import com.projecty.projectyweb.team.role.TeamRoleRepository;
+import com.projecty.projectyweb.team.role.TeamRoles;
+import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
 
@@ -17,30 +21,36 @@ public class ProjectService {
     private final UserService userService;
     private final RoleRepository roleRepository;
     private final RoleService roleService;
+    private final TeamRoleRepository teamRoleRepository;
 
-    public ProjectService(ProjectRepository projectRepository, UserService userService, RoleRepository roleRepository, RoleService roleService) {
+    public ProjectService(ProjectRepository projectRepository, UserService userService, RoleRepository roleRepository, RoleService roleService, TeamRoleRepository teamRoleRepository) {
         this.projectRepository = projectRepository;
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.roleService = roleService;
+        this.teamRoleRepository = teamRoleRepository;
     }
 
     public void save(Project project) {
         projectRepository.save(project);
     }
 
-    private String checkCurrentUserAccessLevel(Project project) {
-        Optional<Role> currentUserRole = roleRepository.findRoleByUserAndProject(userService.getCurrentUser(), project);
-        return currentUserRole.map(Role::getName).orElse(null);
+    public boolean hasCurrentUserPermissionToEdit(Project project) {
+        User current = userService.getCurrentUser();
+        if (project.getTeam() != null) {
+            Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current);
+            return optionalTeamRole.isPresent() && optionalTeamRole.get().getName().equals(TeamRoles.MANAGER);
+        }
+        Optional<Role> optionalRole = roleRepository.findRoleByUserAndProject(current, project);
+        return optionalRole.isPresent() && optionalRole.get().getName().equals(Roles.ADMIN.toString());
     }
 
-    public boolean isCurrentUserProjectAdmin(Project project) {
-        return checkCurrentUserAccessLevel(project).equals(Roles.ADMIN.toString());
-    }
-
-    public boolean isCurrentUserProjectUser(Project project) {
-        String accessLevel = checkCurrentUserAccessLevel(project);
-        return accessLevel.equals(Roles.ADMIN.toString()) || accessLevel.equals(Roles.USER.toString());
+    public boolean hasCurrentUserPermissionToView(Project project) {
+        User current = userService.getCurrentUser();
+        if (project.getTeam() != null) {
+            return teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current).isPresent();
+        }
+        return roleRepository.findRoleByUserAndProject(current, project).isPresent();
     }
 
     void createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {

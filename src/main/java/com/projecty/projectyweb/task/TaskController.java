@@ -46,7 +46,7 @@ public class TaskController {
     ) {
         ModelAndView modelAndView = new ModelAndView("fragments/task/add-task");
         Optional<Project> project = projectRepository.findById(projectId);
-        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
+        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
             modelAndView.addObject("project", project.get());
             modelAndView.addObject("task", new Task());
             return modelAndView;
@@ -70,7 +70,7 @@ public class TaskController {
             modelAndView.setViewName("fragments/task/add-task");
             project.ifPresent(modelAndView::addObject);
             return modelAndView;
-        } else if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
+        } else if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
             task.setDone(false);
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
@@ -87,7 +87,7 @@ public class TaskController {
             @RequestParam Long projectId
     ) {
         Optional<Project> project = projectRepository.findById(projectId);
-        if (project.isPresent() && projectService.isCurrentUserProjectUser(project.get())) {
+        if (project.isPresent() && projectService.hasCurrentUserPermissionToView(project.get())) {
             return new ModelAndView("fragments/task/task-list", "project", project.get());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -102,7 +102,7 @@ public class TaskController {
     ) {
         Optional<Project> project = projectRepository.findById(projectId);
         Optional<Task> task = taskRepository.findById(taskId);
-        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get()) && task.isPresent()) {
+        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get()) && task.isPresent()) {
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.delete.success", new Object[]{task.get().getName()}, Locale.getDefault())));
             taskRepository.delete(task.get());
             redirectAttributes.addAttribute("projectId", projectId);
@@ -123,7 +123,7 @@ public class TaskController {
     ) {
         Optional<Project> project = projectRepository.findById(projectId);
         Optional<Task> task = taskRepository.findById(taskId);
-        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get()) && task.isPresent()) {
+        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get()) && task.isPresent()) {
             task.get().setDone(done);
             taskRepository.save(task.get());
             redirectAttributes.addAttribute("projectId", projectId);
