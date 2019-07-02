@@ -92,9 +92,9 @@
         <div class="row my-2">
             <h3>Delete team</h3>
         </div>
-        <form th:action="@{/team/deleteTeam(teamId=${team.id})}">
+        <a th:href="@{/team/deleteTeamConfirm(teamId=${team.id})}">
             <button class="btn btn-danger">Delete team</button>
-        </form>
+        </a>
     </div>
 </div>
 <div layout:fragment="scripts">

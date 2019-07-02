@@ -242,4 +242,14 @@ public class TeamControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("fragments/team/project-list"));
     }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnDeleteTeamConfirm_shouldReturnDeleteTeamConfirmView() throws Exception {
+        mockMvc.perform(get("/team/deleteTeamConfirm")
+                .param("teamId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("team"))
+                .andExpect(view().name("fragments/team/delete-team-confirm"));
+    }
 }

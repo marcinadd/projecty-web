@@ -203,4 +203,23 @@ public class TeamController {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("deleteTeamConfirm")
+    public ModelAndView deleteTeamConfirm(@RequestParam Long teamId) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
+            return new ModelAndView("fragments/team/delete-team-confirm", "team", optionalTeam.get());
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("deleteTeam")
+    public String deleteTeamPost(@RequestParam Long teamId) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
+            teamRepository.delete(optionalTeam.get());
+            return "redirect:/team/myTeams";
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
 }
