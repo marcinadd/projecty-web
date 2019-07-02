@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 
 @Service
 public class UserService {
@@ -70,4 +74,16 @@ public class UserService {
         }
         return null;
     }
+
+    public Set<User> getUserSetByUsernames(List<String> usernames) {
+        usernames = usernames.stream().distinct().collect(Collectors.toList());
+        return userRepository.findByUsernameIn(usernames);
+    }
+
+    public Set<User> getUserSetByUsernamesWithoutCurrentUser(List<String> usernames) {
+        Set<User> users = getUserSetByUsernames(usernames);
+        users.remove(getCurrentUser());
+        return users;
+    }
+
 }

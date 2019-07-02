@@ -1,0 +1,19 @@
+<html layout:decorate="~{index(title='Add team project')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Add team project</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h2>Add project for a team <b th:text="${team.name}"></b></h2>
+    <form action="" method="post" th:object="${project}">
+        <div class="form-group">
+            <label for="name">Project name</label>
+            <input class="form-control" id="name" name="name" type="text">
+        </div>
+        <button class="btn btn-success" type="submit">Add</button>
+    </form>
+</div>
+</body>
+</html>

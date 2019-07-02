@@ -9,68 +9,122 @@
 <div layout:fragment="content">
     <h1> List of projects </h1>
     <div class="container">
-        <a class="my-2" th:href="@{/project/addproject}">
-            <button class="btn btn-success">Add new project</button>
-        </a>
-
-        <ul class="list-group" th:each="role: ${roles}">
-            <li class="list-group-item my-2">
-                <!--         Name-->
-                <div class="row">
-                    <div class="mx-auto" th:text="${role.project.name}">
-                    </div>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <a class="my-4" th:href="@{/project/addproject}">
+                        <button class="btn btn-success">Add project</button>
+                    </a>
                 </div>
-                <p> Users </p>
-                <div class="row">
-                    <div class="mx-auto">
+                <div class="col">
+                    <a class="my-4" th:href="@{/team/addTeamProject}">
+                        <button class="btn btn-info">Add team project</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="container my-4">
+            <h3>Team's projects</h3>
+            <ul class="list-group" th:each="teamRole: ${teamRoles}">
+                <li class="list-group-item my-2">
+                    <a th:href="@{/team/addTeamProject(teamId=${teamRole.team.id})}">
+                        <button class="btn btn-success">Add project</button>
+                    </a>
+                    <div class="container">
+                        <p class="text-center" th:text="${teamRole.team.name}"></p>
                         <table class="table">
                             <thead>
                             <tr>
-                                <th scope="col">Username</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Role</th>
+                                <th scope="col">Project name</th>
+                                <!--                                TODO Add unfinished tasks count here-->
+                                <th scope="col">Task list</th>
+                                <th scope="col">Add task</th>
+                                <th scope="col">Delete project</th>
                             </tr>
                             </thead>
-                            <tbody th:each="roleObj: ${role.project.roles}">
+                            <tbody th:each="project: ${teamRole.team.projects}">
                             <tr>
-                                <td th:text="${roleObj.user.username}"></td>
-                                <td th:text="${roleObj.user.email}"></td>
-                                <td th:text="${roleObj.name}"></td>
+                                <td th:text="${project.name}"></td>
+                                <td>
+                                    <a th:href="@{/project/task/tasklist(projectId=${project.id})}">
+                                        <button class="btn btn-primary" id="taskListButton" type="button">Task list
+                                        </button>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a th:href="@{/project/task/addtasks(projectId=${project.id})}">
+                                        <button class="btn btn-success" id="addTaskTeamButton" type="button">Add task
+                                        </button>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form method="POST" th:action="@{/project/deleteproject(projectId=${project.id})}">
+                                        <button class="btn btn-danger" type="submit">Delete project</button>
+                                    </form>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
-                        <!--                        <ul class="list-group" th:each="roleObj: ${role.project.roles}">-->
-                        <!--                            <li class="list-group-item" th:text="${roleObj.user.username + ' ' + roleObj.user.email + ' '+roleObj.name}"></li>-->
-                        <!--                        </ul>-->
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <a th:href="@{/project/task/tasklist(projectId=${role.project.id})}">
-                            <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
-                        </a>
+                </li>
+            </ul>
+        </div>
+        <div class="container my-3">
+            <h3>Projects</h3>
+            <ul class="list-group" th:each="role: ${roles}">
+                <li class="list-group-item my-2">
+                    <!--         Name-->
+                    <div class="row">
+                        <div class="mx-auto" th:text="${role.project.name}">
+                        </div>
                     </div>
-                    <div class="col" th:if="${role.name == 'ADMIN'}">
-                        <a th:href="@{/project/task/addtasks(projectId=${role.project.id})}">
-                            <button class="btn btn-success" id="addTaskButton" type="button">Add task</button>
-                        </a>
+                    <p> Users </p>
+                    <div class="row">
+                        <div class="mx-auto">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Role</th>
+                                </tr>
+                                </thead>
+                                <tbody th:each="roleObj: ${role.project.roles}">
+                                <tr>
+                                    <td th:text="${roleObj.user.username}"></td>
+                                    <td th:text="${roleObj.user.email}"></td>
+                                    <td th:text="${roleObj.name}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="col" th:if="${role.name == 'ADMIN'}">
-                        <a th:href="@{/project/manageusers(projectId=${role.project.id})}">
-                            <button class="btn btn-warning" id="manageUsersButton" type="button">Manage users</button>
-                        </a>
+                    <div class="row">
+                        <div class="col">
+                            <a th:href="@{/project/task/tasklist(projectId=${role.project.id})}">
+                                <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
+                            </a>
+                        </div>
+                        <div class="col" th:if="${role.name == 'ADMIN'}">
+                            <a th:href="@{/project/task/addtasks(projectId=${role.project.id})}">
+                                <button class="btn btn-success" id="addTaskButton" type="button">Add task</button>
+                            </a>
+                        </div>
+                        <div class="col" th:if="${role.name == 'ADMIN'}">
+                            <a th:href="@{/project/manageusers(projectId=${role.project.id})}">
+                                <button class="btn btn-warning" id="manageUsersButton" type="button">Manage users
+                                </button>
+                            </a>
+                        </div>
+                        <div class="col" th:if="${role.name == 'ADMIN'}">
+                            <form method="POST" th:action="@{/project/deleteproject(projectId=${role.project.id})}">
+                                <button class="btn btn-danger" type="submit">Delete project</button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="col" th:if="${role.name == 'ADMIN'}">
-                        <form method="POST" th:action="@{/project/deleteproject(projectId=${role.project.id})}">
-                            <button class="btn btn-danger" type="submit">Delete project</button>
-                        </form>
-                        <!--                        <a th:href="@{/project/deleteproject(projectId=${role.project.id})}">-->
-                        <!--                            <button class="btn btn-danger" id="removeProjectButton" type="button">Remove project</button>-->
-                        <!--                        </a>-->
-                    </div>
-                </div>
-            </li>
-        </ul>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 

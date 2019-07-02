@@ -1,0 +1,28 @@
+<html layout:decorate="~{index(title='Are you sure?')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Delete team</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h3>Do you really want to delete team: <b><span th:remove="tag" th:text="${team.name}"></span></b>?
+    </h3>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <form method="post" th:action="@{/team/deleteTeam(teamId=${team.id})}">
+                    <button class="btn btn-danger" type="submit">Yes delete</button>
+                </form>
+            </div>
+            <div class="col">
+                <a th:href="@{/team/manageTeam(teamId=${team.id})}">
+                    <button class="btn btn-success" type="submit">No</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,42 @@
+<html layout:decorate="~{index(title='Add project for a team')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Add project</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <form method="post" name="f" th:object="${project}">
+        <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}">
+            <ul>
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
+        <div class="form-group">
+            <label for="teamId">Team</label>
+            <select class="form-control" id="teamId" name="teamId">
+                <option th:each="teamRole: ${teamRoles}" th:text="${teamRole.team.name}"
+                        th:value="${teamRole.team.id}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="name">Project name</label>
+            <input class="form-control" id="name" name="name" type="text"/>
+        </div>
+        <div class="alert alert-primary">
+            Project will be added as team's project. <br>
+            All members of selected team will have access to it. <br>
+            You can't edit users and project roles without modifying your team.
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-success" type="submit">Add</button>
+        </div>
+    </form>
+</div>
+
+<div layout:fragment="scripts">
+    <script th:src="@{/js/entry-user-list.js}"></script>
+</div>
+</body>
+</html>
+

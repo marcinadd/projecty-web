@@ -1,0 +1,23 @@
+<html layout:decorate="~{index}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Team&rsquo;s project list</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h2>Project list for team: <b th:text="${team.name}"></b></h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">View</th>
+            <th scope="col">Delete</th>
+        </tr>
+        </thead>
+        <tr th:each="project : ${projects}">
+            <td th:text="${project.name}"></td>
+        </tr>
+    </table>
+</div>
+</body>

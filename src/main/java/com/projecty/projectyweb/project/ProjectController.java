@@ -83,7 +83,7 @@ public class ProjectController {
     @PostMapping("deleteproject")
     public String deleteProject(@RequestParam Long projectId, RedirectAttributes redirectAttributes) {
         Optional<Project> project = projectRepository.findById(projectId);
-        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
+        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
             projectRepository.delete(project.get());
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.delete.success", null, Locale.getDefault())));
             return "redirect:/project/myprojects/";
@@ -94,11 +94,12 @@ public class ProjectController {
 
     @GetMapping("myprojects")
     public ModelAndView myProjects() {
-        return new ModelAndView(
-                "fragments/project/my-projects",
-                "roles",
-                userService.getCurrentUser().getRoles()
-        );
+        User current = userService.getCurrentUser();
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/project/my-projects");
+        modelAndView.addObject("roles", current.getRoles());
+        modelAndView.addObject("teamRoles", current.getTeamRoles());
+        return modelAndView;
     }
 
     @GetMapping("manageusers")
@@ -107,7 +108,7 @@ public class ProjectController {
     ) {
         ModelAndView modelAndView = new ModelAndView("fragments/project/manage-users");
         Optional<Project> project = projectRepository.findById(projectId);
-        if (project.isPresent() && projectService.isCurrentUserProjectAdmin(project.get())) {
+        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
             modelAndView.addObject("project", project.get());
             modelAndView.addObject("currentUser", userService.getCurrentUser());
             return modelAndView;
@@ -123,7 +124,7 @@ public class ProjectController {
             RedirectAttributes redirectAttributes
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())) {
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             Project project = optionalProject.get();
             List<RedirectMessage> redirectMessages = new ArrayList<>();
             usernames = userHelper.removeExistingUsernamesInProject(usernames, project, redirectMessages);
@@ -145,7 +146,7 @@ public class ProjectController {
         User current = userService.getCurrentUser();
         Optional<User> toDeleteOptionalUser = userRepository.findById(userId);
         if (toDeleteOptionalUser.isPresent() && !toDeleteOptionalUser.get().equals(current)
-                && optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get())
+                && optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())
         ) {
             User toDeleteUser = toDeleteOptionalUser.get();
             Project project = optionalProject.get();
@@ -173,7 +174,7 @@ public class ProjectController {
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Optional<Role> optionalRole = roleRepository.findById(roleId);
-        if (optionalProject.isPresent() && projectService.isCurrentUserProjectAdmin(optionalProject.get()) && optionalRole.isPresent() && roleService.isValidRoleName(newRoleName)) {
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && optionalRole.isPresent() && roleService.isValidRoleName(newRoleName)) {
             Role role = optionalRole.get();
             role.setName(newRoleName);
             roleRepository.save(role);

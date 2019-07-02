@@ -3,6 +3,7 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.role.Role;
 import com.projecty.projectyweb.task.Task;
+import com.projecty.projectyweb.team.Team;
 
 import javax.persistence.*;
 import java.util.List;
@@ -21,6 +22,9 @@ public class Project {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Role> roles;
 
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     public Long getId() {
         return id;
@@ -54,6 +58,13 @@ public class Project {
         this.roles = roles;
     }
 
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
 
     @Override
     public String toString() {
