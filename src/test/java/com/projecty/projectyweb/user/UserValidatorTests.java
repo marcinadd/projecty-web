@@ -1,8 +1,5 @@
-package com.projecty.projectyweb;
+package com.projecty.projectyweb.user;
 
-import com.projecty.projectyweb.user.User;
-import com.projecty.projectyweb.user.UserRepository;
-import com.projecty.projectyweb.user.UserValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

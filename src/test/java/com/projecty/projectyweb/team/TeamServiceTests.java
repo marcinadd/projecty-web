@@ -1,9 +1,7 @@
-package com.projecty.projectyweb;
+package com.projecty.projectyweb.team;
 
+import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.Project;
-import com.projecty.projectyweb.team.Team;
-import com.projecty.projectyweb.team.TeamRepository;
-import com.projecty.projectyweb.team.TeamService;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
@@ -15,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
@@ -23,6 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 
+@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ProjectyWebApplication.class)
 public class TeamServiceTests {

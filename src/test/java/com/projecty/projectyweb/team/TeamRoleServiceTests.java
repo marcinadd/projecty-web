@@ -1,7 +1,6 @@
-package com.projecty.projectyweb;
+package com.projecty.projectyweb.team;
 
-import com.projecty.projectyweb.team.Team;
-import com.projecty.projectyweb.team.TeamRepository;
+import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
@@ -16,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ProjectyWebApplication.class)
 public class TeamRoleServiceTests {

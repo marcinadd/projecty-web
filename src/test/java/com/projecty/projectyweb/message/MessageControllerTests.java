@@ -1,7 +1,6 @@
-package com.projecty.projectyweb;
+package com.projecty.projectyweb.message;
 
-import com.projecty.projectyweb.message.Message;
-import com.projecty.projectyweb.message.MessageRepository;
+import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Before;
@@ -13,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ProjectyWebApplication.class)
 @AutoConfigureMockMvc

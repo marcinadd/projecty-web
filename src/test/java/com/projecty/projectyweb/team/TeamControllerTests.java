@@ -1,10 +1,9 @@
-package com.projecty.projectyweb;
+package com.projecty.projectyweb.team;
 
+import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.message.MessageRepository;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
-import com.projecty.projectyweb.team.Team;
-import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
@@ -21,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ProjectyWebApplication.class)
 @AutoConfigureMockMvc
