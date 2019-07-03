@@ -6,7 +6,6 @@ import com.projecty.projectyweb.role.Role;
 import com.projecty.projectyweb.role.RoleRepository;
 import com.projecty.projectyweb.role.RoleService;
 import com.projecty.projectyweb.user.User;
-import com.projecty.projectyweb.user.UserHelper;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
@@ -43,9 +42,7 @@ public class ProjectController {
 
     private final MessageSource messageSource;
 
-    private final UserHelper userHelper;
-
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator, RoleService roleService, MessageSource messageSource, UserHelper userHelper) {
+    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator, RoleService roleService, MessageSource messageSource) {
         this.projectService = projectService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -54,7 +51,6 @@ public class ProjectController {
         this.projectValidator = projectValidator;
         this.roleService = roleService;
         this.messageSource = messageSource;
-        this.userHelper = userHelper;
     }
 
     @GetMapping("addproject")
@@ -127,7 +123,6 @@ public class ProjectController {
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             Project project = optionalProject.get();
             List<RedirectMessage> redirectMessages = new ArrayList<>();
-            usernames = userHelper.removeExistingUsernamesInProject(usernames, project, redirectMessages);
             roleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
             redirectAttributes.addFlashAttribute(AppConfig.REDIRECT_MESSAGES, redirectMessages);
             projectRepository.save(project);
