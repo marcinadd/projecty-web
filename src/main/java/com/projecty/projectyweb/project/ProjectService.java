@@ -1,10 +1,10 @@
 package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.misc.RedirectMessage;
-import com.projecty.projectyweb.role.Role;
-import com.projecty.projectyweb.role.RoleRepository;
-import com.projecty.projectyweb.role.RoleService;
-import com.projecty.projectyweb.role.Roles;
+import com.projecty.projectyweb.project.role.ProjectRole;
+import com.projecty.projectyweb.project.role.ProjectRoleRepository;
+import com.projecty.projectyweb.project.role.ProjectRoleService;
+import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoles;
@@ -19,15 +19,15 @@ import java.util.Optional;
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserService userService;
-    private final RoleRepository roleRepository;
-    private final RoleService roleService;
+    private final ProjectRoleRepository projectRoleRepository;
+    private final ProjectRoleService projectRoleService;
     private final TeamRoleRepository teamRoleRepository;
 
-    public ProjectService(ProjectRepository projectRepository, UserService userService, RoleRepository roleRepository, RoleService roleService, TeamRoleRepository teamRoleRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectRoleService projectRoleService, TeamRoleRepository teamRoleRepository) {
         this.projectRepository = projectRepository;
         this.userService = userService;
-        this.roleRepository = roleRepository;
-        this.roleService = roleService;
+        this.projectRoleRepository = projectRoleRepository;
+        this.projectRoleService = projectRoleService;
         this.teamRoleRepository = teamRoleRepository;
     }
 
@@ -41,8 +41,8 @@ public class ProjectService {
             Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current);
             return optionalTeamRole.isPresent() && optionalTeamRole.get().getName().equals(TeamRoles.MANAGER);
         }
-        Optional<Role> optionalRole = roleRepository.findRoleByUserAndProject(current, project);
-        return optionalRole.isPresent() && optionalRole.get().getName().equals(Roles.ADMIN.toString());
+        Optional<ProjectRole> optionalRole = projectRoleRepository.findRoleByUserAndProject(current, project);
+        return optionalRole.isPresent() && optionalRole.get().getName().equals(ProjectRoles.ADMIN.toString());
     }
 
     public boolean hasCurrentUserPermissionToView(Project project) {
@@ -50,12 +50,12 @@ public class ProjectService {
         if (project.getTeam() != null) {
             return teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current).isPresent();
         }
-        return roleRepository.findRoleByUserAndProject(current, project).isPresent();
+        return projectRoleRepository.findRoleByUserAndProject(current, project).isPresent();
     }
 
     void createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {
-        roleService.addCurrentUserToProjectAsAdmin(project);
-        roleService.addRolesToProjectByUsernames(project, usernames, messages);
+        projectRoleService.addCurrentUserToProjectAsAdmin(project);
+        projectRoleService.addRolesToProjectByUsernames(project, usernames, messages);
         projectRepository.save(project);
     }
 }

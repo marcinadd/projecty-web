@@ -1,7 +1,7 @@
 package com.projecty.projectyweb.user;
 
 import com.projecty.projectyweb.message.Message;
-import com.projecty.projectyweb.role.Role;
+import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.team.role.TeamRole;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -31,7 +31,7 @@ public class User {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<Role> roles;
+    private List<ProjectRole> projectRoles;
 
     @OneToMany(
             mappedBy = "user",
@@ -101,12 +101,12 @@ public class User {
         this.email = email;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public List<ProjectRole> getProjectRoles() {
+        return projectRoles;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setProjectRoles(List<ProjectRole> projectRoles) {
+        this.projectRoles = projectRoles;
     }
 
     public List<Message> getMessagesFrom() {

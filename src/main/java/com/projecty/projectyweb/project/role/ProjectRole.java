@@ -1,4 +1,4 @@
-package com.projecty.projectyweb.role;
+package com.projecty.projectyweb.project.role;
 
 
 import com.projecty.projectyweb.project.Project;
@@ -7,7 +7,7 @@ import com.projecty.projectyweb.user.User;
 import javax.persistence.*;
 
 @Entity
-public class Role {
+public class ProjectRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -58,7 +58,7 @@ public class Role {
 
     @Override
     public String toString() {
-        return "Role{" +
+        return "ProjectRole{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", user=" + user;

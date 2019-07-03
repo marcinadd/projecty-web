@@ -1,13 +1,13 @@
-package com.projecty.projectyweb.role;
+package com.projecty.projectyweb.project.role;
 
-public enum Roles {
+public enum ProjectRoles {
     OWNER("OWNER"),
     ADMIN("ADMIN"),
     USER("USER");
 
     private final String role;
 
-    Roles(String role) {
+    ProjectRoles(String role) {
         this.role = role;
     }
 

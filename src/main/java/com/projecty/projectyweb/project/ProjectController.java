@@ -2,9 +2,9 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.misc.RedirectMessage;
-import com.projecty.projectyweb.role.Role;
-import com.projecty.projectyweb.role.RoleRepository;
-import com.projecty.projectyweb.role.RoleService;
+import com.projecty.projectyweb.project.role.ProjectRole;
+import com.projecty.projectyweb.project.role.ProjectRoleRepository;
+import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -34,22 +34,22 @@ public class ProjectController {
 
     private final UserService userService;
 
-    private final RoleRepository roleRepository;
+    private final ProjectRoleRepository projectRoleRepository;
 
     private final ProjectValidator projectValidator;
 
-    private final RoleService roleService;
+    private final ProjectRoleService projectRoleService;
 
     private final MessageSource messageSource;
 
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, RoleRepository roleRepository, ProjectValidator projectValidator, RoleService roleService, MessageSource messageSource) {
+    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectValidator projectValidator, ProjectRoleService projectRoleService, MessageSource messageSource) {
         this.projectService = projectService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.userService = userService;
-        this.roleRepository = roleRepository;
+        this.projectRoleRepository = projectRoleRepository;
         this.projectValidator = projectValidator;
-        this.roleService = roleService;
+        this.projectRoleService = projectRoleService;
         this.messageSource = messageSource;
     }
 
@@ -93,7 +93,7 @@ public class ProjectController {
         User current = userService.getCurrentUser();
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("fragments/project/my-projects");
-        modelAndView.addObject("roles", current.getRoles());
+        modelAndView.addObject("projectRoles", current.getProjectRoles());
         modelAndView.addObject("teamRoles", current.getTeamRoles());
         return modelAndView;
     }
@@ -123,7 +123,7 @@ public class ProjectController {
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             Project project = optionalProject.get();
             List<RedirectMessage> redirectMessages = new ArrayList<>();
-            roleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
+            projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
             redirectAttributes.addFlashAttribute(AppConfig.REDIRECT_MESSAGES, redirectMessages);
             projectRepository.save(project);
         }
@@ -145,11 +145,11 @@ public class ProjectController {
         ) {
             User toDeleteUser = toDeleteOptionalUser.get();
             Project project = optionalProject.get();
-            roleService.deleteUserFromProject(toDeleteUser, project);
+            projectRoleService.deleteUserFromProject(toDeleteUser, project);
             redirectAttributes.addAttribute("projectId", projectId);
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS,
                     Collections.singletonList(
-                            messageSource.getMessage("role.delete.success",
+                            messageSource.getMessage("projectRole.delete.success",
                                     new Object[]{toDeleteUser.getUsername(), project.getName()},
                                     Locale.getDefault())));
             return "redirect:/project/manageusers";
@@ -168,12 +168,12 @@ public class ProjectController {
             RedirectAttributes redirectAttributes
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        Optional<Role> optionalRole = roleRepository.findById(roleId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && optionalRole.isPresent() && roleService.isValidRoleName(newRoleName)) {
-            Role role = optionalRole.get();
-            role.setName(newRoleName);
-            roleRepository.save(role);
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("role.change.success", new Object[]{role.getUser().getUsername()}, Locale.getDefault())));
+        Optional<ProjectRole> optionalRole = projectRoleRepository.findById(roleId);
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && optionalRole.isPresent() && projectRoleService.isValidRoleName(newRoleName)) {
+            ProjectRole projectRole = optionalRole.get();
+            projectRole.setName(newRoleName);
+            projectRoleRepository.save(projectRole);
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("projectRole.change.success", new Object[]{projectRole.getUser().getUsername()}, Locale.getDefault())));
             redirectAttributes.addAttribute("projectId", projectId);
             redirectAttributes.addAttribute("roleId", roleId);
             return "redirect:/project/manageusers";
