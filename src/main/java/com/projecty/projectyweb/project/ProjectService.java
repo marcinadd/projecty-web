@@ -42,7 +42,7 @@ public class ProjectService {
             return optionalTeamRole.isPresent() && optionalTeamRole.get().getName().equals(TeamRoles.MANAGER);
         }
         Optional<ProjectRole> optionalRole = projectRoleRepository.findRoleByUserAndProject(current, project);
-        return optionalRole.isPresent() && optionalRole.get().getName().equals(ProjectRoles.ADMIN.toString());
+        return optionalRole.isPresent() && optionalRole.get().getName().equals(ProjectRoles.ADMIN);
     }
 
     public boolean hasCurrentUserPermissionToView(Project project) {

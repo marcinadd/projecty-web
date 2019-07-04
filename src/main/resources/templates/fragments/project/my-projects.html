@@ -73,7 +73,6 @@
             <h3>Projects</h3>
             <ul class="list-group" th:each="projectRole: ${projectRoles}">
                 <li class="list-group-item my-2">
-                    <!--         Name-->
                     <div class="row">
                         <div class="mx-auto" th:text="${projectRole.project.name}">
                         </div>
@@ -105,18 +104,21 @@
                                 <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
                             </a>
                         </div>
-                        <div class="col" th:if="${projectRole.name == 'ADMIN'}">
+                        <div class="col"
+                             th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN}">
                             <a th:href="@{/project/task/addtasks(projectId=${projectRole.project.id})}">
                                 <button class="btn btn-success" id="addTaskButton" type="button">Add task</button>
                             </a>
                         </div>
-                        <div class="col" th:if="${projectRole.name == 'ADMIN'}">
+                        <div class="col"
+                             th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN}">
                             <a th:href="@{/project/manageusers(projectId=${projectRole.project.id})}">
                                 <button class="btn btn-warning" id="manageUsersButton" type="button">Manage users
                                 </button>
                             </a>
                         </div>
-                        <div class="col" th:if="${projectRole.name == 'ADMIN'}">
+                        <div class="col"
+                             th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN}">
                             <form method="POST"
                                   th:action="@{/project/deleteproject(projectId=${projectRole.project.id})}">
                                 <button class="btn btn-danger" type="submit">Delete project</button>

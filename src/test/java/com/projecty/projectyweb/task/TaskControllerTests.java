@@ -69,14 +69,14 @@ public class TaskControllerTests {
         projectRole.setId(1L);
         projectRole.setUser(user);
         projectRole.setProject(project);
-        projectRole.setName(ProjectRoles.ADMIN.toString());
+        projectRole.setName(ProjectRoles.ADMIN);
         projectRoles.add(projectRole);
 
         ProjectRole projectRole1 = new ProjectRole();
         projectRole1.setId(2L);
         projectRole1.setUser(user1);
         projectRole1.setProject(project);
-        projectRole1.setName(ProjectRoles.USER.toString());
+        projectRole1.setName(ProjectRoles.USER);
         projectRoles.add(projectRole1);
 
 

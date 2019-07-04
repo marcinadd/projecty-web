@@ -13,7 +13,7 @@ public class ProjectRole {
     private Long id;
 
     // TODO Remove this redundancy
-    private String name;
+    private ProjectRoles name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -32,11 +32,11 @@ public class ProjectRole {
         this.id = id;
     }
 
-    public String getName() {
+    public ProjectRoles getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(ProjectRoles name) {
         this.name = name;
     }
 

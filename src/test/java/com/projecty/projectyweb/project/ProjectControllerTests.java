@@ -63,14 +63,14 @@ public class ProjectControllerTests {
         projectRole.setId(1L);
         projectRole.setUser(user);
         projectRole.setProject(project);
-        projectRole.setName(ProjectRoles.ADMIN.toString());
+        projectRole.setName(ProjectRoles.ADMIN);
         projectRoles.add(projectRole);
 
         ProjectRole projectRole1 = new ProjectRole();
         projectRole1.setId(2L);
         projectRole1.setUser(user1);
         projectRole1.setProject(project);
-        projectRole1.setName(ProjectRoles.USER.toString());
+        projectRole1.setName(ProjectRoles.USER);
         projectRoles.add(projectRole1);
 
 
@@ -111,7 +111,7 @@ public class ProjectControllerTests {
     public void givenRequestOnMyProject_shouldReturnMyprojectsView() throws Exception {
         mockMvc.perform(get("/project/myprojects"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("roles"))
+                .andExpect(model().attributeExists("projectRoles"))
                 .andExpect(view().name("fragments/project/my-projects"));
     }
 

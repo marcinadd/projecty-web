@@ -17,7 +17,6 @@
                 <th scope="col">Role Name</th>
                 <th scope="col">Remove</th>
                 <th scope="col">Change projectRole</th>
-
             </tr>
             </thead>
             <tbody th:each="projectRole: ${project.projectRoles}">
@@ -40,14 +39,14 @@
                 <td>
                     <form method="post"
                           th:action="@{/project/changeRole(projectId=${projectRole.project.id}, roleId=${projectRole.id}, newRoleName='USER')}"
-                          th:if="${projectRole.name == 'ADMIN'  && projectRole.user.id != currentUser.id}">
+                          th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN  && projectRole.user.id != currentUser.id}">
                         <button class="btn btn-success" type="submit">
                             Disable Admin
                         </button>
                     </form>
                     <form method="post"
                           th:action="@{/project/changeRole(projectId=${projectRole.project.id}, roleId=${projectRole.id}, newRoleName='ADMIN')}"
-                          th:if="${projectRole.name == 'USER'  && projectRole.user.id != currentUser.id}">
+                          th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).USER  && projectRole.user.id != currentUser.id}">
                         <button class="btn btn-danger" type="submit">
                             Enable Admin
                         </button>

@@ -5,6 +5,7 @@ import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
+import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -169,9 +170,9 @@ public class ProjectController {
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Optional<ProjectRole> optionalRole = projectRoleRepository.findById(roleId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && optionalRole.isPresent() && projectRoleService.isValidRoleName(newRoleName)) {
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && optionalRole.isPresent()) {
             ProjectRole projectRole = optionalRole.get();
-            projectRole.setName(newRoleName);
+            projectRole.setName(ProjectRoles.valueOf(newRoleName));
             projectRoleRepository.save(projectRole);
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("projectRole.change.success", new Object[]{projectRole.getUser().getUsername()}, Locale.getDefault())));
             redirectAttributes.addAttribute("projectId", projectId);

@@ -1,6 +1,5 @@
 package com.projecty.projectyweb.project.role;
 
-import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.misc.RedirectMessageTypes;
 import com.projecty.projectyweb.project.Project;
@@ -30,8 +29,11 @@ public class ProjectRoleService {
         projectRoleRepository.save(projectRole);
     }
 
+    @Deprecated
     public boolean isValidRoleName(String roleName) {
-        return AppConfig.ROLE_NAMES.contains(roleName);
+
+        return true;
+        //return AppConfig.ROLE_NAMES.contains(roleName);
     }
 
     public void addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
@@ -44,7 +46,7 @@ public class ProjectRoleService {
                 ProjectRole projectRole = new ProjectRole();
                 projectRole.setProject(project);
                 projectRole.setUser(user);
-                projectRole.setName(ProjectRoles.USER.toString());
+                projectRole.setName(ProjectRoles.USER);
                 projectRoles.add(projectRole);
                     RedirectMessage message = new RedirectMessage();
                     message.setType(RedirectMessageTypes.SUCCESS);
@@ -84,7 +86,7 @@ public class ProjectRoleService {
         User current = userService.getCurrentUser();
         ProjectRole projectRole = new ProjectRole();
         projectRole.setProject(project);
-        projectRole.setName(ProjectRoles.ADMIN.toString());
+        projectRole.setName(ProjectRoles.ADMIN);
         projectRole.setUser(current);
         if (project.getProjectRoles() == null) {
             List<ProjectRole> projectRoles = new ArrayList<>();
