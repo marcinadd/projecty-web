@@ -1,9 +1,8 @@
 package com.projecty.projectyweb.task;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.projecty.projectyweb.project.Project;
+
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.sql.Date;
@@ -22,7 +21,10 @@ public class Task {
 
     private Date endDate;
 
-    private boolean isDone;
+    private TaskStatus status;
+
+    @ManyToOne
+    private Project project;
 
     public Long getId() {
         return id;
@@ -56,12 +58,20 @@ public class Task {
         this.endDate = endDate;
     }
 
-    public boolean isDone() {
-        return isDone;
+    public TaskStatus getStatus() {
+        return status;
     }
 
-    public void setDone(boolean done) {
-        isDone = done;
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     @Override
@@ -71,7 +81,7 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
-                ", isDone=" + isDone +
+                ", status=" + status +
                 '}';
     }
 }

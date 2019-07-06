@@ -16,7 +16,7 @@ public class Project {
 
     private String name;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

@@ -30,13 +30,16 @@ public class TaskController {
 
     private final TaskRepository taskRepository;
 
+    private final TaskService taskService;
+
     private final MessageSource messageSource;
 
-    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, MessageSource messageSource) {
+    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, TaskService taskService, MessageSource messageSource) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.taskValidator = taskValidator;
         this.taskRepository = taskRepository;
+        this.taskService = taskService;
         this.messageSource = messageSource;
     }
 
@@ -71,24 +74,35 @@ public class TaskController {
             project.ifPresent(modelAndView::addObject);
             return modelAndView;
         } else if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
-            task.setDone(false);
+            task.setStatus(TaskStatus.TO_DO);
+            task.setProject(project.get());
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
             taskRepository.save(task);
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.add.success", new Object[]{task.getName(), project.get().getName()}, Locale.getDefault())));
-            return new ModelAndView("redirect:/project/task/tasklist");
+            return new ModelAndView("redirect:taskList");
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping("tasklist")
+    @GetMapping("taskList")
     public ModelAndView taskList(
             @RequestParam Long projectId
     ) {
-        Optional<Project> project = projectRepository.findById(projectId);
-        if (project.isPresent() && projectService.hasCurrentUserPermissionToView(project.get())) {
-            return new ModelAndView("fragments/task/task-list", "project", project.get());
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToView(optionalProject.get())) {
+            Project project = optionalProject.get();
+            List<Task> toDoTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.TO_DO);
+            List<Task> inProgressTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.IN_PROGRESS);
+            List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("fragments/task/task-list");
+            modelAndView.addObject("toDoTasks", toDoTasks);
+            modelAndView.addObject("inProgressTasks", inProgressTasks);
+            modelAndView.addObject("doneTasks", doneTasks);
+            modelAndView.addObject("project", optionalProject.get());
+            return modelAndView;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -106,7 +120,7 @@ public class TaskController {
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.delete.success", new Object[]{task.get().getName()}, Locale.getDefault())));
             taskRepository.delete(task.get());
             redirectAttributes.addAttribute("projectId", projectId);
-            return new ModelAndView("redirect:/project/task/tasklist");
+            return new ModelAndView("redirect:taskList");
         } else if (project.isPresent() && task.isPresent()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
@@ -116,21 +130,17 @@ public class TaskController {
 
     @PostMapping("changeStatus")
     public ModelAndView changeStatusPost(
-            @RequestParam Long projectId,
             @RequestParam Long taskId,
-            @RequestParam Boolean done,
+            @RequestParam String status,
             RedirectAttributes redirectAttributes
     ) {
-        Optional<Project> project = projectRepository.findById(projectId);
-        Optional<Task> task = taskRepository.findById(taskId);
-        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get()) && task.isPresent()) {
-            task.get().setDone(done);
-            taskRepository.save(task.get());
-            redirectAttributes.addAttribute("projectId", projectId);
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.status.change.success", new Object[]{task.get().getName()}, Locale.getDefault())));
-            return new ModelAndView("redirect:/project/task/tasklist");
-        } else if (project.isPresent() && task.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+            Task task = optionalTask.get();
+            taskService.changeTaskStatus(optionalTask.get(), status);
+            redirectAttributes.addAttribute("projectId", task.getProject().getId());
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.status.change.success", new Object[]{optionalTask.get().getName()}, Locale.getDefault())));
+            return new ModelAndView("redirect:taskList");
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
