@@ -60,17 +60,11 @@ public class TaskServiceTests {
         }
     }
 
-
     @Test
     public void whenGetDayCountToStartInFuture_shouldReturnPositiveNumber() {
         Task task = new Task();
         task.setName("Sample task");
-        Date startDate = new Date(System.currentTimeMillis());
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.add(Calendar.DATE, 2);
-        startDate = new Date(calendar.getTimeInMillis());
-        task.setStartDate(startDate);
+        task.setStartDate(addToCurrentDate(2));
         task.setEndDate(Date.valueOf("2100-06-01"));
         task.setStatus(TaskStatus.TO_DO);
         task = taskRepository.save(task);
@@ -81,15 +75,54 @@ public class TaskServiceTests {
     public void whenGetDayCountToStartInPast_shouldReturnNegativeNumber() {
         Task task = new Task();
         task.setName("Sample task");
-        Date startDate = new Date(System.currentTimeMillis());
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.add(Calendar.DATE, -2);
-        startDate = new Date(calendar.getTimeInMillis());
-        task.setStartDate(startDate);
+        task.setStartDate(addToCurrentDate(-2));
         task.setEndDate(Date.valueOf("2100-06-01"));
         task.setStatus(TaskStatus.TO_DO);
         task = taskRepository.save(task);
         assertThat(taskService.getDayCountToStart(task.getId()), lessThan(0L));
+    }
+
+    @Test
+    public void whenGetDayCountToEndInFuture_shouldReturnPositiveNumber() {
+        Task task = new Task();
+        task.setName("Sample task");
+        task.setStartDate(addToCurrentDate(-2));
+        task.setEndDate(addToCurrentDate(2));
+        task.setStatus(TaskStatus.TO_DO);
+        task = taskRepository.save(task);
+        assertThat(taskService.getDayCountToEnd(task.getId()), greaterThan(0L));
+    }
+
+    @Test
+    public void whenUpdateTaskDetails_shouldUpdateTaskDetails() {
+        Task existingTask = new Task();
+        existingTask.setName("sample");
+        existingTask.setStartDate(new Date(System.currentTimeMillis()));
+        existingTask.setStartDate(addToCurrentDate(2));
+        existingTask.setStatus(TaskStatus.TO_DO);
+        existingTask = taskRepository.save(existingTask);
+        Task newTask = new Task();
+        newTask.setName("new name");
+        newTask.setStartDate(addToCurrentDate(-2));
+        newTask.setEndDate(addToCurrentDate(5));
+        newTask.setStatus(TaskStatus.DONE);
+        taskService.updateTaskDetails(existingTask, newTask);
+        Optional<Task> optionalTask = taskRepository.findById(existingTask.getId());
+        if (optionalTask.isPresent()) {
+            Task task = optionalTask.get();
+            assertThat(task.getName(), is(newTask.getName()));
+            //TODO Check if date is updated
+            assertThat(task.getStatus(), is(newTask.getStatus()));
+        } else {
+            assert false;
+        }
+    }
+
+    private Date addToCurrentDate(int days) {
+        Date date = new Date(System.currentTimeMillis());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, days);
+        return new Date(calendar.getTimeInMillis());
     }
 }

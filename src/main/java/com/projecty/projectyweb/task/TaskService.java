@@ -30,5 +30,22 @@ public class TaskService {
         return Long.MIN_VALUE;
     }
 
+    public long getDayCountToEnd(Long taskId) {
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (optionalTask.isPresent()) {
+            Date now = new Date();
+            Date endDate = optionalTask.get().getEndDate();
+            return TimeUnit.DAYS.convert(endDate.getTime() - now.getTime(), TimeUnit.MILLISECONDS);
+        }
+        return Long.MIN_VALUE;
+    }
+
+    public void updateTaskDetails(Task existingTask, Task newTask) {
+        existingTask.setName(newTask.getName());
+        existingTask.setStartDate(newTask.getStartDate());
+        existingTask.setEndDate(newTask.getEndDate());
+        existingTask.setStatus(newTask.getStatus());
+        taskRepository.save(existingTask);
+    }
 }
 

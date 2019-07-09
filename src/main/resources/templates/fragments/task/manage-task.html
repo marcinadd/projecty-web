@@ -1,0 +1,64 @@
+<html layout:decorate="~{index(title='Manage task')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org"
+>
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Manage task</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row mb-3">
+        <h2>Manage task</h2>
+    </div>
+    <div class="container">
+        <div class="row my-2">
+            <h3>Edit task details</h3>
+        </div>
+        <form method="post" th:action="@{/project/task/editTaskDetails}" th:object="${task}">
+            <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}">
+                <ul>
+                    <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                </ul>
+            </div>
+            <div class="form-group">
+                <input name="id" th:value="${task.id}" type="hidden">
+            </div>
+            <div class="form-group">
+                <label for="newName">New Name:</label>
+                <input class="form-control" id="newName" name="name" th:value="${task.name}" type="text">
+            </div>
+            <div class="form-group">
+                <label for="startDate">Start date</label>
+                <input class="form-control" id="startDate" name="startDate" th:value="${task.startDate}" type="date">
+            </div>
+            <div class="form-group">
+                <label for="startDate">End date</label>
+                <input class="form-control" id="endDate" name="endDate" th:value="${task.endDate}" type="date">
+            </div>
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select class="form-control" id="status" name="status">
+                    <option th:selected="${task.status==T(com.projecty.projectyweb.task.TaskStatus).TO_DO}"
+                            value="TO_DO">To do
+                    </option>
+                    <option th:selected="${task.status==T(com.projecty.projectyweb.task.TaskStatus).IN_PROGRESS}"
+                            value="IN_PROGRESS">In progress
+                    </option>
+                    <option th:selected="${task.status==T(com.projecty.projectyweb.task.TaskStatus).DONE}" value="DONE">
+                        Done
+                    </option>
+                </select>
+            </div>
+            <button class="btn btn-success" type="submit">Edit</button>
+        </form>
+        <div class="row my-2">
+            <h3>Delete task</h3>
+        </div>
+        <a th:href="@{/task/deletetaskConfirm(taskId=${task.id})}">
+            <button class="btn btn-danger">Delete task</button>
+        </a>
+    </div>
+</div>
+</body>
+</html>
+

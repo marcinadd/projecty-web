@@ -93,8 +93,8 @@ public class TaskController {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToView(optionalProject.get())) {
             Project project = optionalProject.get();
-            List<Task> toDoTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.TO_DO);
-            List<Task> inProgressTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.IN_PROGRESS);
+            List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
+            List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
             List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("fragments/task/task-list");
@@ -103,9 +103,8 @@ public class TaskController {
             modelAndView.addObject("doneTasks", doneTasks);
             modelAndView.addObject("project", optionalProject.get());
             return modelAndView;
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("deleteTask")
@@ -146,4 +145,37 @@ public class TaskController {
         }
     }
 
+    @GetMapping("manageTask")
+    public ModelAndView manageTask(
+            @RequestParam Long taskId
+    ) {
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("fragments/task/manage-task");
+            modelAndView.addObject("task", optionalTask.get());
+            return modelAndView;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("editTaskDetails")
+    public String editTaskDetailsPost(
+            @ModelAttribute Task task,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        taskValidator.validate(task, bindingResult);
+        if (bindingResult.hasErrors()) {
+            return "fragments/task/manage-task";
+        } else {
+            Optional<Task> optionalTask = taskRepository.findById(task.getId());
+            if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+                taskService.updateTaskDetails(optionalTask.get(), task);
+                redirectAttributes.addAttribute("projectId", optionalTask.get().getProject().getId());
+                return "redirect:taskList";
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
 }

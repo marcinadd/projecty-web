@@ -1,10 +1,15 @@
 <div th:fragment="task-menu-to-do">
     <div class="container">
-        <div class="row text-center" th:text="${task.name}"></div>
+        <a th:href="@{/project/task/manageTask(taskId=${task.id})}">
+            <div class="row text-center" th:text="${task.name}"></div>
+        </a>
         <div class="row text-center" th:text="${task.startDate}"></div>
         <div class="row text-center" th:text="${task.endDate}"></div>
-        <!--        <div class="row text-center" th:text="${T(com.projecty.projectyweb.task.TaskService).getDayCountToStart(task.id)}"></div>-->
-        <div class="row text-center" th:text="${@taskService.getDayCountToStart(task.id)}"></div>
+        <div class="row text-center"
+             th:classappend="${@taskService.getDayCountToStart(task.id)}>0 ? text-success : text-danger">
+            <p>Days to start: </p>
+            <p class="text-center" th:text="${@taskService.getDayCountToStart(task.id)}"></p>
+        </div>
         <div class="row">
             <div class="col">
                 <form method="post" th:action="@{/project/task/changeStatus(taskId=${task.id},status='IN_PROGRESS')}">
@@ -16,7 +21,16 @@
 </div>
 
 <div th:fragment="task-menu-in-progress">
-    <div class="row" th:text="${task.name}"></div>
+    <a th:href="@{/project/task/manageTask(taskId=${task.id})}">
+        <div class="row text-center" th:text="${task.name}"></div>
+    </a>
+    <div class="row text-center" th:text="${task.startDate}"></div>
+    <div class="row text-center" th:text="${task.endDate}"></div>
+    <div class="row text-center"
+         th:classappend="${@taskService.getDayCountToEnd(task.id)}>0 ? text-success : text-danger">
+        <p>Days to end: </p>
+        <p class="text-center" th:text="${@taskService.getDayCountToEnd(task.id)}"></p>
+    </div>
     <div class="row">
         <div class="col">
             <form method="post" th:action="@{/project/task/changeStatus(taskId=${task.id},status='TO_DO')}">
@@ -32,7 +46,9 @@
 </div>
 
 <div th:fragment="task-menu-done">
-    <div class="row" th:text="${task.name}"></div>
+    <a th:href="@{/project/task/manageTask(taskId=${task.id})}">
+        <div class="row text-center" th:text="${task.name}"></div>
+    </a>
     <div class="row">
         <div class="col">
             <form method="post" th:action="@{/project/task/changeStatus(taskId=${task.id},status='IN_PROGRESS')}">
