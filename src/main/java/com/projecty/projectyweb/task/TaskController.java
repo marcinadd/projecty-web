@@ -109,19 +109,17 @@ public class TaskController {
 
     @PostMapping("deleteTask")
     public ModelAndView deleteTaskPost(
-            @RequestParam Long projectId,
             @RequestParam Long taskId,
             RedirectAttributes redirectAttributes
     ) {
-        Optional<Project> project = projectRepository.findById(projectId);
-        Optional<Task> task = taskRepository.findById(taskId);
-        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get()) && task.isPresent()) {
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.delete.success", new Object[]{task.get().getName()}, Locale.getDefault())));
-            taskRepository.delete(task.get());
-            redirectAttributes.addAttribute("projectId", projectId);
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+            Task task = optionalTask.get();
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(
+                    messageSource.getMessage("task.delete.success", new Object[]{task.getName()}, Locale.getDefault())));
+            redirectAttributes.addAttribute("projectId", task.getProject().getId());
+            taskRepository.delete(task);
             return new ModelAndView("redirect:taskList");
-        } else if (project.isPresent() && task.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

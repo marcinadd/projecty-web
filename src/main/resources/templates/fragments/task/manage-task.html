@@ -54,9 +54,9 @@
         <div class="row my-2">
             <h3>Delete task</h3>
         </div>
-        <a th:href="@{/task/deletetaskConfirm(taskId=${task.id})}">
-            <button class="btn btn-danger">Delete task</button>
-        </a>
+        <form method="post" th:action="@{/project/task/deleteTask(taskId=${task.id})}">
+            <button class="btn btn-danger" type="submit">Delete task</button>
+        </form>
     </div>
 </div>
 </body>
