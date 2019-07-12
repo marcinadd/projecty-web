@@ -1,18 +1,33 @@
 package com.projecty.projectyweb.task;
 
 
+import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.project.role.ProjectRoleService;
+import com.projecty.projectyweb.team.role.TeamRoleService;
+import com.projecty.projectyweb.user.User;
+import com.projecty.projectyweb.user.UserRepository;
+import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Optional;
+import javax.transaction.Transactional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Transactional
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
+    private final ProjectRoleService projectRoleService;
+    private final TeamRoleService teamRoleService;
+    private final UserService userService;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, ProjectRoleService projectRoleService, TeamRoleService teamRoleService, UserService userService) {
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
+        this.projectRoleService = projectRoleService;
+        this.teamRoleService = teamRoleService;
+        this.userService = userService;
     }
 
     public void changeTaskStatus(Task task, String status) {
@@ -46,6 +61,40 @@ public class TaskService {
         existingTask.setEndDate(newTask.getEndDate());
         existingTask.setStatus(newTask.getStatus());
         taskRepository.save(existingTask);
+    }
+
+    public void assignUserByUsername(Task task, String username) {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent() && hasUserAccessToTask(task, optionalUser.get())) {
+            User user = optionalUser.get();
+            if (task.getAssignedUsers() == null) {
+                List<User> assignedUsers = new ArrayList<>();
+                assignedUsers.add(user);
+                task.setAssignedUsers(assignedUsers);
+                taskRepository.save(task);
+            } else if (!task.getAssignedUsers().contains(user)) {
+                task.getAssignedUsers().add(user);
+                taskRepository.save(task);
+            }
+        }
+    }
+
+    public List<String> getNotAssignedUsernameListForTask(Task task) {
+        Project project = task.getProject();
+        if (project.getTeam() != null) {
+            Set<User> teamRoleUsers = teamRoleService.getTeamRoleUsers(project.getTeam());
+            teamRoleUsers.removeAll(task.getAssignedUsers());
+            return userService.getUsernamesFromUserList(new ArrayList<>(teamRoleUsers));
+        }
+        Set<User> projectRoleUsers = projectRoleService.getProjectRoleUsers(project);
+        projectRoleUsers.removeAll(task.getAssignedUsers());
+        return userService.getUsernamesFromUserList(new ArrayList<>(projectRoleUsers));
+    }
+
+    private boolean hasUserAccessToTask(Task task, User user) {
+        return (task.getProject().getProjectRoles() != null &&
+                projectRoleService.getProjectRoleUsers(task.getProject()).contains(user))
+                || (task.getProject().getTeam() != null && (teamRoleService.getTeamRoleUsers(task.getProject().getTeam()).contains(user)));
     }
 }
 

@@ -72,7 +72,7 @@ public class ProjectRoleService {
         }
     }
 
-    private Set<User> getProjectRoleUsers(Project project) {
+    public Set<User> getProjectRoleUsers(Project project) {
         List<ProjectRole> projectRoles = projectRoleRepository.findByProject(project);
         Set<User> users = new HashSet<>();
         for (ProjectRole projectRole : projectRoles

@@ -149,9 +149,11 @@ public class TaskController {
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+            Task task = optionalTask.get();
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("fragments/task/manage-task");
-            modelAndView.addObject("task", optionalTask.get());
+            modelAndView.addObject("task", task);
+            modelAndView.addObject("notAssignedUsernames", taskService.getNotAssignedUsernameListForTask(task));
             return modelAndView;
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -173,6 +175,22 @@ public class TaskController {
                 redirectAttributes.addAttribute("projectId", optionalTask.get().getProject().getId());
                 return "redirect:taskList";
             }
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("assignUser")
+    public String assignUserPost(
+            Long taskId,
+            String username,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+            Task task = optionalTask.get();
+            taskService.assignUserByUsername(task, username);
+            redirectAttributes.addAttribute("taskId", task.getId());
+            return "redirect:manageTask";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

@@ -1,11 +1,13 @@
 package com.projecty.projectyweb.task;
 
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.sql.Date;
+import java.util.List;
 
 @Entity
 public class Task {
@@ -25,6 +27,9 @@ public class Task {
 
     @ManyToOne
     private Project project;
+
+    @ManyToMany
+    private List<User> assignedUsers;
 
     public Long getId() {
         return id;
@@ -72,6 +77,14 @@ public class Task {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public List<User> getAssignedUsers() {
+        return assignedUsers;
+    }
+
+    public void setAssignedUsers(List<User> assignedUsers) {
+        this.assignedUsers = assignedUsers;
     }
 
     @Override

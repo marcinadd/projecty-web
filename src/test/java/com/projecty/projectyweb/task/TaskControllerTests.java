@@ -38,15 +38,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ProjectyWebApplication.class)
 @AutoConfigureMockMvc
 public class TaskControllerTests {
-
     @MockBean
     UserRepository userRepository;
+
     @MockBean
     ProjectRepository projectRepository;
+
     @MockBean
     TaskRepository taskRepository;
+
     @MockBean
     ProjectRoleRepository projectRoleRepository;
+
+    @MockBean
+    TaskService taskService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -145,9 +150,9 @@ public class TaskControllerTests {
 
     @Test
     @WithMockUser(username = "user1")
-    public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnForbidden() throws Exception {
+    public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnNotFound() throws Exception {
         mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -160,7 +165,7 @@ public class TaskControllerTests {
 
     @Test
     @WithMockUser(username = "user1")
-    public void givenRequestOnChangeStatusWhichUserWithoutPermissions_shouldReturnForbidden() throws Exception {
+    public void givenRequestOnChangeStatusWhichUserWithoutPermissions_shouldReturnNotFound() throws Exception {
         mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&status=DONE"))
                 .andExpect(status().isNotFound());
     }
@@ -187,6 +192,13 @@ public class TaskControllerTests {
                 .flashAttr("task", task))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:taskList"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnAssignUser_shouldRedirectToManageTask() throws Exception {
+        mockMvc.perform(post("/project/task/assignUser?taskId=1&username=user1"))
+                .andExpect(view().name("redirect:manageTask"));
     }
 
 }

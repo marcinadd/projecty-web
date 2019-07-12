@@ -52,6 +52,43 @@
             <button class="btn btn-success" type="submit">Edit</button>
         </form>
         <div class="row my-2">
+            <h3>Manage assignments</h3>
+        </div>
+        <div class="row-my-2">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Remove assignment</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user: ${task.assignedUsers}">
+                    <td th:text="${user.username}"></td>
+                    <td>
+                        <form th:action="@{/project/task/removeAssignment(username=${user.username})}">
+                            <button class="btn btn-danger" type="submit">Remove assignment</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row my-2">
+            <h4>Add assigment</h4>
+        </div>
+        <form method="post" th:action="@{/project/task/assignUser}">
+            <input name="taskId" th:value="${task.id}" type="hidden">
+            <div class="form-group">
+                <label for="username">Assign user</label>
+                <select class="form-control" id="username" name="username">
+                    <option th:each="username : ${notAssignedUsernames}" th:text="${username}"
+                            th:value="${username}"></option>
+                </select>
+            </div>
+            <button class="btn btn-success" type="submit">Assign</button>
+        </form>
+        <div class="row my-2">
             <h3>Delete task</h3>
         </div>
         <form method="post" th:action="@{/project/task/deleteTask(taskId=${task.id})}">

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,4 +87,12 @@ public class UserService {
         return users;
     }
 
+    public List<String> getUsernamesFromUserList(List<User> users) {
+        List<String> usernames = new ArrayList<>();
+        for (User user : users
+        ) {
+            usernames.add(user.getUsername());
+        }
+        return usernames;
+    }
 }
