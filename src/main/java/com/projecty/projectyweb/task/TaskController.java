@@ -194,4 +194,20 @@ public class TaskController {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
+
+    @PostMapping("removeAssignment")
+    public String removeAssignment(
+            Long taskId,
+            String username,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+            Task task = optionalTask.get();
+            taskService.removeAssignmentByUsername(task, username);
+            redirectAttributes.addAttribute("taskId", task.getId());
+            return "redirect:manageTask";
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
 }

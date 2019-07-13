@@ -198,6 +198,15 @@ public class TaskControllerTests {
     @WithMockUser
     public void givenRequestOnAssignUser_shouldRedirectToManageTask() throws Exception {
         mockMvc.perform(post("/project/task/assignUser?taskId=1&username=user1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:manageTask"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnRemoveAssignment_shouldRedirectToManageTask() throws Exception {
+        mockMvc.perform(post("/project/task/removeAssignment?taskId=1&username=user1"))
+                .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:manageTask"));
     }
 

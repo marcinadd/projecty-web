@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
 import java.sql.Date;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -146,6 +147,7 @@ public class TaskServiceTests {
     }
 
     @Test
+    @Transactional
     public void whenAssignUserByUsername_shouldReturnTaskWithAssignedUser() {
         User user = new User();
         user.setUsername("user-task");
@@ -161,6 +163,11 @@ public class TaskServiceTests {
         projectRole.setProject(project);
         projectRoleRepository.save(projectRole);
 
+        List<ProjectRole> projectRoles = new ArrayList<>();
+        projectRoles.add(projectRole);
+        project.setProjectRoles(projectRoles);
+        project = projectRepository.save(project);
+
         Task task = new Task();
         task.setStartDate(new Date(System.currentTimeMillis()));
         task.setName("task name");
@@ -171,13 +178,14 @@ public class TaskServiceTests {
 
         Optional<Task> optionalTask = taskRepository.findById(task.getId());
         if (optionalTask.isPresent()) {
-            assertThat(optionalTask.get().getAssignedUsers(), is(notNullValue()));
+            assert optionalTask.get().getAssignedUsers().contains(user);
         } else {
             assert false;
         }
     }
 
     @Test
+    @Transactional
     public void whenGetNotAssignedUsernameListForTask_shouldReturnListStringWithUsernames() {
         User user = new User();
         user.setUsername("user");
@@ -215,6 +223,35 @@ public class TaskServiceTests {
 
         assertThat(taskService.getNotAssignedUsernameListForTask(task), is(notNullValue()));
 
+    }
+
+    @Test
+    @Transactional
+    public void whenRemoveAssignmenByUsername_shouldReturnTaskWithoutAssignedUser() {
+        Project project = new Project();
+        project.setName("Sample name");
+        projectRepository.save(project);
+
+        User user = new User();
+        user.setUsername("removeAssignment");
+        userRepository.save(user);
+
+        Task task = new Task();
+        task.setStartDate(new Date(System.currentTimeMillis()));
+        task.setName("Sample task");
+        task.setProject(project);
+        List<User> assignedUsers = new ArrayList<>();
+        assignedUsers.add(user);
+        task.setAssignedUsers(assignedUsers);
+        task = taskRepository.save(task);
+
+        taskService.removeAssignmentByUsername(task, user.getUsername());
+        Optional<Task> optionalTask = taskRepository.findById(task.getId());
+        if (optionalTask.isPresent()) {
+            assertThat(optionalTask.get().getAssignedUsers().size(), is(0));
+        } else {
+            assert false;
+        }
     }
 
     private Date addToCurrentDate(int days) {

@@ -66,7 +66,8 @@
                 <tr th:each="user: ${task.assignedUsers}">
                     <td th:text="${user.username}"></td>
                     <td>
-                        <form th:action="@{/project/task/removeAssignment(username=${user.username})}">
+                        <form method="post"
+                              th:action="@{/project/task/removeAssignment(taskId=${task.id},username=${user.username})}">
                             <button class="btn btn-danger" type="submit">Remove assignment</button>
                         </form>
                     </td>
@@ -77,17 +78,22 @@
         <div class="row my-2">
             <h4>Add assigment</h4>
         </div>
-        <form method="post" th:action="@{/project/task/assignUser}">
-            <input name="taskId" th:value="${task.id}" type="hidden">
-            <div class="form-group">
-                <label for="username">Assign user</label>
-                <select class="form-control" id="username" name="username">
-                    <option th:each="username : ${notAssignedUsernames}" th:text="${username}"
-                            th:value="${username}"></option>
-                </select>
-            </div>
-            <button class="btn btn-success" type="submit">Assign</button>
-        </form>
+        <div th:if="${notAssignedUsernames.size() != 0}">
+            <form method="post" th:action="@{/project/task/assignUser}">
+                <input name="taskId" th:value="${task.id}" type="hidden">
+                <div class="form-group">
+                    <label for="username">Assign user</label>
+                    <select class="form-control" id="username" name="username">
+                        <option th:each="username : ${notAssignedUsernames}" th:text="${username}"
+                                th:value="${username}"></option>
+                    </select>
+                </div>
+                <button class="btn btn-success" type="submit">Assign</button>
+            </form>
+        </div>
+        <div th:unless="${notAssignedUsernames.size() != 0}">
+            <h5>All project/team users have been already asigned to this task.</h5>
+        </div>
         <div class="row my-2">
             <h3>Delete task</h3>
         </div>

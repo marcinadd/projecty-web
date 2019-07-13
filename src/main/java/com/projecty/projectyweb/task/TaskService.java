@@ -96,5 +96,13 @@ public class TaskService {
                 projectRoleService.getProjectRoleUsers(task.getProject()).contains(user))
                 || (task.getProject().getTeam() != null && (teamRoleService.getTeamRoleUsers(task.getProject().getTeam()).contains(user)));
     }
+
+    public void removeAssignmentByUsername(Task task, String username) {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            task.getAssignedUsers().remove(optionalUser.get());
+            taskRepository.save(task);
+        }
+    }
 }
 
