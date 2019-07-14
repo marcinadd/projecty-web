@@ -1,6 +1,5 @@
-package com.projecty.projectyweb.role;
+package com.projecty.projectyweb.project.role;
 
-import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.misc.RedirectMessageTypes;
 import com.projecty.projectyweb.project.Project;
@@ -13,53 +12,56 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class RoleService {
-    private final RoleRepository roleRepository;
+public class ProjectRoleService {
+    private final ProjectRoleRepository projectRoleRepository;
     private final UserService userService;
     private final ProjectRepository projectRepository;
     private final MessageSource messageSource;
 
-    public RoleService(RoleRepository roleRepository, UserService userService, ProjectRepository projectRepository, MessageSource messageSource) {
-        this.roleRepository = roleRepository;
+    public ProjectRoleService(ProjectRoleRepository projectRoleRepository, UserService userService, ProjectRepository projectRepository, MessageSource messageSource) {
+        this.projectRoleRepository = projectRoleRepository;
         this.userService = userService;
         this.projectRepository = projectRepository;
         this.messageSource = messageSource;
     }
 
-    public void save(Role role) {
-        roleRepository.save(role);
+    public void save(ProjectRole projectRole) {
+        projectRoleRepository.save(projectRole);
     }
 
+    @Deprecated
     public boolean isValidRoleName(String roleName) {
-        return AppConfig.ROLE_NAMES.contains(roleName);
+
+        return true;
+        //return AppConfig.ROLE_NAMES.contains(roleName);
     }
 
     public void addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
-        List<Role> roles = new ArrayList<>();
+        List<ProjectRole> projectRoles = new ArrayList<>();
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
             removeExistingUsersInProjectFromSet(users, project);
             for (User user : users
             ) {
-                    Role role = new Role();
-                    role.setProject(project);
-                role.setUser(user);
-                    role.setName(Roles.USER.toString());
-                    roles.add(role);
+                ProjectRole projectRole = new ProjectRole();
+                projectRole.setProject(project);
+                projectRole.setUser(user);
+                projectRole.setName(ProjectRoles.USER);
+                projectRoles.add(projectRole);
                     RedirectMessage message = new RedirectMessage();
                     message.setType(RedirectMessageTypes.SUCCESS);
                     String text = messageSource.getMessage(
-                            "role.add.success",
+                            "projectRole.add.success",
                             new Object[]{user.getUsername(), project.getName()},
                             Locale.getDefault());
                     message.setText(text);
                     messages.add(message);
             }
         }
-        if (project.getRoles() == null) {
-            project.setRoles(roles);
-        } else if (roles.size() > 0) {
-            project.getRoles().addAll(roles);
+        if (project.getProjectRoles() == null) {
+            project.setProjectRoles(projectRoles);
+        } else if (projectRoles.size() > 0) {
+            project.getProjectRoles().addAll(projectRoles);
         }
     }
 
@@ -71,9 +73,9 @@ public class RoleService {
     }
 
     private Set<User> getProjectRoleUsers(Project project) {
-        List<Role> projectRoles = roleRepository.findByProject(project);
+        List<ProjectRole> projectRoles = projectRoleRepository.findByProject(project);
         Set<User> users = new HashSet<>();
-        for (Role projectRole : projectRoles
+        for (ProjectRole projectRole : projectRoles
         ) {
             users.add(projectRole.getUser());
         }
@@ -82,25 +84,25 @@ public class RoleService {
 
     public void addCurrentUserToProjectAsAdmin(Project project) {
         User current = userService.getCurrentUser();
-        Role role = new Role();
-        role.setProject(project);
-        role.setName(Roles.ADMIN.toString());
-        role.setUser(current);
-        if (project.getRoles() == null) {
-            List<Role> roles = new ArrayList<>();
-            roles.add(role);
-            project.setRoles(roles);
+        ProjectRole projectRole = new ProjectRole();
+        projectRole.setProject(project);
+        projectRole.setName(ProjectRoles.ADMIN);
+        projectRole.setUser(current);
+        if (project.getProjectRoles() == null) {
+            List<ProjectRole> projectRoles = new ArrayList<>();
+            projectRoles.add(projectRole);
+            project.setProjectRoles(projectRoles);
         } else {
-            project.getRoles().add(role);
+            project.getProjectRoles().add(projectRole);
         }
     }
 
     public void deleteUserFromProject(User user, Project project) {
-        Optional<Role> toDeleteRole = roleRepository.findRoleByUserAndProject(user, project);
+        Optional<ProjectRole> toDeleteRole = projectRoleRepository.findRoleByUserAndProject(user, project);
         if (toDeleteRole.isPresent()) {
-            List<Role> roles = project.getRoles();
-            roles.remove(toDeleteRole.get());
-            project.setRoles(roles);
+            List<ProjectRole> projectRoles = project.getProjectRoles();
+            projectRoles.remove(toDeleteRole.get());
+            project.setProjectRoles(projectRoles);
             projectRepository.save(project);
         }
     }

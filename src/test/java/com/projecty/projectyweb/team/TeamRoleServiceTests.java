@@ -64,7 +64,6 @@ public class TeamRoleServiceTests {
                 .thenReturn(user);
     }
 
-
     @Test
     public void whenAddTeamRolesByUsernames_shouldReturnTeamWithTeamRoles() {
         Team team = new Team();

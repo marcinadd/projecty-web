@@ -71,11 +71,10 @@
         </div>
         <div class="container my-3">
             <h3>Projects</h3>
-            <ul class="list-group" th:each="role: ${roles}">
+            <ul class="list-group" th:each="projectRole: ${projectRoles}">
                 <li class="list-group-item my-2">
-                    <!--         Name-->
                     <div class="row">
-                        <div class="mx-auto" th:text="${role.project.name}">
+                        <div class="mx-auto" th:text="${projectRole.project.name}">
                         </div>
                     </div>
                     <p> Users </p>
@@ -89,7 +88,7 @@
                                     <th scope="col">Role</th>
                                 </tr>
                                 </thead>
-                                <tbody th:each="roleObj: ${role.project.roles}">
+                                <tbody th:each="roleObj: ${projectRole.project.projectRoles}">
                                 <tr>
                                     <td th:text="${roleObj.user.username}"></td>
                                     <td th:text="${roleObj.user.email}"></td>
@@ -101,23 +100,27 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <a th:href="@{/project/task/tasklist(projectId=${role.project.id})}">
+                            <a th:href="@{/project/task/tasklist(projectId=${projectRole.project.id})}">
                                 <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
                             </a>
                         </div>
-                        <div class="col" th:if="${role.name == 'ADMIN'}">
-                            <a th:href="@{/project/task/addtasks(projectId=${role.project.id})}">
+                        <div class="col"
+                             th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN}">
+                            <a th:href="@{/project/task/addtasks(projectId=${projectRole.project.id})}">
                                 <button class="btn btn-success" id="addTaskButton" type="button">Add task</button>
                             </a>
                         </div>
-                        <div class="col" th:if="${role.name == 'ADMIN'}">
-                            <a th:href="@{/project/manageusers(projectId=${role.project.id})}">
+                        <div class="col"
+                             th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN}">
+                            <a th:href="@{/project/manageusers(projectId=${projectRole.project.id})}">
                                 <button class="btn btn-warning" id="manageUsersButton" type="button">Manage users
                                 </button>
                             </a>
                         </div>
-                        <div class="col" th:if="${role.name == 'ADMIN'}">
-                            <form method="POST" th:action="@{/project/deleteproject(projectId=${role.project.id})}">
+                        <div class="col"
+                             th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN}">
+                            <form method="POST"
+                                  th:action="@{/project/deleteproject(projectId=${projectRole.project.id})}">
                                 <button class="btn btn-danger" type="submit">Delete project</button>
                             </form>
                         </div>

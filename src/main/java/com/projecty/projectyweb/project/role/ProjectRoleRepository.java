@@ -1,4 +1,4 @@
-package com.projecty.projectyweb.role;
+package com.projecty.projectyweb.project.role;
 
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.user.User;
@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Long> {
-    Optional<Role> findRoleByUserAndProject(User user, Project project);
+public interface ProjectRoleRepository extends JpaRepository<ProjectRole, Long> {
+    Optional<ProjectRole> findRoleByUserAndProject(User user, Project project);
 
-    List<Role> findByProject(Project project);
+    List<ProjectRole> findByProject(Project project);
 }

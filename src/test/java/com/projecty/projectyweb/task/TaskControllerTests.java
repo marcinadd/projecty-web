@@ -3,9 +3,9 @@ package com.projecty.projectyweb.task;
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
-import com.projecty.projectyweb.role.Role;
-import com.projecty.projectyweb.role.RoleRepository;
-import com.projecty.projectyweb.role.Roles;
+import com.projecty.projectyweb.project.role.ProjectRole;
+import com.projecty.projectyweb.project.role.ProjectRoleRepository;
+import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.hamcrest.Matchers;
@@ -45,7 +45,7 @@ public class TaskControllerTests {
     @MockBean
     TaskRepository taskRepository;
     @MockBean
-    RoleRepository roleRepository;
+    ProjectRoleRepository projectRoleRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,32 +63,32 @@ public class TaskControllerTests {
         project.setName("Test");
         project.setId(1L);
 
-        List<Role> roles = new ArrayList<>();
+        List<ProjectRole> projectRoles = new ArrayList<>();
 
-        Role role = new Role();
-        role.setId(1L);
-        role.setUser(user);
-        role.setProject(project);
-        role.setName(Roles.ADMIN.toString());
-        roles.add(role);
+        ProjectRole projectRole = new ProjectRole();
+        projectRole.setId(1L);
+        projectRole.setUser(user);
+        projectRole.setProject(project);
+        projectRole.setName(ProjectRoles.ADMIN);
+        projectRoles.add(projectRole);
 
-        Role role1 = new Role();
-        role1.setId(2L);
-        role1.setUser(user1);
-        role1.setProject(project);
-        role1.setName(Roles.USER.toString());
-        roles.add(role1);
+        ProjectRole projectRole1 = new ProjectRole();
+        projectRole1.setId(2L);
+        projectRole1.setUser(user1);
+        projectRole1.setProject(project);
+        projectRole1.setName(ProjectRoles.USER);
+        projectRoles.add(projectRole1);
 
 
-        List<Role> rolesUser = new ArrayList<>();
-        rolesUser.add(role);
-        user.setRoles(rolesUser);
+        List<ProjectRole> rolesUser = new ArrayList<>();
+        rolesUser.add(projectRole);
+        user.setProjectRoles(rolesUser);
 
-        List<Role> rolesUser1 = new ArrayList<>();
-        rolesUser1.add(role1);
-        user1.setRoles(rolesUser1);
+        List<ProjectRole> rolesUser1 = new ArrayList<>();
+        rolesUser1.add(projectRole1);
+        user1.setProjectRoles(rolesUser1);
 
-        project.setRoles(roles);
+        project.setProjectRoles(projectRoles);
 
 
         List<Task> tasks = new ArrayList<>();
@@ -103,10 +103,10 @@ public class TaskControllerTests {
                 .thenReturn(project);
         Mockito.when(projectRepository.findById(1L))
                 .thenReturn(Optional.of(project));
-        Mockito.when(roleRepository.findRoleByUserAndProject(user, project))
-                .thenReturn(Optional.of(role));
-        Mockito.when(roleRepository.findRoleByUserAndProject(user1, project))
-                .thenReturn(Optional.of(role1));
+        Mockito.when(projectRoleRepository.findRoleByUserAndProject(user, project))
+                .thenReturn(Optional.of(projectRole));
+        Mockito.when(projectRoleRepository.findRoleByUserAndProject(user1, project))
+                .thenReturn(Optional.of(projectRole1));
         Mockito.when(taskRepository.findById(1L))
                 .thenReturn(Optional.of(task));
         Mockito.when(userRepository.findByUsername(user.getUsername()))

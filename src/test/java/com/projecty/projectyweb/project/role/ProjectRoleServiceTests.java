@@ -3,8 +3,6 @@ package com.projecty.projectyweb.project.role;
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
-import com.projecty.projectyweb.role.RoleRepository;
-import com.projecty.projectyweb.role.RoleService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -31,7 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @SpringBootTest(classes = ProjectyWebApplication.class)
 public class ProjectRoleServiceTests {
     @Autowired
-    private RoleService roleService;
+    private ProjectRoleService projectRoleService;
     @Autowired
     private ProjectRepository projectRepository;
 
@@ -39,7 +37,7 @@ public class ProjectRoleServiceTests {
     private UserRepository userRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private ProjectRoleRepository projectRoleRepository;
 
 
     @MockBean
@@ -72,12 +70,12 @@ public class ProjectRoleServiceTests {
         usernames.add(user.getUsername());
         usernames.add(user1.getUsername());
         usernames.add(user1.getUsername());
-        roleService.addRolesToProjectByUsernames(project, usernames, null);
+        projectRoleService.addRolesToProjectByUsernames(project, usernames, null);
 
         Optional<Project> optionalProject = projectRepository.findById(project.getId());
         if (optionalProject.isPresent()) {
-            assertThat(roleRepository.findRoleByUserAndProject(user, optionalProject.get()), is(notNullValue()));
-            assertThat(roleRepository.findRoleByUserAndProject(user, optionalProject.get()), is(notNullValue()));
+            assertThat(projectRoleRepository.findRoleByUserAndProject(user, optionalProject.get()), is(notNullValue()));
+            assertThat(projectRoleRepository.findRoleByUserAndProject(user, optionalProject.get()), is(notNullValue()));
         } else {
             assert false;
         }

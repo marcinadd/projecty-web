@@ -1,4 +1,4 @@
-package com.projecty.projectyweb.role;
+package com.projecty.projectyweb.project.role;
 
 
 import com.projecty.projectyweb.project.Project;
@@ -7,13 +7,13 @@ import com.projecty.projectyweb.user.User;
 import javax.persistence.*;
 
 @Entity
-public class Role {
+public class ProjectRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // TODO Remove this redundancy
-    private String name;
+    private ProjectRoles name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -32,11 +32,11 @@ public class Role {
         this.id = id;
     }
 
-    public String getName() {
+    public ProjectRoles getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(ProjectRoles name) {
         this.name = name;
     }
 
@@ -58,7 +58,7 @@ public class Role {
 
     @Override
     public String toString() {
-        return "Role{" +
+        return "ProjectRole{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", user=" + user;

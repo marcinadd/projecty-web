@@ -1,7 +1,7 @@
 package com.projecty.projectyweb.project;
 
 
-import com.projecty.projectyweb.role.Role;
+import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.Team;
 
@@ -20,7 +20,7 @@ public class Project {
     private List<Task> tasks;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Role> roles;
+    private List<ProjectRole> projectRoles;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
@@ -50,12 +50,12 @@ public class Project {
         this.tasks = tasks;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public List<ProjectRole> getProjectRoles() {
+        return projectRoles;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setProjectRoles(List<ProjectRole> projectRoles) {
+        this.projectRoles = projectRoles;
     }
 
     public Team getTeam() {
@@ -72,7 +72,7 @@ public class Project {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", tasks=" + tasks +
-                ", roles=" + roles +
+                ", projectRoles=" + projectRoles +
                 '}';
     }
 }
