@@ -2,6 +2,7 @@ package com.projecty.projectyweb.task;
 
 
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.project.ProjectService;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.User;
@@ -21,13 +22,15 @@ public class TaskService {
     private final ProjectRoleService projectRoleService;
     private final TeamRoleService teamRoleService;
     private final UserService userService;
+    private final ProjectService projectService;
 
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository, ProjectRoleService projectRoleService, TeamRoleService teamRoleService, UserService userService) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, ProjectRoleService projectRoleService, TeamRoleService teamRoleService, UserService userService, ProjectService projectService) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.projectRoleService = projectRoleService;
         this.teamRoleService = teamRoleService;
         this.userService = userService;
+        this.projectService = projectService;
     }
 
     public void changeTaskStatus(Task task, String status) {
@@ -103,6 +106,12 @@ public class TaskService {
             task.getAssignedUsers().remove(optionalUser.get());
             taskRepository.save(task);
         }
+    }
+
+    public boolean hasCurrentUserPermissionToEditOrIsAssignedToTask(Task task) {
+        User user = userService.getCurrentUser();
+        Project project = task.getProject();
+        return projectService.hasCurrentUserPermissionToEdit(project) || task.getAssignedUsers().contains(user);
     }
 }
 

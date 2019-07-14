@@ -120,6 +120,9 @@ public class TaskControllerTests {
                 .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
                 .thenReturn(Optional.of(user1));
+
+        Mockito.when(taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(Mockito.any(Task.class)))
+                .thenReturn(true);
     }
 
     @Test
@@ -161,13 +164,6 @@ public class TaskControllerTests {
         mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&status=DONE"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:taskList"));
-    }
-
-    @Test
-    @WithMockUser(username = "user1")
-    public void givenRequestOnChangeStatusWhichUserWithoutPermissions_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&status=DONE"))
-                .andExpect(status().isNotFound());
     }
 
     @Test

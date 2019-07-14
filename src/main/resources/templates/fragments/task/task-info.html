@@ -1,0 +1,12 @@
+<div th:fragment="task-info">
+    <div th:if="${hasPermissionToEdit}">
+        <a th:href="@{/project/task/manageTask(taskId=${task.id})}">
+            <div class="row text-center" th:text="${task.name}"></div>
+        </a>
+    </div>
+    <div th:unless="${hasPermissionToEdit}">
+        <div class="row text-center" th:text="${task.name}"></div>
+    </div>
+    <div class="row text-center" th:text="${task.startDate}"></div>
+    <div class="row text-center" th:text="${task.endDate}"></div>
+</div>

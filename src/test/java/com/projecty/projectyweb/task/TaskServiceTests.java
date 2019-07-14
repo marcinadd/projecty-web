@@ -9,11 +9,14 @@ import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
+import com.projecty.projectyweb.user.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -50,8 +53,18 @@ public class TaskServiceTests {
     @Autowired
     ProjectRoleRepository projectRoleRepository;
 
+    @MockBean
+    UserService userService;
+
+    private User currentUser;
+
     @Before
     public void init() {
+        currentUser = new User();
+        currentUser.setUsername("current-user");
+        userRepository.save(currentUser);
+        Mockito.when(userService.getCurrentUser())
+                .thenReturn(currentUser);
     }
 
     @Test
@@ -222,7 +235,6 @@ public class TaskServiceTests {
         task = taskRepository.save(task);
 
         assertThat(taskService.getNotAssignedUsernameListForTask(task), is(notNullValue()));
-
     }
 
     @Test
@@ -252,6 +264,47 @@ public class TaskServiceTests {
         } else {
             assert false;
         }
+    }
+
+    @Test
+    @Transactional
+    public void whenCheckIfIsAssigned_shouldReturnTrue() {
+        Project project = new Project();
+        project.setName("Sample name");
+        projectRepository.save(project);
+
+        Task task = new Task();
+        task.setStartDate(new Date(System.currentTimeMillis()));
+        task.setName("Sample task");
+        task.setProject(project);
+        List<User> assignedUsers = new ArrayList<>();
+        assignedUsers.add(currentUser);
+        task.setAssignedUsers(assignedUsers);
+        task = taskRepository.save(task);
+
+        assert taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(task);
+    }
+
+    @Test
+    @Transactional
+    public void whenCheckIfHasPermissionToEdit_shouldReturnTrue() {
+        Project project = new Project();
+        project.setName("Sample name");
+        projectRepository.save(project);
+
+        ProjectRole projectRole = new ProjectRole();
+        projectRole.setUser(currentUser);
+        projectRole.setProject(project);
+        projectRole.setName(ProjectRoles.ADMIN);
+        projectRoleService.save(projectRole);
+
+        Task task = new Task();
+        task.setStartDate(new Date(System.currentTimeMillis()));
+        task.setName("Sample task");
+        task.setProject(project);
+        task = taskRepository.save(task);
+
+        assert taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(task);
     }
 
     private Date addToCurrentDate(int days) {

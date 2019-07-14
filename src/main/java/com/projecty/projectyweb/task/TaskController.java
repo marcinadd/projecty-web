@@ -102,6 +102,7 @@ public class TaskController {
             modelAndView.addObject("inProgressTasks", inProgressTasks);
             modelAndView.addObject("doneTasks", doneTasks);
             modelAndView.addObject("project", optionalProject.get());
+            modelAndView.addObject("hasPermissionToEdit", projectService.hasCurrentUserPermissionToEdit(project));
             return modelAndView;
         }
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -132,7 +133,7 @@ public class TaskController {
             RedirectAttributes redirectAttributes
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+        if (optionalTask.isPresent() && taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(optionalTask.get())) {
             Task task = optionalTask.get();
             taskService.changeTaskStatus(optionalTask.get(), status);
             redirectAttributes.addAttribute("projectId", task.getProject().getId());
