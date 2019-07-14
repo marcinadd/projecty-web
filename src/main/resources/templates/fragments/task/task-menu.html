@@ -1,0 +1,71 @@
+<div th:fragment="task-menu-to-do">
+    <div class="container p-3">
+        <div th:replace="fragments/task/task-info :: task-info"></div>
+        <div class="row text-center text-success" th:if="${@taskService.getDayCountToStart(task.id)}>=0">
+            <p>Days to start: </p>
+            <p class="text-center" th:text="${@taskService.getDayCountToStart(task.id)}"></p>
+        </div>
+
+        <div class="row text-center text-danger" th:unless="${@taskService.getDayCountToStart(task.id)}>=0">
+            <p>Delay (days): </p>
+            <p class="text-center"
+               th:text="${T(java.lang.Math).abs(@taskService.getDayCountToStart(task.id))}"></p>
+        </div>
+        <div th:if="${@taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(task)}">
+            <div class="row">
+                <div class="col">
+                    <form method="post"
+                          th:action="@{/project/task/changeStatus(taskId=${task.id},status='IN_PROGRESS')}">
+                        <button class="btn btn-info" type="submit">></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="task-menu-in-progress">
+    <div class="container p-3">
+        <div th:replace="fragments/task/task-info :: task-info"></div>
+        <div class="row text-center text-success" th:if="${@taskService.getDayCountToEnd(task.id)}>=0">
+            <p>Days to end: </p>
+            <p class="text-center" th:text="${@taskService.getDayCountToEnd(task.id)}"></p>
+        </div>
+
+        <div class="row text-center text-danger" th:unless="${@taskService.getDayCountToEnd(task.id)}>=0">
+            <p>Delay (days): </p>
+            <p class="text-center"
+               th:text="${T(java.lang.Math).abs(@taskService.getDayCountToEnd(task.id))}"></p>
+        </div>
+        <div th:if="${@taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(task)}">
+            <div class="row">
+                <div class="col">
+                    <form method="post" th:action="@{/project/task/changeStatus(taskId=${task.id},status='TO_DO')}">
+                        <button class="btn btn-info" type="submit"><</button>
+                    </form>
+                </div>
+                <div class="col">
+                    <form method="post" th:action="@{/project/task/changeStatus(taskId=${task.id},status='DONE')}">
+                        <button class="btn btn-info" type="submit">></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="task-menu-done">
+    <div class="container p-3">
+        <div th:replace="fragments/task/task-info :: task-info"></div>
+        <div th:if="${@taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(task)}">
+            <div class="row">
+                <div class="col">
+                    <form method="post"
+                          th:action="@{/project/task/changeStatus(taskId=${task.id},status='IN_PROGRESS')}">
+                        <button class="btn btn-info" type="submit"><</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

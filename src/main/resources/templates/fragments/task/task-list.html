@@ -1,4 +1,4 @@
-<html layout:decorate="~{index(title='Tasklist')}"
+<html layout:decorate="~{index(title='Task list')}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:th="https://www.thymeleaf.org"
 >
@@ -7,47 +7,61 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <h1> Tasks for project: <i><span th:text="${project.name}"></span></i></h1>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">Task</th>
-            <th scope="col">Start date</th>
-            <th scope="col">End date</th>
-            <th scope="col">Done</th>
-            <th scope="col">Change status</th>
-            <th scope="col">Delete</th>
-        </tr>
-        </thead>
-        <tbody th:each="task: ${project.tasks}">
-        <tr>
-            <td th:text="${task.name}"></td>
-            <td th:text="${task.startDate}"></td>
-            <td th:text="${task.endDate}"></td>
-            <td th:text="${task.done}"></td>
-            <td>
-                <span th:if="${task.done}">
-                    <form method="post"
-                          th:action="@{/project/task/changeStatus(projectId=${project.id}, taskId=${task.id}, done=false)}">
-                        <button class="btn btn-danger" type="submit">Make undone</button>
-                    </form>
-                </span>
-                <span th:unless="${task.done}">
-                    <form method="post"
-                          th:action="@{/project/task/changeStatus(projectId=${project.id}, taskId=${task.id}, done=true)}">
-                        <button class="btn btn-success" type="submit">Make done</button>
-                    </form>
-                </span>
-            </td>
-            <td>
-                <form method="post"
-                      th:action="@{/project/task/deleteTask(projectId=${project.id}, taskId=${task.id})}">
-                    <button class="btn btn-danger" type="submit">Delete</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <h1> Tasks for project: <b><span th:text="${project.name}"></span></b></h1>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">To do</th>
+                    </tr>
+                    </thead>
+                    <tbody th:each="task : ${toDoTasks}">
+                    <tr>
+                        <td>
+                            <div th:replace="fragments/task/task-menu :: task-menu-to-do"></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">
+                            In progress
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody th:each="task : ${inProgressTasks}">
+                    <tr>
+                        <td>
+                            <div th:replace="fragments/task/task-menu :: task-menu-in-progress"></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">Done</th>
+                    </tr>
+                    </thead>
+                    <tbody th:each="task : ${doneTasks}">
+                    <tr>
+                        <td>
+                            <div th:replace="fragments/task/task-menu :: task-menu-done"></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

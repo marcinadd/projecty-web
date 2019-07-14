@@ -2,6 +2,7 @@ package com.projecty.projectyweb.user;
 
 import com.projecty.projectyweb.message.Message;
 import com.projecty.projectyweb.project.role.ProjectRole;
+import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.role.TeamRole;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -46,12 +47,19 @@ public class User {
             orphanRemoval = true
     )
     private List<Message> messagesFrom;
+
     @OneToMany(
             mappedBy = "recipient",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     private List<Message> messagesTo;
+
+    @ManyToMany(
+            mappedBy = "assignedUsers",
+            cascade = CascadeType.ALL
+    )
+    private List<Task> assignedTasks;
 
     public Long getId() {
         return id;
@@ -131,6 +139,14 @@ public class User {
 
     public void setTeamRoles(List<TeamRole> teamRoles) {
         this.teamRoles = teamRoles;
+    }
+
+    public List<Task> getAssignedTasks() {
+        return assignedTasks;
+    }
+
+    public void setAssignedTasks(List<Task> assignedTasks) {
+        this.assignedTasks = assignedTasks;
     }
 
     @Override

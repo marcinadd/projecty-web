@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,15 +38,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ProjectyWebApplication.class)
 @AutoConfigureMockMvc
 public class TaskControllerTests {
-
     @MockBean
     UserRepository userRepository;
+
     @MockBean
     ProjectRepository projectRepository;
+
     @MockBean
     TaskRepository taskRepository;
+
     @MockBean
     ProjectRoleRepository projectRoleRepository;
+
+    @MockBean
+    TaskService taskService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -95,6 +101,7 @@ public class TaskControllerTests {
         Task task = new Task();
         task.setId(1L);
         task.setName("Test task");
+        task.setProject(project);
         tasks.add(task);
 
         project.setTasks(tasks);
@@ -113,12 +120,15 @@ public class TaskControllerTests {
                 .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
                 .thenReturn(Optional.of(user1));
+
+        Mockito.when(taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(Mockito.any(Task.class)))
+                .thenReturn(true);
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnMyProject_shouldReturnMyprojectsViewWithTask() throws Exception {
-        mockMvc.perform(get("/project/task/tasklist?projectId=1"))
+        mockMvc.perform(get("/project/task/taskList?projectId=1"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("fragments/task/task-list"))
                 .andExpect(model().attribute("project", hasProperty("name", Matchers.equalTo("Test"))))
@@ -130,7 +140,7 @@ public class TaskControllerTests {
     public void givenRequestOnDeleteTask_shouldRedirectToTaskListView() throws Exception {
         mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/project/task/tasklist"));
+                .andExpect(view().name("redirect:taskList"));
     }
 
     @Test
@@ -143,25 +153,57 @@ public class TaskControllerTests {
 
     @Test
     @WithMockUser(username = "user1")
-    public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnForbidden() throws Exception {
+    public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnNotFound() throws Exception {
         mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnChangeStatus_shouldRedirectToTaskListView() throws Exception {
-        mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&done=true"))
+        mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&status=DONE"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/project/task/tasklist"));
+                .andExpect(view().name("redirect:taskList"));
     }
 
     @Test
-    @WithMockUser(username = "user1")
-    public void givenRequestOnChangeStatusWhichUserWithoutPermissions_shouldReturnForbidden() throws Exception {
-        mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&done=true"))
-                .andExpect(status().isForbidden());
+    @WithMockUser
+    public void givenRequestOnManageTask_shouldReturnManageTaskView() throws Exception {
+        mockMvc.perform(get("/project/task/manageTask?taskId=1"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("task"))
+                .andExpect(view().name("fragments/task/manage-task"));
     }
 
+    @Test
+    @WithMockUser
+    public void givenRequestOnEditTaskDetails_shouldRedirectToManageTask() throws Exception {
+        Task task = new Task();
+        task.setId(1L);
+        task.setName("Sample name");
+        task.setStartDate(new Date(System.currentTimeMillis()));
+        task.setEndDate(new Date(System.currentTimeMillis()));
+        task.setStatus(TaskStatus.TO_DO);
+        mockMvc.perform(post("/project/task/editTaskDetails")
+                .flashAttr("task", task))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:taskList"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnAssignUser_shouldRedirectToManageTask() throws Exception {
+        mockMvc.perform(post("/project/task/assignUser?taskId=1&username=user1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:manageTask"));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnRemoveAssignment_shouldRedirectToManageTask() throws Exception {
+        mockMvc.perform(post("/project/task/removeAssignment?taskId=1&username=user1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:manageTask"));
+    }
 
 }

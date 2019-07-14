@@ -46,7 +46,7 @@
                             <tr>
                                 <td th:text="${project.name}"></td>
                                 <td>
-                                    <a th:href="@{/project/task/tasklist(projectId=${project.id})}">
+                                    <a th:href="@{/project/task/taskList(projectId=${project.id})}">
                                         <button class="btn btn-primary" id="taskListButton" type="button">Task list
                                         </button>
                                     </a>
@@ -100,7 +100,7 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <a th:href="@{/project/task/tasklist(projectId=${projectRole.project.id})}">
+                            <a th:href="@{/project/task/taskList(projectId=${projectRole.project.id})}">
                                 <button class="btn btn-primary" id="tasksListButton" type="button">Tasks list</button>
                             </a>
                         </div>

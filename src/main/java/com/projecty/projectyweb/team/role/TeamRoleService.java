@@ -65,7 +65,7 @@ public class TeamRoleService {
         return teamRoleRepository.findByTeamAndAndUser(team, user).isPresent();
     }
 
-    private Set<User> getTeamRoleUsers(Team team) {
+    public Set<User> getTeamRoleUsers(Team team) {
         List<TeamRole> teamRoles = teamRoleRepository.findByTeam(team);
         Set<User> users = new HashSet<>();
         for (TeamRole teamRole : teamRoles
