@@ -1,13 +1,13 @@
-<html layout:decorate="~{index(title='Projects')}"
+<html layout:decorate="~{index(title='My teams')}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:th="https://www.thymeleaf.org"
 >
 <head>
-    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Projects</title>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">My teams</title>
 </head>
 <body>
 <div layout:fragment="content">
-    <h1> List of teams</h1>
+    <h2 class="text-center">My teams</h2>
     <div class="container">
         <a class="my-2" th:href="@{/team/addTeam}">
             <button class="btn btn-success">Add new team</button>
@@ -58,19 +58,20 @@
                         </table>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col"
+                <div class="d-flex justify-content-around">
+                    <div class="p-2"
                          th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
                         <a th:href="@{/team/manageTeam(teamId=${teamRole.team.id})}">
                             <button class="btn btn-warning" id="addTaskButton" type="button">Manage team</button>
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="p-2">
                         <a th:href="@{/team/projectList(teamId=${teamRole.team.id})}">
                             <button class="btn btn-secondary" id="projectListButton" type="button">Project list</button>
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="p-2"
+                         th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
                         <a th:href="@{/team/addTeamProject(teamId=${teamRole.team.id})}">
                             <button class="btn btn-success" id="addProjectButton" type="button">Add project</button>
                         </a>

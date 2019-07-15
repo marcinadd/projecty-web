@@ -11,12 +11,22 @@
         <thead>
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">View</th>
-            <th scope="col">Delete</th>
+            <th scope="col">Task list</th>
+            <th scope="col">Manage</th>
         </tr>
         </thead>
         <tr th:each="project : ${projects}">
             <td th:text="${project.name}"></td>
+            <td>
+                <a th:href="@{/project/task/taskList(projectId=${project.id})}">
+                    <button class="btn btn-primary">Task list</button>
+                </a>
+            </td>
+            <td>
+                <a th:href="@{/project/manageusers(projectId=${project.id})}">
+                    <button class="btn btn-warning">Manage</button>
+                </a>
+            </td>
         </tr>
     </table>
 </div>

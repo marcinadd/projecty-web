@@ -86,4 +86,15 @@ public class TeamRoleService {
         teamRole.setName(TeamRoles.valueOf(newRoleName));
         teamRoleRepository.save(teamRole);
     }
+
+    public List<TeamRole> getTeamRolesWhereManager(User user) {
+        List<TeamRole> managerTeamRoles = new ArrayList<>();
+        for (TeamRole teamRole : user.getTeamRoles()
+        ) {
+            if (teamRole.getName() == TeamRoles.MANAGER) {
+                managerTeamRoles.add(teamRole);
+            }
+        }
+        return managerTeamRoles;
+    }
 }

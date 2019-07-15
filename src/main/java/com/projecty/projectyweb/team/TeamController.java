@@ -6,6 +6,7 @@ import com.projecty.projectyweb.project.ProjectValidator;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
+import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -71,11 +72,12 @@ public class TeamController {
 
     @GetMapping("addTeamProject")
     public ModelAndView addProjectForTeam() {
+        User current = userService.getCurrentUser();
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("fragments/team/add-project-team");
         Project project = new Project();
         modelAndView.addObject("project", project);
-        modelAndView.addObject("teamRoles", userService.getCurrentUser().getTeamRoles());
+        modelAndView.addObject("teamRoles", teamRoleService.getTeamRolesWhereManager(current));
         return modelAndView;
     }
 
