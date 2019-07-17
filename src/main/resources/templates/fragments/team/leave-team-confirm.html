@@ -1,0 +1,27 @@
+<html layout:decorate="~{index(title='Are you sure?')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Leave team</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container">
+        <h3>Do you really want to leave team: <b><span th:remove="tag" th:text="${team.name}"></span></b>?</h3>
+        <div class="row">
+            <div class="col p-3">
+                <form method="post" th:action="@{/team/leaveTeam(teamId=${team.id})}">
+                    <button class="btn btn-danger" type="submit">Yes leave</button>
+                </form>
+            </div>
+            <div class="col p-3">
+                <a th:href="@{/team/myTeams(teamId=${team.id})}">
+                    <button class="btn btn-success" type="submit">No</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

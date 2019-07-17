@@ -12,7 +12,7 @@
         <tr>
             <th scope="col">Name</th>
             <th scope="col">Task list</th>
-            <th scope="col">Manage</th>
+            <th scope="col">Manage project</th>
         </tr>
         </thead>
         <tr th:each="project : ${projects}">
@@ -23,8 +23,8 @@
                 </a>
             </td>
             <td>
-                <a th:href="@{/project/manageusers(projectId=${project.id})}">
-                    <button class="btn btn-warning">Manage</button>
+                <a th:href="@{/project/manageProject(projectId=${project.id})}">
+                    <button class="btn btn-warning">Manage project</button>
                 </a>
             </td>
         </tr>

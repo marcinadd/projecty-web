@@ -29,16 +29,14 @@
                             <thead>
                             <tr>
                                 <th scope="col">Project name</th>
-                                <!--                                TODO Add unfinished tasks count here-->
-                                <th scope="col">Task list</th>
-                                <th scope="col"
-                                    th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
-                                    Add task
-                                </th>
-                                <th scope="col"
-                                    th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
-                                    Delete project
-                                </th>
+                                <div
+                                        th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}"
+                                        th:remove="tag">
+                                    <th scope="col">Task list</th>
+                                    <th scope="col">Add task</th>
+                                    <th scope="col">Manage Project</th>
+                                    <th scope="col">Delete project</th>
+                                </div>
                             </tr>
                             </thead>
                             <tbody th:each="project: ${teamRole.team.projects}">
@@ -50,17 +48,30 @@
                                         </button>
                                     </a>
                                 </td>
-                                <td th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
-                                    <a th:href="@{/project/task/addtasks(projectId=${project.id})}">
-                                        <button class="btn btn-success" id="addTaskTeamButton" type="button">Add task
-                                        </button>
-                                    </a>
-                                </td>
-                                <td th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
-                                    <form method="POST" th:action="@{/project/deleteproject(projectId=${project.id})}">
-                                        <button class="btn btn-danger" type="submit">Delete project</button>
-                                    </form>
-                                </td>
+                                <div
+                                        th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}"
+                                        th:remove="tag">
+                                    <td th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
+                                        <a th:href="@{/project/task/addtasks(projectId=${project.id})}">
+                                            <button class="btn btn-success" id="addTaskTeamButton" type="button">Add
+                                                task
+                                            </button>
+                                        </a>
+                                    </td>
+                                    <td th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
+                                        <a th:href="@{/project/manageProject(projectId=${project.id})}">
+                                            <button class="btn btn-warning" id="manageProjectTeamButton" type="button">
+                                                Manage project
+                                            </button>
+                                        </a>
+                                    </td>
+                                    <td th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
+                                        <form method="POST"
+                                              th:action="@{/project/deleteproject(projectId=${project.id})}">
+                                            <button class="btn btn-danger" type="submit">Delete project</button>
+                                        </form>
+                                    </td>
+                                </div>
                             </tr>
                             </tbody>
                         </table>
@@ -111,8 +122,8 @@
                         </div>
                         <div class="p-2"
                              th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN}">
-                            <a th:href="@{/project/manageusers(projectId=${projectRole.project.id})}">
-                                <button class="btn btn-warning" id="manageUsersButton" type="button">Manage users
+                            <a th:href="@{/project/manageProject(projectId=${projectRole.project.id})}">
+                                <button class="btn btn-warning" id="manageProjectButton" type="button">Manage project
                                 </button>
                             </a>
                         </div>

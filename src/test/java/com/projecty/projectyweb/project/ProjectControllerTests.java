@@ -134,11 +134,11 @@ public class ProjectControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnManageUsers_shouldReturnUserList() throws Exception {
-        mockMvc.perform(get("/project/manageusers?projectId=1")
+    public void givenRequestOnManageProject_shouldReturnUserList() throws Exception {
+        mockMvc.perform(get("/project/manageProject?projectId=1")
                 .flashAttr("project", project))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/project/manage-users"));
+                .andExpect(view().name("/fragments/project/manage-project"));
     }
 
     @Test
@@ -150,18 +150,18 @@ public class ProjectControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnDeleteUser_shouldRedirectToManageUsers() throws Exception {
+    public void givenRequestOnDeleteUser_shouldRedirectToManageProject() throws Exception {
         mockMvc.perform(post("/project/deleteuser?projectId=1&userId=2"))
-                .andExpect(redirectedUrl("/project/manageusers?projectId=1"))
+                .andExpect(redirectedUrl("/project/manageProject?projectId=1"))
                 .andExpect(status().isFound());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnPostFormManageUsers_shouldRedirectToManageUsers() throws Exception {
-        mockMvc.perform(post("/project/manageusers?projectId=1")
+    public void givenRequestOnAddUsers_shouldRedirectToManageProject() throws Exception {
+        mockMvc.perform(post("/project/addUsers?projectId=1")
                 .param("usernames", "user1"))
-                .andExpect(redirectedUrl("/project/manageusers?projectId=1"))
+                .andExpect(redirectedUrl("/project/manageProject?projectId=1"))
                 .andExpect(status().isFound());
     }
 

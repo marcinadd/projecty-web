@@ -12,7 +12,6 @@
         <a class="my-2" th:href="@{/team/addTeam}">
             <button class="btn btn-success">Add new team</button>
         </a>
-
         <ul class="list-group" th:each="teamRole: ${teamRoles}">
             <li class="list-group-item my-2">
                 <b><p>Team name</p></b>
@@ -59,21 +58,27 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-around">
-                    <div class="p-2"
-                         th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
-                        <a th:href="@{/team/manageTeam(teamId=${teamRole.team.id})}">
-                            <button class="btn btn-warning" id="addTaskButton" type="button">Manage team</button>
-                        </a>
-                    </div>
                     <div class="p-2">
                         <a th:href="@{/team/projectList(teamId=${teamRole.team.id})}">
                             <button class="btn btn-secondary" id="projectListButton" type="button">Project list</button>
                         </a>
                     </div>
-                    <div class="p-2"
-                         th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}">
-                        <a th:href="@{/team/addTeamProject(teamId=${teamRole.team.id})}">
-                            <button class="btn btn-success" id="addProjectButton" type="button">Add project</button>
+                    <div th:if="${teamRole.name == T(com.projecty.projectyweb.team.role.TeamRoles).MANAGER}"
+                         th:remove="tag">
+                        <div class="p-2">
+                            <a th:href="@{/team/manageTeam(teamId=${teamRole.team.id})}">
+                                <button class="btn btn-warning" id="addTaskButton" type="button">Manage team</button>
+                            </a>
+                        </div>
+                        <div class="p-2">
+                            <a th:href="@{/team/addTeamProject(teamId=${teamRole.team.id})}">
+                                <button class="btn btn-success" id="addProjectButton" type="button">Add project</button>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-2">
+                        <a th:href="@{/team/leaveTeamConfirm(teamId=${teamRole.team.id})}">
+                            <button class="btn btn-danger" id="leaveTeamButton" type="button">Leave team</button>
                         </a>
                     </div>
                 </div>

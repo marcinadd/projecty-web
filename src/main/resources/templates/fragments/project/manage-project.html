@@ -1,0 +1,102 @@
+<html layout:decorate="~{index(title='Manage project')}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="https://www.thymeleaf.org"
+>
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Manage project</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container">
+        <h2 class="text-center">Manage project</h2>
+        <h3>Change project name</h3>
+        <form class="my-2" method="post" th:action="@{/project/changeName}">
+            <div class="form-group">
+                <input name="id" th:value="${project.id}" type="hidden">
+            </div>
+            <div class="form-group">
+                <label for="newName">New Name:</label>
+                <input class="form-control" id="newName" name="name" th:value="${project.name}" type="text">
+            </div>
+            <button class="btn btn-success" type="submit">Change name</button>
+        </form>
+        <div th:if="${project.team == null}" th:remove="tag">
+            <div class="pt-3">
+                <h3>Manage users</h3>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">E-mail</th>
+                    <th scope="col">Role name</th>
+                    <th scope="col">Remove</th>
+                    <th scope="col">Change project role</th>
+                </tr>
+                </thead>
+                <tbody th:each="projectRole: ${project.projectRoles}">
+                <tr>
+                    <td th:text="${projectRole.user.username}"></td>
+                    <td th:text="${projectRole.user.email}"></td>
+                    <td th:text="${projectRole.name}"></td>
+                    <td>
+                        <button class="btn btn-danger disabled" th:if="${projectRole.user.id == currentUser.id}">Remove
+                        </button>
+                        <form method="post"
+                              th:action="@{/project/deleteuser(projectId=${project.id}, userId=${projectRole.user.id})}"
+                              th:unless="${projectRole.user.id == currentUser.id}">
+                            <button class="btn btn-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post"
+                              th:action="@{/project/changeRole(projectId=${projectRole.project.id}, roleId=${projectRole.id}, newRoleName='USER')}"
+                              th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).ADMIN  && projectRole.user.id != currentUser.id}">
+                            <button class="btn btn-success" type="submit">
+                                Disable Admin
+                            </button>
+                        </form>
+                        <form method="post"
+                              th:action="@{/project/changeRole(projectId=${projectRole.project.id}, roleId=${projectRole.id}, newRoleName='ADMIN')}"
+                              th:if="${projectRole.name == T(com.projecty.projectyweb.project.role.ProjectRoles).USER  && projectRole.user.id != currentUser.id}">
+                            <button class="btn btn-danger" type="submit">
+                                Enable Admin
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Add users</h3>
+            <form method="post" th:action="@{/project/addUsers(projectId=${project.id})}">
+                <div class="form-group">
+                    <label>Add users</label><br>
+                    <input class="btn btn-success" id="add" type="button" value="+"/>
+                    <input class="btn btn-danger" id="remove" type="button" value="-"/>
+                </div>
+                <div class="form-group" id="users">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-success" type="submit">Add</button>
+                </div>
+            </form>
+        </div>
+        <div th:remove="tag" th:unless="${project.team == null}">
+            <div class="alert alert-primary my-4" role="alert">
+                This project is visible for all members of team <u th:text="${project.team.name}"></u>. <br>
+                All team members have access to project corresponding to their roles.<br>
+                You can't set them separately.
+            </div>
+        </div>
+        <h3>Delete project</h3>
+        <form method="post" th:action="@{/project/project/deleteProject(projectId=${project.id})}">
+            <button class="btn btn-danger" type="submit">Delete project</button>
+        </form>
+    </div>
+</div>
+<div layout:fragment="scripts">
+    <script th:src="@{/js/entry-user-list.js}"></script>
+</div>
+</body>
+</html>
+

@@ -253,4 +253,14 @@ public class TeamControllerTests {
                 .andExpect(model().attributeExists("team"))
                 .andExpect(view().name("fragments/team/delete-team-confirm"));
     }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnLeaveTeamConfirm_shouldReturnLeaveTeamView() throws Exception {
+        mockMvc.perform(get("/team/leaveTeamConfirm")
+                .param("teamId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("team"))
+                .andExpect(view().name("fragments/team/leave-team-confirm"));
+    }
 }

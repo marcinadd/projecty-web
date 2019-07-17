@@ -224,4 +224,13 @@ public class TeamController {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("leaveTeamConfirm")
+    public ModelAndView leaveTeamConfirm(@RequestParam Long teamId) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent()) {
+            return new ModelAndView("fragments/team/leave-team-confirm", "team", optionalTeam.get());
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
 }

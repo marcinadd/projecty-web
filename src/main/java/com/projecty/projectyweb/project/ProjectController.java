@@ -99,23 +99,8 @@ public class ProjectController {
         return modelAndView;
     }
 
-    @GetMapping("manageusers")
-    public ModelAndView manageUsers(
-            @RequestParam Long projectId
-    ) {
-        ModelAndView modelAndView = new ModelAndView("fragments/project/manage-users");
-        Optional<Project> project = projectRepository.findById(projectId);
-        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
-            modelAndView.addObject("project", project.get());
-            modelAndView.addObject("currentUser", userService.getCurrentUser());
-            return modelAndView;
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @PostMapping("manageusers")
-    public String addUserToExistingProject(
+    @PostMapping("addUsers")
+    public String addUsersToExistingProject(
             @RequestParam Long projectId,
             @RequestParam(required = false) List<String> usernames,
             RedirectAttributes redirectAttributes
@@ -129,7 +114,7 @@ public class ProjectController {
             projectRepository.save(project);
         }
         redirectAttributes.addAttribute("projectId", projectId);
-        return "redirect:/project/manageusers";
+        return "redirect:/project/manageProject";
     }
 
     @PostMapping("deleteuser")
@@ -153,7 +138,7 @@ public class ProjectController {
                             messageSource.getMessage("projectRole.delete.success",
                                     new Object[]{toDeleteUser.getUsername(), project.getName()},
                                     Locale.getDefault())));
-            return "redirect:/project/manageusers";
+            return "redirect:/project/manageProject";
         } else if (toDeleteOptionalUser.isPresent() && toDeleteOptionalUser.get().equals(current)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
@@ -177,11 +162,26 @@ public class ProjectController {
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("projectRole.change.success", new Object[]{projectRole.getUser().getUsername()}, Locale.getDefault())));
             redirectAttributes.addAttribute("projectId", projectId);
             redirectAttributes.addAttribute("roleId", roleId);
-            return "redirect:/project/manageusers";
+            return "redirect:/project/manageProject";
         } else if (optionalProject.isPresent() && optionalRole.isPresent()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("manageProject")
+    public ModelAndView manageProject(
+            @RequestParam Long projectId
+    ) {
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("/fragments/project/manage-project");
+            modelAndView.addObject("project", optionalProject.get());
+            modelAndView.addObject("currentUser", userService.getCurrentUser());
+            return modelAndView;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 }
