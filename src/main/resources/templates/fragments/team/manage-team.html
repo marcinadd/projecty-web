@@ -47,8 +47,12 @@
                 <td th:text="${teamRole.name}"></td>
 
                 <td>
-                    <button class="btn btn-danger disabled" th:if="${teamRole.user.id == currentUser.id}">Delete
-                    </button>
+                    <a th:href="@{/team/leaveTeamConfirm(teamId=${teamRole.team.id})}"
+                       th:if="${teamRole.user.id == currentUser.id}">
+                        <button class="btn btn-danger">
+                            Leave
+                        </button>
+                    </a>
                     <form method="post"
                           th:action="@{/team/deleteTeamRole(teamRoleId=${teamRole.id}, teamId=${teamRole.team.id})}"
                           th:unless="${teamRole.user.id == currentUser.id}">

@@ -2,6 +2,7 @@ package com.projecty.projectyweb.team.role;
 
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.team.Team;
+import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,12 @@ import java.util.*;
 public class TeamRoleService {
     private final UserService userService;
     private final TeamRoleRepository teamRoleRepository;
+    private final TeamRepository teamRepository;
 
-    public TeamRoleService(UserService userService, TeamRoleRepository teamRoleRepository) {
+    public TeamRoleService(UserService userService, TeamRoleRepository teamRoleRepository, TeamRepository teamRepository) {
         this.userService = userService;
         this.teamRoleRepository = teamRoleRepository;
+        this.teamRepository = teamRepository;
     }
 
     public void addTeamMembersByUsernames(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
@@ -87,6 +90,18 @@ public class TeamRoleService {
         teamRoleRepository.save(teamRole);
     }
 
+    public int getTeamManagersCount(Team team) {
+        List<TeamRole> teamRoles = team.getTeamRoles();
+        List<TeamRole> managers = new ArrayList<>();
+        for (TeamRole teamRole : teamRoles
+        ) {
+            if (teamRole.getName().equals(TeamRoles.MANAGER)) {
+                managers.add(teamRole);
+            }
+        }
+        return managers.size();
+    }
+
     public List<TeamRole> getTeamRolesWhereManager(User user) {
         List<TeamRole> managerTeamRoles = new ArrayList<>();
         for (TeamRole teamRole : user.getTeamRoles()
@@ -96,5 +111,16 @@ public class TeamRoleService {
             }
         }
         return managerTeamRoles;
+    }
+
+    public void leaveTeam(Team team, User user) throws NoManagersInTeamException {
+        Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(team, user);
+        if (optionalTeamRole.isPresent()) {
+            team.getTeamRoles().remove(optionalTeamRole.get());
+            if (getTeamManagersCount(team) == 0) {
+                throw new NoManagersInTeamException();
+            }
+            teamRepository.save(team);
+        }
     }
 }

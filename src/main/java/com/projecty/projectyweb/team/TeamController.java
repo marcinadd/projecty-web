@@ -3,11 +3,13 @@ package com.projecty.projectyweb.team;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
+import com.projecty.projectyweb.team.role.NoManagersInTeamException;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -17,9 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_FAILED;
 
 @Controller
 @RequestMapping("team")
@@ -31,8 +33,9 @@ public class TeamController {
     private final ProjectValidator projectValidator;
     private final TeamRoleService teamRoleService;
     private final TeamRoleRepository teamRoleRepository;
+    private final MessageSource messageSource;
 
-    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService, TeamRoleRepository teamRoleRepository) {
+    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService, TeamRoleRepository teamRoleRepository, MessageSource messageSource) {
         this.teamValidator = teamValidator;
         this.teamRepository = teamRepository;
         this.userService = userService;
@@ -40,6 +43,7 @@ public class TeamController {
         this.projectValidator = projectValidator;
         this.teamRoleService = teamRoleService;
         this.teamRoleRepository = teamRoleRepository;
+        this.messageSource = messageSource;
     }
 
     @GetMapping("addTeam")
@@ -230,6 +234,28 @@ public class TeamController {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         if (optionalTeam.isPresent()) {
             return new ModelAndView("fragments/team/leave-team-confirm", "team", optionalTeam.get());
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("leaveTeam")
+    public String leaveTeamPost(
+            Long teamId,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        User current = userService.getCurrentUser();
+        if (optionalTeam.isPresent() && teamRoleService.hasCurrentUserRoleInTeam(optionalTeam.get())) {
+            try {
+                teamRoleService.leaveTeam(optionalTeam.get(), current);
+            } catch (NoManagersInTeamException e) {
+                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
+                        Collections.singletonList(
+                                messageSource.getMessage("team.no_managers.exception",
+                                        null,
+                                        Locale.getDefault())));
+            }
+            return "redirect:/team/myTeams";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

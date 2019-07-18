@@ -263,4 +263,12 @@ public class TeamControllerTests {
                 .andExpect(model().attributeExists("team"))
                 .andExpect(view().name("fragments/team/leave-team-confirm"));
     }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnLeaveTeamPost_shouldRedirectToMyTeams() throws Exception {
+        mockMvc.perform(post("/team/leaveTeam")
+                .param("teamId", "1"))
+                .andExpect(view().name("redirect:/team/myTeams"));
+    }
 }

@@ -1,10 +1,7 @@
 package com.projecty.projectyweb.team;
 
 import com.projecty.projectyweb.ProjectyWebApplication;
-import com.projecty.projectyweb.team.role.TeamRole;
-import com.projecty.projectyweb.team.role.TeamRoleRepository;
-import com.projecty.projectyweb.team.role.TeamRoleService;
-import com.projecty.projectyweb.team.role.TeamRoles;
+import com.projecty.projectyweb.team.role.*;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -18,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -143,5 +141,81 @@ public class TeamRoleServiceTests {
         TeamRole teamRole = new TeamRole();
         teamRole.setName(TeamRoles.MANAGER);
         teamRoleService.changeTeamRole(teamRole, "NotExistsRoleName");
+    }
+
+    @Test
+    @Transactional
+    public void whenLeaveTeamWithOtherManagers_shouldReturnTeamWithoutUserRole() throws NoManagersInTeamException {
+        User current = new User();
+        current.setUsername("current");
+        current = userRepository.save(current);
+
+        User manager = new User();
+        manager.setUsername("manager");
+        manager = userRepository.save(manager);
+
+        Team team = new Team();
+        team.setName("sample-team");
+        team = teamRepository.save(team);
+
+        TeamRole managerRole = new TeamRole();
+        managerRole.setTeam(team);
+        managerRole.setUser(manager);
+        managerRole.setName(TeamRoles.MANAGER);
+        managerRole = teamRoleRepository.save(managerRole);
+
+        TeamRole currentRole = new TeamRole();
+        currentRole.setTeam(team);
+        currentRole.setUser(current);
+        currentRole.setName(TeamRoles.MEMBER);
+        currentRole = teamRoleRepository.save(currentRole);
+
+        List<TeamRole> teamRoles = new ArrayList<>();
+        teamRoles.add(managerRole);
+        teamRoles.add(currentRole);
+        team.setTeamRoles(teamRoles);
+        teamRepository.save(team);
+        teamRoleService.leaveTeam(team, current);
+        Optional<Team> optionalTeam = teamRepository.findById(team.getId());
+        if (optionalTeam.isPresent()) {
+            assertThat(optionalTeam.get().getTeamRoles().size(), is(1));
+        } else {
+            assert false;
+        }
+    }
+
+    @Test(expected = NoManagersInTeamException.class)
+    @Transactional
+    public void whenLeaveTeamWithoutOtherManagers_shouldReturnTeamWithoutUserRole() throws NoManagersInTeamException {
+        User current = new User();
+        current.setUsername("current");
+        current = userRepository.save(current);
+
+        User manager = new User();
+        manager.setUsername("manager");
+        manager = userRepository.save(manager);
+
+        Team team = new Team();
+        team.setName("sample-team");
+        team = teamRepository.save(team);
+
+        TeamRole managerRole = new TeamRole();
+        managerRole.setTeam(team);
+        managerRole.setUser(manager);
+        managerRole.setName(TeamRoles.MEMBER);
+        managerRole = teamRoleRepository.save(managerRole);
+
+        TeamRole currentRole = new TeamRole();
+        currentRole.setTeam(team);
+        currentRole.setUser(current);
+        currentRole.setName(TeamRoles.MEMBER);
+        currentRole = teamRoleRepository.save(currentRole);
+
+        List<TeamRole> teamRoles = new ArrayList<>();
+        teamRoles.add(managerRole);
+        teamRoles.add(currentRole);
+        team.setTeamRoles(teamRoles);
+        teamRepository.save(team);
+        teamRoleService.leaveTeam(team, current);
     }
 }
