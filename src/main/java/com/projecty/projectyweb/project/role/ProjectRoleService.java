@@ -106,4 +106,18 @@ public class ProjectRoleService {
             projectRepository.save(project);
         }
     }
+
+    public void leaveProject(Project project, User user) throws NoAdminsInProjectException {
+        Optional<ProjectRole> optionalProjectRole = projectRoleRepository.findRoleByUserAndProject(user, project);
+        if (optionalProjectRole.isPresent()) {
+            ProjectRole projectRole = optionalProjectRole.get();
+            int admins = projectRoleRepository.countByProjectAndName(project, ProjectRoles.ADMIN);
+            if ((projectRole.getName().equals(ProjectRoles.ADMIN) && admins - 1 > 0) || project.getName().equals(ProjectRoles.USER)) {
+                project.getProjectRoles().remove(optionalProjectRole.get());
+                projectRepository.save(project);
+            } else {
+                throw new NoAdminsInProjectException();
+            }
+        }
+    }
 }

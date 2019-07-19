@@ -10,10 +10,13 @@
     <div class="container">
         <h2 class="text-center">Manage project</h2>
         <h3>Change project name</h3>
-        <form class="my-2" method="post" th:action="@{/project/changeName}">
-            <div class="form-group">
-                <input name="id" th:value="${project.id}" type="hidden">
+        <form class="my-2" method="post" th:action="@{/project/changeName}" th:object="${project}">
+            <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}">
+                <ul>
+                    <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                </ul>
             </div>
+            <input name="id" th:value="${project.id}" type="hidden">
             <div class="form-group">
                 <label for="newName">New Name:</label>
                 <input class="form-control" id="newName" name="name" th:value="${project.name}" type="text">

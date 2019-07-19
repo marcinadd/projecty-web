@@ -50,12 +50,21 @@ public class ProjectService {
         if (project.getTeam() != null) {
             return teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current).isPresent();
         }
-        return projectRoleRepository.findRoleByUserAndProject(current, project).isPresent();
+        return hasUserRoleInProject(current, project);
+    }
+
+    public boolean hasUserRoleInProject(User user, Project project) {
+        return projectRoleRepository.findRoleByUserAndProject(user, project).isPresent();
     }
 
     void createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {
         projectRoleService.addCurrentUserToProjectAsAdmin(project);
         projectRoleService.addRolesToProjectByUsernames(project, usernames, messages);
         projectRepository.save(project);
+    }
+
+    void changeName(Project existingProject, String newName) {
+        existingProject.setName(newName);
+        projectRepository.save(existingProject);
     }
 }

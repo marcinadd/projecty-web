@@ -2,10 +2,7 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.misc.RedirectMessage;
-import com.projecty.projectyweb.project.role.ProjectRole;
-import com.projecty.projectyweb.project.role.ProjectRoleRepository;
-import com.projecty.projectyweb.project.role.ProjectRoleService;
-import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.project.role.*;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -21,8 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.util.*;
 
-import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES;
-import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
+import static com.projecty.projectyweb.configurations.AppConfig.*;
 
 @Controller
 @RequestMapping("project")
@@ -181,6 +177,49 @@ public class ProjectController {
             modelAndView.addObject("project", optionalProject.get());
             modelAndView.addObject("currentUser", userService.getCurrentUser());
             return modelAndView;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("leaveProject")
+    public String leaveProject(
+            Long projectId,
+            RedirectAttributes redirectAttributes
+    ) {
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        User current = userService.getCurrentUser();
+        if (optionalProject.isPresent() && projectService.hasUserRoleInProject(current, optionalProject.get())) {
+            try {
+                projectRoleService.leaveProject(optionalProject.get(), current);
+            } catch (NoAdminsInProjectException e) {
+                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
+                        Collections.singletonList(
+                                messageSource.getMessage("project.no_admins.exception",
+                                        null,
+                                        Locale.getDefault())));
+            }
+            return "redirect:myprojects";
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("changeName")
+    public String changeNamePost(
+            @ModelAttribute("project") Project newProject,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        projectValidator.validate(newProject, bindingResult);
+        if (bindingResult.hasErrors()) {
+            return "fragments/project/manage-project";
+        }
+
+        Optional<Project> optionalProject = projectRepository.findById(newProject.getId());
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+            Project existingProject = optionalProject.get();
+            projectService.changeName(existingProject, newProject.getName());
+            redirectAttributes.addAttribute("projectId", existingProject.getId());
+            return "redirect:manageProject";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

@@ -6,6 +6,7 @@ import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
+import com.projecty.projectyweb.user.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,8 @@ public class ProjectControllerTests {
     ProjectRepository projectRepository;
     @MockBean
     ProjectRoleRepository projectRoleRepository;
+    @MockBean
+    UserService userService;
     @Autowired
     private MockMvc mockMvc;
 
@@ -104,6 +107,8 @@ public class ProjectControllerTests {
                 .thenReturn(Optional.of(projectRole1));
         Mockito.when(projectRoleRepository.findRoleByUserAndProject(user1, project))
                 .thenReturn(Optional.of(projectRole1));
+        Mockito.when(userService.getCurrentUser())
+                .thenReturn(user);
     }
 
     @Test
@@ -170,5 +175,16 @@ public class ProjectControllerTests {
     public void givenRequestOnChangeRole_shouldRedirect() throws Exception {
         mockMvc.perform(post("/project/changeRole?projectId=1&roleId=2&newRoleName=USER"))
                 .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnChangeName_shouldRedirectToManageProject() throws Exception {
+        Project editedProject = new Project();
+        editedProject.setId(1L);
+        editedProject.setName("New sample project");
+        mockMvc.perform(post("/project/changeName")
+                .flashAttr("project", editedProject))
+                .andExpect(redirectedUrl("manageProject?projectId=1"));
     }
 }

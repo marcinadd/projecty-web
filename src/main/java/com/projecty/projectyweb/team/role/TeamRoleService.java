@@ -90,7 +90,8 @@ public class TeamRoleService {
         teamRoleRepository.save(teamRole);
     }
 
-    public int getTeamManagersCount(Team team) {
+    @Deprecated
+    private int getTeamManagersCount(Team team) {
         List<TeamRole> teamRoles = team.getTeamRoles();
         List<TeamRole> managers = new ArrayList<>();
         for (TeamRole teamRole : teamRoles
