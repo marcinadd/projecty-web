@@ -28,17 +28,39 @@ public class TeamAspect {
         this.userService = userService;
     }
 
-    @Pointcut("execution (* com.projecty.projectyweb.team.TeamController.*(Long,..))&&@annotation(com.projecty.projectyweb.configurations.EditPermission)")
+    @Pointcut("execution (* com.projecty.projectyweb.team.TeamController.*(Long,..))" +
+            "&&@annotation(com.projecty.projectyweb.configurations.EditPermission)")
     private void inTeamControllerAndWithEditPermission() {
     }
 
+    @Pointcut("execution (* com.projecty.projectyweb.team.TeamController.*(Long,..))" +
+            "&&@annotation(com.projecty.projectyweb.configurations.AnyPermission)")
+    private void inTeamControllerAndWithAnyPermission() {
+    }
+
     @Before("inTeamControllerAndWithEditPermission()")
-    public void checkPermissions(JoinPoint joinPoint) {
+    public void checkEditPermission(JoinPoint joinPoint) {
         Long teamId = (Long) joinPoint.getArgs()[0];
         User current = userService.getCurrentUser();
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         if (!(optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get()))) {
-            logger.warning("User: " + current.getUsername() + " tried to execute " + joinPoint.getSignature().toString() + " without permissions");
+            logger.warning("User: " + current.getUsername()
+                    + " tried to execute " + joinPoint.getSignature().toString()
+                    + " without edit permission");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Before("inTeamControllerAndWithAnyPermission()")
+    public void checkAnyPermission(JoinPoint joinPoint) {
+        Long teamId = (Long) joinPoint.getArgs()[0];
+        User current = userService.getCurrentUser();
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (!(optionalTeam.isPresent() && teamRoleService.hasCurrentUserRoleInTeam(optionalTeam.get()))) {
+            logger.warning("User: " + current.getUsername()
+                    + " tried to execute "
+                    + joinPoint.getSignature().toString()
+                    + " without any permission");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }

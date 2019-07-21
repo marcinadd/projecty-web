@@ -28,17 +28,41 @@ public class TaskAspect {
         this.projectService = projectService;
     }
 
-    @Pointcut("execution (* com.projecty.projectyweb.task.TaskController.*(Long,..))&&@annotation(com.projecty.projectyweb.configurations.EditPermission)")
+    @Pointcut("execution (* com.projecty.projectyweb.task.TaskController.*(Long,..))" +
+            "&&@annotation(com.projecty.projectyweb.configurations.EditPermission)")
     private void inTaskControllerAndWithEditPermission() {
     }
 
+    @Pointcut("execution (* com.projecty.projectyweb.task.TaskController.*(Long,..))" +
+            "&&@annotation(com.projecty.projectyweb.configurations.AnyPermission)")
+    private void inTaskControllerAndWithAnyPermission() {
+    }
+
     @Before("inTaskControllerAndWithEditPermission()")
-    public void checkPermissions(JoinPoint joinPoint) {
+    public void checkEditPermission(JoinPoint joinPoint) {
         Long taskId = (Long) joinPoint.getArgs()[0];
         User current = userService.getCurrentUser();
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         if (!(optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject()))) {
-            logger.warning("User: " + current.getUsername() + " tried to execute " + joinPoint.getSignature().toString() + " without permissions");
+            logger.warning("User: "
+                    + current.getUsername()
+                    + " tried to execute "
+                    + joinPoint.getSignature().toString()
+                    + " edit permission");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Before("inTaskControllerAndWithAnyPermission()")
+    public void checkAnyPermission(JoinPoint joinPoint) {
+        Long taskId = (Long) joinPoint.getArgs()[0];
+        User current = userService.getCurrentUser();
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if (!(optionalTask.isPresent() && projectService.hasCurrentUserPermissionToView(optionalTask.get().getProject()))) {
+            logger.warning("User: " + current.getUsername()
+                    + " tried to execute "
+                    + joinPoint.getSignature().toString()
+                    + " without any permission");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }

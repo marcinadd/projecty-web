@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.project;
 
+import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
@@ -170,25 +171,23 @@ public class ProjectController {
     }
 
     @PostMapping("leaveProject")
+    @AnyPermission
     public String leaveProject(
             Long projectId,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         User current = userService.getCurrentUser();
-        if (optionalProject.isPresent() && projectService.hasUserRoleInProject(current, optionalProject.get())) {
-            try {
-                projectRoleService.leaveProject(optionalProject.get(), current);
-            } catch (NoAdminsInProjectException e) {
-                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
-                        Collections.singletonList(
-                                messageSource.getMessage("project.no_admins.exception",
-                                        null,
-                                        Locale.getDefault())));
-            }
-            return "redirect:myprojects";
+        try {
+            projectRoleService.leaveProject(optionalProject.get(), current);
+        } catch (NoAdminsInProjectException e) {
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
+                    Collections.singletonList(
+                            messageSource.getMessage("project.no_admins.exception",
+                                    null,
+                                    Locale.getDefault())));
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return "redirect:myprojects";
     }
 
     @PostMapping("changeName")

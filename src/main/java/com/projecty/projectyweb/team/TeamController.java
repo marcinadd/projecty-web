@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.team;
 
+import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
@@ -191,16 +192,14 @@ public class TeamController {
     }
 
     @GetMapping("projectList")
+    @AnyPermission
     public ModelAndView projectList(@RequestParam Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent() && teamRoleService.hasCurrentUserRoleInTeam(optionalTeam.get())) {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/team/project-list");
-            modelAndView.addObject("team", optionalTeam.get());
-            modelAndView.addObject("projects", optionalTeam.get().getProjects());
-            return modelAndView;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/team/project-list");
+        modelAndView.addObject("team", optionalTeam.get());
+        modelAndView.addObject("projects", optionalTeam.get().getProjects());
+        return modelAndView;
     }
 
     @GetMapping("deleteTeamConfirm")
@@ -219,33 +218,29 @@ public class TeamController {
     }
 
     @GetMapping("leaveTeamConfirm")
+    @AnyPermission
     public ModelAndView leaveTeamConfirm(@RequestParam Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent()) {
-            return new ModelAndView("fragments/team/leave-team-confirm", "team", optionalTeam.get());
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return new ModelAndView("fragments/team/leave-team-confirm", "team", optionalTeam.get());
     }
 
     @PostMapping("leaveTeam")
+    @AnyPermission
     public String leaveTeamPost(
             Long teamId,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         User current = userService.getCurrentUser();
-        if (optionalTeam.isPresent() && teamRoleService.hasCurrentUserRoleInTeam(optionalTeam.get())) {
-            try {
-                teamRoleService.leaveTeam(optionalTeam.get(), current);
-            } catch (NoManagersInTeamException e) {
-                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
-                        Collections.singletonList(
-                                messageSource.getMessage("team.no_managers.exception",
-                                        null,
-                                        Locale.getDefault())));
-            }
-            return "redirect:/team/myTeams";
+        try {
+            teamRoleService.leaveTeam(optionalTeam.get(), current);
+        } catch (NoManagersInTeamException e) {
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
+                    Collections.singletonList(
+                            messageSource.getMessage("team.no_managers.exception",
+                                    null,
+                                    Locale.getDefault())));
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return "redirect:/team/myTeams";
     }
 }

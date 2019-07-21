@@ -94,21 +94,18 @@ public class TaskController {
             @RequestParam Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToView(optionalProject.get())) {
-            Project project = optionalProject.get();
-            List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
-            List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
-            List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/task/task-list");
-            modelAndView.addObject("toDoTasks", toDoTasks);
-            modelAndView.addObject("inProgressTasks", inProgressTasks);
-            modelAndView.addObject("doneTasks", doneTasks);
-            modelAndView.addObject("project", optionalProject.get());
-            modelAndView.addObject("hasPermissionToEdit", projectService.hasCurrentUserPermissionToEdit(project));
-            return modelAndView;
-        }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        Project project = optionalProject.get();
+        List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
+        List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
+        List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/task/task-list");
+        modelAndView.addObject("toDoTasks", toDoTasks);
+        modelAndView.addObject("inProgressTasks", inProgressTasks);
+        modelAndView.addObject("doneTasks", doneTasks);
+        modelAndView.addObject("project", optionalProject.get());
+        modelAndView.addObject("hasPermissionToEdit", projectService.hasCurrentUserPermissionToEdit(project));
+        return modelAndView;
     }
 
     @PostMapping("deleteTask")
