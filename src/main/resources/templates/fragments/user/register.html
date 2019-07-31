@@ -7,6 +7,7 @@
 </head>
 <body>
 <div layout:fragment="content">
+    <h2>Register</h2>
     <form action="#" method="post" th:object="${user}">
         <div class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('*')}">
             <ul>

@@ -1,6 +1,9 @@
 package com.projecty.projectyweb.project;
 
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.Team;
@@ -20,10 +23,15 @@ public class Project {
     private List<Task> tasks;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<ProjectRole> projectRoles;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id"
+    )
     private Team team;
 
     public Long getId() {

@@ -1,5 +1,7 @@
 package com.projecty.projectyweb.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.user.User;
 
@@ -10,6 +12,7 @@ import java.sql.Date;
 import java.util.List;
 
 @Entity
+@JsonSerialize
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +29,7 @@ public class Task {
     private TaskStatus status;
 
     @ManyToOne
+    @JsonIgnore
     private Project project;
 
     @ManyToMany

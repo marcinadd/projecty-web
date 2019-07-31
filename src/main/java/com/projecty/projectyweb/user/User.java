@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.user;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.message.Message;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
@@ -10,6 +11,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 @Entity
+@JsonSerialize(using = UserSerializer.class)
 public class User {
     @Id
     @GeneratedValue

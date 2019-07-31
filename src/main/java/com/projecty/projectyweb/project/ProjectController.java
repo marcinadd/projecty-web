@@ -10,7 +10,6 @@ import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,7 +21,8 @@ import java.util.*;
 
 import static com.projecty.projectyweb.configurations.AppConfig.*;
 
-@Controller
+@CrossOrigin()
+@RestController
 @RequestMapping("project")
 public class ProjectController {
     private final ProjectService projectService;
@@ -84,14 +84,13 @@ public class ProjectController {
         return "redirect:/project/myprojects/";
     }
 
-    @GetMapping("myprojects")
-    public ModelAndView myProjects() {
+    @GetMapping("myProjects")
+    public Map<String, Object> myProjects() {
         User current = userService.getCurrentUser();
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("fragments/project/my-projects");
-        modelAndView.addObject("projectRoles", current.getProjectRoles());
-        modelAndView.addObject("teamRoles", current.getTeamRoles());
-        return modelAndView;
+        Map<String, Object> map = new HashMap<>();
+        map.put("projectRoles", current.getProjectRoles());
+        map.put("teamRoles", current.getTeamRoles());
+        return map;
     }
 
     @PostMapping("addUsers")

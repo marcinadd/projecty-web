@@ -1,12 +1,15 @@
 package com.projecty.projectyweb.project.role;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.user.User;
 
 import javax.persistence.*;
 
 @Entity
+@JsonSerialize
 public class ProjectRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,6 +20,7 @@ public class ProjectRole {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @ManyToOne

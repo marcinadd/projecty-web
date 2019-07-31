@@ -1,7 +1,6 @@
 package com.projecty.projectyweb.user;
 
 import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,8 +13,8 @@ import java.util.Locale;
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_FAILED;
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
-
-@Controller
+@CrossOrigin()
+@RestController
 public class UserController {
     private final UserService userService;
 
@@ -76,5 +75,10 @@ public class UserController {
         userService.saveWithPasswordEncrypt(user);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("user.password.change.success", null, Locale.getDefault())));
         return "redirect:/settings";
+    }
+
+    @GetMapping("auth")
+    public User getUser() {
+        return userService.getCurrentUser();
     }
 }

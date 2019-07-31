@@ -6,21 +6,18 @@ import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.ProjectService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
-@Controller
+@CrossOrigin()
+@RestController
 @RequestMapping("project/task")
 public class TaskController {
     private final ProjectRepository projectRepository;
@@ -45,7 +42,6 @@ public class TaskController {
     }
 
     @GetMapping("addtasks")
-    //@EditPermission
     public ModelAndView addTasks(
             @RequestParam Long projectId
     ) {
@@ -61,7 +57,6 @@ public class TaskController {
     }
 
     @PostMapping("addtasks")
-    //@EditPermission
     public ModelAndView addTasksPost(
             @RequestParam Long projectId,
             @ModelAttribute Task task,
@@ -90,7 +85,7 @@ public class TaskController {
     }
 
     @GetMapping("taskList")
-    public ModelAndView taskList(
+    public Map<String, Object> taskList(
             @RequestParam Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
@@ -98,14 +93,13 @@ public class TaskController {
         List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
         List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
         List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("fragments/task/task-list");
-        modelAndView.addObject("toDoTasks", toDoTasks);
-        modelAndView.addObject("inProgressTasks", inProgressTasks);
-        modelAndView.addObject("doneTasks", doneTasks);
-        modelAndView.addObject("project", optionalProject.get());
-        modelAndView.addObject("hasPermissionToEdit", projectService.hasCurrentUserPermissionToEdit(project));
-        return modelAndView;
+        Map<String, Object> map = new HashMap<>();
+        map.put("toDoTasks", toDoTasks);
+        map.put("inProgressTasks", inProgressTasks);
+        map.put("doneTasks", doneTasks);
+        map.put("project", optionalProject.get());
+        map.put("hasPermissionToEdit", projectService.hasCurrentUserPermissionToEdit(project));
+        return map;
     }
 
     @PostMapping("deleteTask")
