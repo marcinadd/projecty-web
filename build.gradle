@@ -1,13 +1,17 @@
 plugins {
     id 'org.springframework.boot' version '2.1.4.RELEASE'
     id 'java'
+    id 'nebula.lint' version '6.1.4'
 }
 
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'nebula.lint'
+gradleLint.rules = ['all-dependency']
 
 group = 'com.projecty'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
+
 
 repositories {
     mavenCentral()
@@ -29,4 +33,6 @@ dependencies {
     testCompile group: 'com.h2database', name: 'h2', version: '1.4.199'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.2'
     testCompile group: 'org.springframework.security', name: 'spring-security-test', version: '5.1.5.RELEASE'
+    compile group: 'org.springframework', name: 'spring-aop', version: '5.1.8.RELEASE'
+
 }

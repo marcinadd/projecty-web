@@ -1,6 +1,8 @@
 package com.projecty.projectyweb.project;
 
+import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.AppConfig;
+import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.role.*;
 import com.projecty.projectyweb.user.User;
@@ -74,15 +76,12 @@ public class ProjectController {
     }
 
     @PostMapping("deleteproject")
+    @EditPermission
     public String deleteProject(@RequestParam Long projectId, RedirectAttributes redirectAttributes) {
         Optional<Project> project = projectRepository.findById(projectId);
-        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
-            projectRepository.delete(project.get());
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.delete.success", null, Locale.getDefault())));
-            return "redirect:/project/myprojects/";
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        projectRepository.delete(project.get());
+        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.delete.success", null, Locale.getDefault())));
+        return "redirect:/project/myprojects/";
     }
 
     @GetMapping("myprojects")
@@ -96,25 +95,25 @@ public class ProjectController {
     }
 
     @PostMapping("addUsers")
-    public String addUsersToExistingProject(
+    @EditPermission
+    public String addUsersToExistingProjectPost(
             @RequestParam Long projectId,
             @RequestParam(required = false) List<String> usernames,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
-            Project project = optionalProject.get();
-            List<RedirectMessage> redirectMessages = new ArrayList<>();
-            projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
-            redirectAttributes.addFlashAttribute(AppConfig.REDIRECT_MESSAGES, redirectMessages);
-            projectRepository.save(project);
-        }
+        Project project = optionalProject.get();
+        List<RedirectMessage> redirectMessages = new ArrayList<>();
+        projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
+        redirectAttributes.addFlashAttribute(AppConfig.REDIRECT_MESSAGES, redirectMessages);
+        projectRepository.save(project);
         redirectAttributes.addAttribute("projectId", projectId);
         return "redirect:/project/manageProject";
     }
 
     @PostMapping("deleteuser")
-    public String deleteUser(
+    @EditPermission
+    public String deleteUserPost(
             @RequestParam Long projectId,
             @RequestParam Long userId,
             RedirectAttributes redirectAttributes
@@ -122,9 +121,7 @@ public class ProjectController {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         User current = userService.getCurrentUser();
         Optional<User> toDeleteOptionalUser = userRepository.findById(userId);
-        if (toDeleteOptionalUser.isPresent() && !toDeleteOptionalUser.get().equals(current)
-                && optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())
-        ) {
+        if (toDeleteOptionalUser.isPresent() && !toDeleteOptionalUser.get().equals(current)) {
             User toDeleteUser = toDeleteOptionalUser.get();
             Project project = optionalProject.get();
             projectRoleService.deleteUserFromProject(toDeleteUser, project);
@@ -135,23 +132,20 @@ public class ProjectController {
                                     new Object[]{toDeleteUser.getUsername(), project.getName()},
                                     Locale.getDefault())));
             return "redirect:/project/manageProject";
-        } else if (toDeleteOptionalUser.isPresent() && toDeleteOptionalUser.get().equals(current)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("changeRole")
+    @EditPermission
     public String changeRolePost(
             @RequestParam Long projectId,
             @RequestParam Long roleId,
             @RequestParam String newRoleName,
             RedirectAttributes redirectAttributes
     ) {
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
         Optional<ProjectRole> optionalRole = projectRoleRepository.findById(roleId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && optionalRole.isPresent()) {
+        if (optionalRole.isPresent()) {
             ProjectRole projectRole = optionalRole.get();
             projectRole.setName(ProjectRoles.valueOf(newRoleName));
             projectRoleRepository.save(projectRole);
@@ -159,48 +153,41 @@ public class ProjectController {
             redirectAttributes.addAttribute("projectId", projectId);
             redirectAttributes.addAttribute("roleId", roleId);
             return "redirect:/project/manageProject";
-        } else if (optionalProject.isPresent() && optionalRole.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("manageProject")
-    public ModelAndView manageProject(
-            @RequestParam Long projectId
-    ) {
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("/fragments/project/manage-project");
-            modelAndView.addObject("project", optionalProject.get());
-            modelAndView.addObject("currentUser", userService.getCurrentUser());
-            return modelAndView;
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("manageProject")
+    @EditPermission
+    public ModelAndView manageProject(
+            @RequestParam Long projectId
+    ) {
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("/fragments/project/manage-project");
+        modelAndView.addObject("project", optionalProject.get());
+        modelAndView.addObject("currentUser", userService.getCurrentUser());
+        return modelAndView;
+    }
+
     @PostMapping("leaveProject")
+    @AnyPermission
     public String leaveProject(
             Long projectId,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         User current = userService.getCurrentUser();
-        if (optionalProject.isPresent() && projectService.hasUserRoleInProject(current, optionalProject.get())) {
-            try {
-                projectRoleService.leaveProject(optionalProject.get(), current);
-            } catch (NoAdminsInProjectException e) {
-                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
-                        Collections.singletonList(
-                                messageSource.getMessage("project.no_admins.exception",
-                                        null,
-                                        Locale.getDefault())));
-            }
-            return "redirect:myprojects";
+        try {
+            projectRoleService.leaveProject(optionalProject.get(), current);
+        } catch (NoAdminsInProjectException e) {
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
+                    Collections.singletonList(
+                            messageSource.getMessage("project.no_admins.exception",
+                                    null,
+                                    Locale.getDefault())));
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return "redirect:myprojects";
     }
 
     @PostMapping("changeName")
@@ -213,7 +200,6 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
             return "fragments/project/manage-project";
         }
-
         Optional<Project> optionalProject = projectRepository.findById(newProject.getId());
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             Project existingProject = optionalProject.get();

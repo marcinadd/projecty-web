@@ -148,13 +148,6 @@ public class ProjectControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnDeleteCurrentUser_shouldReturnForbidden() throws Exception {
-        mockMvc.perform(post("/project/deleteuser?projectId=1&userId=1"))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser
     public void givenRequestOnDeleteUser_shouldRedirectToManageProject() throws Exception {
         mockMvc.perform(post("/project/deleteuser?projectId=1&userId=2"))
                 .andExpect(redirectedUrl("/project/manageProject?projectId=1"))

@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.task;
 
+import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.ProjectService;
@@ -44,6 +45,7 @@ public class TaskController {
     }
 
     @GetMapping("addtasks")
+    //@EditPermission
     public ModelAndView addTasks(
             @RequestParam Long projectId
     ) {
@@ -59,6 +61,7 @@ public class TaskController {
     }
 
     @PostMapping("addtasks")
+    //@EditPermission
     public ModelAndView addTasksPost(
             @RequestParam Long projectId,
             @ModelAttribute Task task,
@@ -91,39 +94,33 @@ public class TaskController {
             @RequestParam Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToView(optionalProject.get())) {
-            Project project = optionalProject.get();
-            List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
-            List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
-            List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/task/task-list");
-            modelAndView.addObject("toDoTasks", toDoTasks);
-            modelAndView.addObject("inProgressTasks", inProgressTasks);
-            modelAndView.addObject("doneTasks", doneTasks);
-            modelAndView.addObject("project", optionalProject.get());
-            modelAndView.addObject("hasPermissionToEdit", projectService.hasCurrentUserPermissionToEdit(project));
-            return modelAndView;
-        }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        Project project = optionalProject.get();
+        List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
+        List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
+        List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/task/task-list");
+        modelAndView.addObject("toDoTasks", toDoTasks);
+        modelAndView.addObject("inProgressTasks", inProgressTasks);
+        modelAndView.addObject("doneTasks", doneTasks);
+        modelAndView.addObject("project", optionalProject.get());
+        modelAndView.addObject("hasPermissionToEdit", projectService.hasCurrentUserPermissionToEdit(project));
+        return modelAndView;
     }
 
     @PostMapping("deleteTask")
+    @EditPermission
     public ModelAndView deleteTaskPost(
             @RequestParam Long taskId,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
-            Task task = optionalTask.get();
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(
-                    messageSource.getMessage("task.delete.success", new Object[]{task.getName()}, Locale.getDefault())));
-            redirectAttributes.addAttribute("projectId", task.getProject().getId());
-            taskRepository.delete(task);
-            return new ModelAndView("redirect:taskList");
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        Task task = optionalTask.get();
+        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(
+                messageSource.getMessage("task.delete.success", new Object[]{task.getName()}, Locale.getDefault())));
+        redirectAttributes.addAttribute("projectId", task.getProject().getId());
+        taskRepository.delete(task);
+        return new ModelAndView("redirect:taskList");
     }
 
     @PostMapping("changeStatus")
@@ -145,19 +142,17 @@ public class TaskController {
     }
 
     @GetMapping("manageTask")
+    @EditPermission
     public ModelAndView manageTask(
             @RequestParam Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
-            Task task = optionalTask.get();
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/task/manage-task");
-            modelAndView.addObject("task", task);
-            modelAndView.addObject("notAssignedUsernames", taskService.getNotAssignedUsernameListForTask(task));
-            return modelAndView;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        Task task = optionalTask.get();
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/task/manage-task");
+        modelAndView.addObject("task", task);
+        modelAndView.addObject("notAssignedUsernames", taskService.getNotAssignedUsernameListForTask(task));
+        return modelAndView;
     }
 
     @PostMapping("editTaskDetails")
@@ -181,34 +176,30 @@ public class TaskController {
     }
 
     @PostMapping("assignUser")
+    @EditPermission
     public String assignUserPost(
             Long taskId,
             String username,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
-            Task task = optionalTask.get();
-            taskService.assignUserByUsername(task, username);
-            redirectAttributes.addAttribute("taskId", task.getId());
-            return "redirect:manageTask";
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        Task task = optionalTask.get();
+        taskService.assignUserByUsername(task, username);
+        redirectAttributes.addAttribute("taskId", task.getId());
+        return "redirect:manageTask";
     }
 
     @PostMapping("removeAssignment")
+    @EditPermission
     public String removeAssignment(
             Long taskId,
             String username,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
-            Task task = optionalTask.get();
-            taskService.removeAssignmentByUsername(task, username);
-            redirectAttributes.addAttribute("taskId", task.getId());
-            return "redirect:manageTask";
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        Task task = optionalTask.get();
+        taskService.removeAssignmentByUsername(task, username);
+        redirectAttributes.addAttribute("taskId", task.getId());
+        return "redirect:manageTask";
     }
 }

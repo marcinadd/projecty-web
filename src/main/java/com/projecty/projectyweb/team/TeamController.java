@@ -1,5 +1,7 @@
 package com.projecty.projectyweb.team;
 
+import com.projecty.projectyweb.configurations.AnyPermission;
+import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
@@ -86,18 +88,16 @@ public class TeamController {
     }
 
     @GetMapping(value = "addTeamProject", params = "teamId")
+    @EditPermission
     public ModelAndView addProjectForSpecifiedTeamPost(
             @RequestParam Long teamId
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/team/add-project-specified-team");
-            modelAndView.addObject("team", optionalTeam.get());
-            modelAndView.addObject("project", new Project());
-            return modelAndView;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/team/add-project-specified-team");
+        modelAndView.addObject("team", optionalTeam.get());
+        modelAndView.addObject("project", new Project());
+        return modelAndView;
     }
 
     @PostMapping("addTeamProject")
@@ -118,61 +118,55 @@ public class TeamController {
     }
 
     @GetMapping("manageTeam")
+    @EditPermission
     public ModelAndView manageTeam(
             @RequestParam Long teamId
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/team/manage-team");
-            modelAndView.addObject("team", optionalTeam.get());
-            modelAndView.addObject("currentUser", userService.getCurrentUser());
-            return modelAndView;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/team/manage-team");
+        modelAndView.addObject("team", optionalTeam.get());
+        modelAndView.addObject("currentUser", userService.getCurrentUser());
+        return modelAndView;
     }
 
     @PostMapping("changeName")
+    @EditPermission
     public String changeNamePost(
             @RequestParam Long teamId,
             @RequestParam String newName,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            teamService.changeTeamName(optionalTeam.get(), newName);
-            redirectAttributes.addAttribute("teamId", teamId);
-            return "redirect:/team/manageTeam";
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        teamService.changeTeamName(optionalTeam.get(), newName);
+        redirectAttributes.addAttribute("teamId", teamId);
+        return "redirect:/team/manageTeam";
     }
 
     @PostMapping("addUsers")
+    @EditPermission
     public String addUsersPost(
             @RequestParam Long teamId,
             @RequestParam(required = false) List<String> usernames,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            teamRoleService.addTeamMembersByUsernames(optionalTeam.get(), usernames, null);
-            teamRepository.save(optionalTeam.get());
-            redirectAttributes.addAttribute("teamId", teamId);
-            return "redirect:/team/manageTeam";
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        teamRoleService.addTeamMembersByUsernames(optionalTeam.get(), usernames, null);
+        teamRepository.save(optionalTeam.get());
+        redirectAttributes.addAttribute("teamId", teamId);
+        return "redirect:/team/manageTeam";
     }
 
     @PostMapping("deleteTeamRole")
+    @EditPermission
     public String deleteTeamRole(
             @RequestParam Long teamId,
             @RequestParam Long teamRoleId,
             RedirectAttributes redirectAttributes
     ) {
         // TODO: 6/28/19 Prevent from delete current user from team
-        Optional<Team> optionalTeam = teamRepository.findById(teamId);
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
-        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get()) && optionalTeamRole.isPresent()) {
+        if (optionalTeamRole.isPresent()) {
             teamRoleRepository.delete(optionalTeamRole.get());
             redirectAttributes.addAttribute("teamId", teamId);
             return "redirect:/team/manageTeam";
@@ -181,15 +175,15 @@ public class TeamController {
     }
 
     @PostMapping("changeTeamRole")
+    @EditPermission
     public String changeTeamRolePost(
             @RequestParam Long teamId,
             @RequestParam Long teamRoleId,
             @RequestParam String newRoleName,
             RedirectAttributes redirectAttributes
     ) {
-        Optional<Team> optionalTeam = teamRepository.findById(teamId);
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
-        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get()) && optionalTeamRole.isPresent()) {
+        if (optionalTeamRole.isPresent()) {
             teamRoleService.changeTeamRole(optionalTeamRole.get(), newRoleName);
             redirectAttributes.addAttribute("teamId", teamId);
             return "redirect:/team/manageTeam";
@@ -198,65 +192,55 @@ public class TeamController {
     }
 
     @GetMapping("projectList")
+    @AnyPermission
     public ModelAndView projectList(@RequestParam Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent() && teamRoleService.hasCurrentUserRoleInTeam(optionalTeam.get())) {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/team/project-list");
-            modelAndView.addObject("team", optionalTeam.get());
-            modelAndView.addObject("projects", optionalTeam.get().getProjects());
-            return modelAndView;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("fragments/team/project-list");
+        modelAndView.addObject("team", optionalTeam.get());
+        modelAndView.addObject("projects", optionalTeam.get().getProjects());
+        return modelAndView;
     }
 
     @GetMapping("deleteTeamConfirm")
+    @EditPermission
     public ModelAndView deleteTeamConfirm(@RequestParam Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            return new ModelAndView("fragments/team/delete-team-confirm", "team", optionalTeam.get());
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return new ModelAndView("fragments/team/delete-team-confirm", "team", optionalTeam.get());
     }
 
     @PostMapping("deleteTeam")
+    @EditPermission
     public String deleteTeamPost(@RequestParam Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            teamRepository.delete(optionalTeam.get());
-            return "redirect:/team/myTeams";
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        teamRepository.delete(optionalTeam.get());
+        return "redirect:/team/myTeams";
     }
 
     @GetMapping("leaveTeamConfirm")
+    @AnyPermission
     public ModelAndView leaveTeamConfirm(@RequestParam Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        if (optionalTeam.isPresent()) {
-            return new ModelAndView("fragments/team/leave-team-confirm", "team", optionalTeam.get());
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return new ModelAndView("fragments/team/leave-team-confirm", "team", optionalTeam.get());
     }
 
     @PostMapping("leaveTeam")
+    @AnyPermission
     public String leaveTeamPost(
             Long teamId,
             RedirectAttributes redirectAttributes
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         User current = userService.getCurrentUser();
-        if (optionalTeam.isPresent() && teamRoleService.hasCurrentUserRoleInTeam(optionalTeam.get())) {
-            try {
-                teamRoleService.leaveTeam(optionalTeam.get(), current);
-            } catch (NoManagersInTeamException e) {
-                redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
-                        Collections.singletonList(
-                                messageSource.getMessage("team.no_managers.exception",
-                                        null,
-                                        Locale.getDefault())));
-            }
-            return "redirect:/team/myTeams";
+        try {
+            teamRoleService.leaveTeam(optionalTeam.get(), current);
+        } catch (NoManagersInTeamException e) {
+            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
+                    Collections.singletonList(
+                            messageSource.getMessage("team.no_managers.exception",
+                                    null,
+                                    Locale.getDefault())));
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return "redirect:/team/myTeams";
     }
 }
