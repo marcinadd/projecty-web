@@ -2,13 +2,13 @@ package com.projecty.projectyweb.project;
 
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.Team;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity
@@ -17,13 +17,17 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id"
+    )
     private List<ProjectRole> projectRoles;
 
     @ManyToOne

@@ -1,5 +1,7 @@
 package com.projecty.projectyweb.team;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.team.role.TeamRole;
 
@@ -17,9 +19,17 @@ public class Team {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id"
+    )
     private List<TeamRole> teamRoles;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id"
+    )
     private List<Project> projects;
 
     public Long getId() {

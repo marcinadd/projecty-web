@@ -13,7 +13,6 @@ import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,7 +24,8 @@ import java.util.*;
 
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_FAILED;
 
-@Controller
+@CrossOrigin()
+@RestController
 @RequestMapping("team")
 public class TeamController {
     private final TeamValidator teamValidator;
@@ -69,39 +69,26 @@ public class TeamController {
     }
 
     @GetMapping("myTeams")
-    public ModelAndView myTeams() {
-        return new ModelAndView(
-                "fragments/team/my-teams",
-                "teamRoles",
-                userService.getCurrentUser().getTeamRoles());
+    public List<TeamRole> myTeams() {
+        return userService.getCurrentUser().getTeamRoles();
     }
 
-    @GetMapping("addTeamProject")
-    public ModelAndView addProjectForTeam() {
-        User current = userService.getCurrentUser();
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("fragments/team/add-project-team");
-        Project project = new Project();
-        modelAndView.addObject("project", project);
-        modelAndView.addObject("teamRoles", teamRoleService.getTeamRolesWhereManager(current));
-        return modelAndView;
+    @GetMapping("addProjectToTeam")
+    public List<TeamRole> addProjectToTeam() {
+        return teamRoleService.getTeamRolesWhereManager(userService.getCurrentUser());
     }
 
-    @GetMapping(value = "addTeamProject", params = "teamId")
+    @GetMapping(value = "addProjectToTeam", params = "teamId")
     @EditPermission
-    public ModelAndView addProjectForSpecifiedTeamPost(
+    public String addProjectToSpecifiedTeamPost(
             @RequestParam Long teamId
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("fragments/team/add-project-specified-team");
-        modelAndView.addObject("team", optionalTeam.get());
-        modelAndView.addObject("project", new Project());
-        return modelAndView;
+        return optionalTeam.get().getName();
     }
 
-    @PostMapping("addTeamProject")
-    public String addProjectTeamPost(
+    @PostMapping("addProjectToTeam")
+    public String addProjectToTeamPost(
             @Valid @ModelAttribute Project project,
             @RequestParam Long teamId,
             BindingResult bindingResult
@@ -119,15 +106,15 @@ public class TeamController {
 
     @GetMapping("manageTeam")
     @EditPermission
-    public ModelAndView manageTeam(
+    public Map<String, Object> manageTeam(
             @RequestParam Long teamId
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("fragments/team/manage-team");
-        modelAndView.addObject("team", optionalTeam.get());
-        modelAndView.addObject("currentUser", userService.getCurrentUser());
-        return modelAndView;
+        Map<String, Object> map = new HashMap<>();
+        map.put("team", optionalTeam.get());
+        map.put("currentUser", userService.getCurrentUser());
+        map.put("teamRoles", optionalTeam.get().getTeamRoles());
+        return map;
     }
 
     @PostMapping("changeName")
@@ -158,48 +145,40 @@ public class TeamController {
     }
 
     @PostMapping("deleteTeamRole")
-    @EditPermission
     public String deleteTeamRole(
-            @RequestParam Long teamId,
-            @RequestParam Long teamRoleId,
-            RedirectAttributes redirectAttributes
+            @RequestParam Long teamRoleId
     ) {
         // TODO: 6/28/19 Prevent from delete current user from team
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
-        if (optionalTeamRole.isPresent()) {
+        if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam())) {
             teamRoleRepository.delete(optionalTeamRole.get());
-            redirectAttributes.addAttribute("teamId", teamId);
             return "redirect:/team/manageTeam";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("changeTeamRole")
-    @EditPermission
     public String changeTeamRolePost(
-            @RequestParam Long teamId,
             @RequestParam Long teamRoleId,
-            @RequestParam String newRoleName,
-            RedirectAttributes redirectAttributes
+            @RequestParam String newRoleName
     ) {
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
-        if (optionalTeamRole.isPresent()) {
+        if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam())) {
             teamRoleService.changeTeamRole(optionalTeamRole.get(), newRoleName);
-            redirectAttributes.addAttribute("teamId", teamId);
-            return "redirect:/team/manageTeam";
+            return "OK";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("projectList")
     @AnyPermission
-    public ModelAndView projectList(@RequestParam Long teamId) {
+    public Map<String, Object> projectList(@RequestParam Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("fragments/team/project-list");
-        modelAndView.addObject("team", optionalTeam.get());
-        modelAndView.addObject("projects", optionalTeam.get().getProjects());
-        return modelAndView;
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("teamName", optionalTeam.get().getName());
+        map.put("projects", optionalTeam.get().getProjects());
+        map.put("isCurrentUserTeamManager", teamRoleService.isCurrentUserTeamManager(optionalTeam.get()));
+        return map;
     }
 
     @GetMapping("deleteTeamConfirm")

@@ -1,7 +1,8 @@
 package com.projecty.projectyweb.project.role;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.user.User;
@@ -20,7 +21,10 @@ public class ProjectRole {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id"
+    )
     private User user;
 
     @ManyToOne

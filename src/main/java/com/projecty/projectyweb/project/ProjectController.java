@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
@@ -52,13 +51,8 @@ public class ProjectController {
         this.messageSource = messageSource;
     }
 
-    @GetMapping("addproject")
-    public ModelAndView addProject() {
-        return new ModelAndView("fragments/project/add-project", "project", new Project());
-    }
-
     @PostMapping("addproject")
-    public String addProjectProcess(
+    public void addProjectPost(
             @Valid @ModelAttribute Project project,
             @RequestParam(required = false) List<String> usernames,
             BindingResult bindingResult,
@@ -66,22 +60,20 @@ public class ProjectController {
     ) {
         projectValidator.validate(project, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "fragments/project/add-project";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         List<RedirectMessage> redirectMessages = new ArrayList<>();
         projectService.createNewProjectAndSave(project, usernames, redirectMessages);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES, redirectMessages);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.add.success", null, Locale.getDefault())));
-        return "redirect:/project/myprojects";
     }
 
-    @PostMapping("deleteproject")
+    @PostMapping("deleteProject")
     @EditPermission
-    public String deleteProject(@RequestParam Long projectId, RedirectAttributes redirectAttributes) {
+    public void deleteProject(@RequestParam Long projectId, RedirectAttributes redirectAttributes) {
         Optional<Project> project = projectRepository.findById(projectId);
         projectRepository.delete(project.get());
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.delete.success", null, Locale.getDefault())));
-        return "redirect:/project/myprojects/";
     }
 
     @GetMapping("myProjects")
@@ -95,7 +87,7 @@ public class ProjectController {
 
     @PostMapping("addUsers")
     @EditPermission
-    public String addUsersToExistingProjectPost(
+    public void addUsersToExistingProjectPost(
             @RequestParam Long projectId,
             @RequestParam(required = false) List<String> usernames,
             RedirectAttributes redirectAttributes
@@ -107,10 +99,9 @@ public class ProjectController {
         redirectAttributes.addFlashAttribute(AppConfig.REDIRECT_MESSAGES, redirectMessages);
         projectRepository.save(project);
         redirectAttributes.addAttribute("projectId", projectId);
-        return "redirect:/project/manageProject";
     }
 
-    @PostMapping("deleteuser")
+    @PostMapping("deleteUser")
     @EditPermission
     public String deleteUserPost(
             @RequestParam Long projectId,
@@ -158,15 +149,15 @@ public class ProjectController {
 
     @GetMapping("manageProject")
     @EditPermission
-    public ModelAndView manageProject(
+    public Map<String, Object> manageProject(
             @RequestParam Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("/fragments/project/manage-project");
-        modelAndView.addObject("project", optionalProject.get());
-        modelAndView.addObject("currentUser", userService.getCurrentUser());
-        return modelAndView;
+        Map<String, Object> map = new HashMap<>();
+        map.put("project", optionalProject.get());
+        map.put("projectRoles", optionalProject.get().getProjectRoles());
+        map.put("currentUser", userService.getCurrentUser());
+        return map;
     }
 
     @PostMapping("leaveProject")
@@ -190,21 +181,20 @@ public class ProjectController {
     }
 
     @PostMapping("changeName")
-    public String changeNamePost(
+    public void changeNamePost(
             @ModelAttribute("project") Project newProject,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
     ) {
         projectValidator.validate(newProject, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "fragments/project/manage-project";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         Optional<Project> optionalProject = projectRepository.findById(newProject.getId());
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             Project existingProject = optionalProject.get();
             projectService.changeName(existingProject, newProject.getName());
             redirectAttributes.addAttribute("projectId", existingProject.getId());
-            return "redirect:manageProject";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
