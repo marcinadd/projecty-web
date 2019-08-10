@@ -1,8 +1,10 @@
 package com.projecty.projectyweb.user;
 
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -31,10 +33,11 @@ public class UserController {
     }
 
     @PostMapping("register")
-    public String registerPost(@Valid @ModelAttribute User user, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String registerPost(@Valid @ModelAttribute RegisterForm registerForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        User user = userService.createUserFromRegisterForm(registerForm);
         userService.validateNewUser(user, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "fragments/user/register";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         userService.saveWithPasswordEncrypt(user);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("user.register.success", new Object[]{user.getUsername()}, Locale.getDefault())));
@@ -52,8 +55,8 @@ public class UserController {
     }
 
     @GetMapping("settings")
-    public ModelAndView settings() {
-        return new ModelAndView("fragments/user/settings", "user", userService.getCurrentUser());
+    public User settings() {
+        return userService.getCurrentUser();
     }
 
     @PostMapping("changePassword")
@@ -68,7 +71,7 @@ public class UserController {
         BindingResult bindingResult = userService.authUserAndValidatePassword(user, currentPassword, newPassword, repeatPassword);
         if (bindingResult == null) {
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED, Collections.singletonList(messageSource.getMessage("user.password.authorize.failed", null, Locale.getDefault())));
-            return "redirect:/settings";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         } else if (bindingResult.hasErrors()) {
             return "fragments/user/settings";
         }

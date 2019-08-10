@@ -95,4 +95,13 @@ public class UserService {
         }
         return usernames;
     }
+
+    User createUserFromRegisterForm(RegisterForm registerForm) {
+        User user = new User();
+        user.setUsername(registerForm.getUsername());
+        user.setEmail(registerForm.getEmail());
+        user.setPassword(registerForm.getPassword());
+        user.setPasswordRepeat(registerForm.getPasswordRepeat());
+        return user;
+    }
 }
