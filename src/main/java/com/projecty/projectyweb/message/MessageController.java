@@ -4,7 +4,6 @@ import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,8 +18,9 @@ import java.util.Optional;
 
 import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
-@Controller
-@RequestMapping("messages")
+@CrossOrigin()
+@RestController
+@RequestMapping("message")
 public class MessageController {
     private final UserService userService;
 
@@ -37,28 +37,16 @@ public class MessageController {
         this.messageSource = messageSource;
     }
 
-    @GetMapping("messageList")
-    public ModelAndView messageList(
-            @RequestParam(required = false) String type
-    ) {
-        ModelAndView modelAndView = new ModelAndView();
-        if (type == null || type.equals("received")) {
-            User user = userService.getCurrentUser();
-            List<Message> messages = messageRepository.findByRecipientOrderBySendDateDesc(user);
-            modelAndView.setViewName("fragments/message/received-message-list");
-            modelAndView.addObject("messages", messages);
-            modelAndView.addObject("type", "received");
-            return modelAndView;
-        } else if (type.equals("sent")) {
-            User user = userService.getCurrentUser();
-            List<Message> messages = messageRepository.findBySenderOrderBySendDateDesc(user);
-            modelAndView.setViewName("fragments/message/sent-message-list");
-            modelAndView.addObject("messages", messages);
-            modelAndView.addObject("type", "sent");
-            return modelAndView;
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+    @GetMapping("receivedMessages")
+    public List<Message> receivedMessages() {
+        User user = userService.getCurrentUser();
+        return messageRepository.findByRecipientOrderBySendDateDesc(user);
+    }
+
+    @GetMapping("sentMessages")
+    public List<Message> sendMessages() {
+        User user = userService.getCurrentUser();
+        return messageRepository.findBySenderOrderBySendDateDesc(user);
     }
 
     @GetMapping("sendMessage")
@@ -82,15 +70,20 @@ public class MessageController {
     }
 
     @GetMapping("viewMessage")
-    public ModelAndView viewMessage(
+    public Message viewMessage(
             @RequestParam Long messageId
     ) {
         Optional<Message> optMessage = messageRepository.findById(messageId);
         if (optMessage.isPresent() && messageService.checkIfCurrentUserHasPermissionToView(optMessage.get())) {
             messageService.updateSeenDate(optMessage.get());
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            return optMessage.get();
         }
-        return new ModelAndView("fragments/message/view-message", "message", optMessage.get());
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+    }
+
+    @GetMapping("getUnreadMessageCount")
+    public int getUnreadMessageCount() {
+        return messageService.getUnreadMessageCountForCurrentUser();
     }
 }

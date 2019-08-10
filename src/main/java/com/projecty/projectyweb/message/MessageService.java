@@ -27,7 +27,7 @@ public class MessageService {
         this.messageSource = messageSource;
     }
 
-    public static int getMessageCountForCurrentUser() {
+    public int getUnreadMessageCountForCurrentUser() {
         User current = userService.getCurrentUser();
         return messageRepository.findByRecipientAndSeenDateIsNull(current).size();
     }

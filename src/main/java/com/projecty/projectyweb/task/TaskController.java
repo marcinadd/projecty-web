@@ -41,23 +41,20 @@ public class TaskController {
         this.messageSource = messageSource;
     }
 
-    @GetMapping("addtasks")
-    public ModelAndView addTasks(
+    @GetMapping("addTask")
+    public Project addTask(
             @RequestParam Long projectId
     ) {
-        ModelAndView modelAndView = new ModelAndView("fragments/task/add-task");
-        Optional<Project> project = projectRepository.findById(projectId);
-        if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
-            modelAndView.addObject("project", project.get());
-            modelAndView.addObject("task", new Task());
-            return modelAndView;
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+            return optionalProject.get();
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
-    @PostMapping("addtasks")
-    public ModelAndView addTasksPost(
+    @PostMapping("addTask")
+    public void addTaskPost(
             @RequestParam Long projectId,
             @ModelAttribute Task task,
             BindingResult bindingResult,
@@ -67,10 +64,7 @@ public class TaskController {
         redirectAttributes.addAttribute("projectId", projectId);
         Optional<Project> project = projectRepository.findById(projectId);
         if (bindingResult.hasErrors()) {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.setViewName("fragments/task/add-task");
-            project.ifPresent(modelAndView::addObject);
-            return modelAndView;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         } else if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
             task.setStatus(TaskStatus.TO_DO);
             task.setProject(project.get());
@@ -78,7 +72,6 @@ public class TaskController {
             tasks.add(task);
             taskRepository.save(task);
             redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.add.success", new Object[]{task.getName(), project.get().getName()}, Locale.getDefault())));
-            return new ModelAndView("redirect:taskList");
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -137,16 +130,16 @@ public class TaskController {
 
     @GetMapping("manageTask")
     @EditPermission
-    public ModelAndView manageTask(
+    public Map<String, Object> manageTask(
             @RequestParam Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("fragments/task/manage-task");
-        modelAndView.addObject("task", task);
-        modelAndView.addObject("notAssignedUsernames", taskService.getNotAssignedUsernameListForTask(task));
-        return modelAndView;
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("task", task);
+        map.put("projectId", task.getProject().getId());
+        map.put("notAssignedUsernames", taskService.getNotAssignedUsernameListForTask(task));
+        return map;
     }
 
     @PostMapping("editTaskDetails")
