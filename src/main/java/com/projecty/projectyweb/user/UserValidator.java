@@ -20,28 +20,28 @@ public class UserValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", "username.empty");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.empty");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "passwordRepeat", "passwordRepeat.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", "username.empty.user.username");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.user.password");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "passwordRepeat", "passwordRepeat.empty.user.passwordRepeat");
 
         User user = (User) target;
 
         if (!user.getPassword().equals(user.getPasswordRepeat())) {
-            errors.rejectValue("passwordRepeat", "passwordRepeat.diff");
+            errors.rejectValue("passwordRepeat", "passwordRepeat.diff.user.passwordRepeat");
         }
 
         if (user.getPassword().length() < 8) {
-            errors.rejectValue("password", "password.short");
+            errors.rejectValue("password", "password.short.user.password");
         }
 
         if (user.getPassword().length() > 30) {
-            errors.rejectValue("password", "password.long");
+            errors.rejectValue("password", "password.long.user.password");
         }
 
         if (user.getEmail() != null) {
             Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(user.getEmail());
             if (!matcher.matches()) {
-                errors.rejectValue("email", "email.invalid");
+                errors.rejectValue("email", "email.invalid.user.email");
             }
         }
     }

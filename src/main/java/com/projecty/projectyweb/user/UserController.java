@@ -2,6 +2,7 @@ package com.projecty.projectyweb.user;
 
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,11 +34,11 @@ public class UserController {
     }
 
     @PostMapping("register")
-    public String registerPost(@Valid @ModelAttribute RegisterForm registerForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String registerPost(@Valid @ModelAttribute RegisterForm registerForm, BindingResult bindingResult, RedirectAttributes redirectAttributes) throws BindException {
         User user = userService.createUserFromRegisterForm(registerForm);
         userService.validateNewUser(user, bindingResult);
         if (bindingResult.hasErrors()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new BindException(bindingResult);
         }
         userService.saveWithPasswordEncrypt(user);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("user.register.success", new Object[]{user.getUsername()}, Locale.getDefault())));
