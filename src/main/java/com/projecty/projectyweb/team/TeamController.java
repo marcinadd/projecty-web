@@ -5,17 +5,16 @@ import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
-import com.projecty.projectyweb.team.role.NoManagersInTeamException;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -43,24 +42,18 @@ public class TeamController {
         this.teamRoleRepository = teamRoleRepository;
     }
 
-    @GetMapping("addTeam")
-    public void addTeam() throws NoManagersInTeamException {
-        throw new NoManagersInTeamException();
-    }
-
     @PostMapping("addTeam")
-    public String addTeamPost(
+    public void addTeamPost(
             @Valid @ModelAttribute Team team,
             @RequestParam(required = false) List<String> usernames,
             BindingResult bindingResult
-    ) {
+    ) throws BindException {
         teamValidator.validate(team, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "fragments/team/add-team";
+            throw new BindException(bindingResult);
         }
         List<RedirectMessage> redirectMessages = new ArrayList<>();
         teamService.createTeamAndSave(team, usernames, redirectMessages);
-        return "redirect:/team/myTeams";
     }
 
     @GetMapping("myTeams")
@@ -83,18 +76,17 @@ public class TeamController {
     }
 
     @PostMapping("addProjectToTeam")
-    public String addProjectToTeamPost(
+    public void addProjectToTeamPost(
             @Valid @ModelAttribute Project project,
             @RequestParam Long teamId,
             BindingResult bindingResult
-    ) {
+    ) throws BindException {
         projectValidator.validate(project, bindingResult);
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         if (bindingResult.hasErrors()) {
-            return "fragments/team/add-project-team";
+            throw new BindException(bindingResult);
         } else if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
             teamService.createProjectForTeam(optionalTeam.get(), project);
-            return "redirect:/team/myTeams";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -114,53 +106,45 @@ public class TeamController {
 
     @PostMapping("changeName")
     @EditPermission
-    public String changeNamePost(
+    public void changeNamePost(
             @RequestParam Long teamId,
-            @RequestParam String newName,
-            RedirectAttributes redirectAttributes
+            @RequestParam String newName
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         teamService.changeTeamName(optionalTeam.get(), newName);
-        redirectAttributes.addAttribute("teamId", teamId);
-        return "redirect:/team/manageTeam";
     }
 
     @PostMapping("addUsers")
     @EditPermission
-    public String addUsersPost(
+    public void addUsersPost(
             @RequestParam Long teamId,
-            @RequestParam(required = false) List<String> usernames,
-            RedirectAttributes redirectAttributes
+            @RequestParam(required = false) List<String> usernames
     ) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         teamRoleService.addTeamMembersByUsernames(optionalTeam.get(), usernames, null);
         teamRepository.save(optionalTeam.get());
-        redirectAttributes.addAttribute("teamId", teamId);
-        return "redirect:/team/manageTeam";
     }
 
     @PostMapping("deleteTeamRole")
-    public String deleteTeamRole(
+    public void deleteTeamRole(
             @RequestParam Long teamRoleId
     ) {
         // TODO: 6/28/19 Prevent from delete current user from team
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
         if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam())) {
             teamRoleRepository.delete(optionalTeamRole.get());
-            return "redirect:/team/manageTeam";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("changeTeamRole")
-    public String changeTeamRolePost(
+    public void changeTeamRolePost(
             @RequestParam Long teamRoleId,
             @RequestParam String newRoleName
     ) {
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
         if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam())) {
             teamRoleService.changeTeamRole(optionalTeamRole.get(), newRoleName);
-            return "OK";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

@@ -2,21 +2,16 @@ package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
-import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @CrossOrigin()
 @RestController
@@ -28,13 +23,10 @@ public class MessageController {
 
     private final MessageService messageService;
 
-    private final MessageSource messageSource;
-
-    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, MessageSource messageSource) {
+    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService) {
         this.userService = userService;
         this.messageRepository = messageRepository;
         this.messageService = messageService;
-        this.messageSource = messageSource;
     }
 
     @GetMapping("receivedMessages")
@@ -49,24 +41,16 @@ public class MessageController {
         return messageRepository.findBySenderOrderBySendDateDesc(user);
     }
 
-    @GetMapping("sendMessage")
-    public ModelAndView sendMessage() {
-        return new ModelAndView("fragments/message/send-message", "message", new Message());
-    }
-
     @PostMapping("sendMessage")
-    public String sendMessagePost(
+    public void sendMessagePost(
             @RequestParam String recipientUsername,
             @Valid @ModelAttribute Message message,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes
-    ) {
+            BindingResult bindingResult
+    ) throws BindException {
             messageService.sendMessage(recipientUsername,message,bindingResult);
             if (bindingResult.hasErrors()) {
-                return "fragments/message/send-message";
+                throw new BindException(bindingResult);
             }
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("message.send.success", null, Locale.getDefault())));
-            return "redirect:/messages/messageList";
     }
 
     @GetMapping("viewMessage")
@@ -79,7 +63,6 @@ public class MessageController {
             return optMessage.get();
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
     }
 
     @GetMapping("getUnreadMessageCount")

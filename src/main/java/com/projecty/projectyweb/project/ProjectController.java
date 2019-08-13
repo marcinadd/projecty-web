@@ -1,7 +1,6 @@
 package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.configurations.AnyPermission;
-import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.role.ProjectRole;
@@ -11,19 +10,14 @@ import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.*;
-
-import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES;
-import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @CrossOrigin()
 @RestController
@@ -43,9 +37,7 @@ public class ProjectController {
 
     private final ProjectRoleService projectRoleService;
 
-    private final MessageSource messageSource;
-
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectValidator projectValidator, ProjectRoleService projectRoleService, MessageSource messageSource) {
+    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectValidator projectValidator, ProjectRoleService projectRoleService) {
         this.projectService = projectService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -53,34 +45,28 @@ public class ProjectController {
         this.projectRoleRepository = projectRoleRepository;
         this.projectValidator = projectValidator;
         this.projectRoleService = projectRoleService;
-        this.messageSource = messageSource;
     }
 
     @PostMapping("addproject")
     public void addProjectPost(
             @Valid @ModelAttribute Project project,
             @RequestParam(required = false) List<String> usernames,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes
+            BindingResult bindingResult
     ) throws BindException {
         projectValidator.validate(project, bindingResult);
         if (bindingResult.hasErrors()) {
             System.out.println(bindingResult.getAllErrors());
             throw new BindException(bindingResult);
         }
-
         List<RedirectMessage> redirectMessages = new ArrayList<>();
         projectService.createNewProjectAndSave(project, usernames, redirectMessages);
-        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES, redirectMessages);
-        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.add.success", null, Locale.getDefault())));
     }
 
     @PostMapping("deleteProject")
     @EditPermission
-    public void deleteProject(@RequestParam Long projectId, RedirectAttributes redirectAttributes) {
+    public void deleteProject(@RequestParam Long projectId) {
         Optional<Project> project = projectRepository.findById(projectId);
         projectRepository.delete(project.get());
-        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("project.delete.success", null, Locale.getDefault())));
     }
 
     @GetMapping("myProjects")
@@ -96,24 +82,20 @@ public class ProjectController {
     @EditPermission
     public void addUsersToExistingProjectPost(
             @RequestParam Long projectId,
-            @RequestParam(required = false) List<String> usernames,
-            RedirectAttributes redirectAttributes
+            @RequestParam(required = false) List<String> usernames
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Project project = optionalProject.get();
         List<RedirectMessage> redirectMessages = new ArrayList<>();
         projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
-        redirectAttributes.addFlashAttribute(AppConfig.REDIRECT_MESSAGES, redirectMessages);
         projectRepository.save(project);
-        redirectAttributes.addAttribute("projectId", projectId);
     }
 
     @PostMapping("deleteUser")
     @EditPermission
-    public String deleteUserPost(
+    public void deleteUserPost(
             @RequestParam Long projectId,
-            @RequestParam Long userId,
-            RedirectAttributes redirectAttributes
+            @RequestParam Long userId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         User current = userService.getCurrentUser();
@@ -122,13 +104,6 @@ public class ProjectController {
             User toDeleteUser = toDeleteOptionalUser.get();
             Project project = optionalProject.get();
             projectRoleService.deleteUserFromProject(toDeleteUser, project);
-            redirectAttributes.addAttribute("projectId", projectId);
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS,
-                    Collections.singletonList(
-                            messageSource.getMessage("projectRole.delete.success",
-                                    new Object[]{toDeleteUser.getUsername(), project.getName()},
-                                    Locale.getDefault())));
-            return "redirect:/project/manageProject";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -138,18 +113,13 @@ public class ProjectController {
     public String changeRolePost(
             @RequestParam Long projectId,
             @RequestParam Long roleId,
-            @RequestParam String newRoleName,
-            RedirectAttributes redirectAttributes
+            @RequestParam String newRoleName
     ) {
         Optional<ProjectRole> optionalRole = projectRoleRepository.findById(roleId);
         if (optionalRole.isPresent()) {
             ProjectRole projectRole = optionalRole.get();
             projectRole.setName(ProjectRoles.valueOf(newRoleName));
             projectRoleRepository.save(projectRole);
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("projectRole.change.success", new Object[]{projectRole.getUser().getUsername()}, Locale.getDefault())));
-            redirectAttributes.addAttribute("projectId", projectId);
-            redirectAttributes.addAttribute("roleId", roleId);
-            return "redirect:/project/manageProject";
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -178,8 +148,7 @@ public class ProjectController {
     @PostMapping("changeName")
     public void changeNamePost(
             @ModelAttribute("project") Project newProject,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes
+            BindingResult bindingResult
     ) {
         projectValidator.validate(newProject, bindingResult);
         if (bindingResult.hasErrors()) {
@@ -189,7 +158,6 @@ public class ProjectController {
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             Project existingProject = optionalProject.get();
             projectService.changeName(existingProject, newProject.getName());
-            redirectAttributes.addAttribute("projectId", existingProject.getId());
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

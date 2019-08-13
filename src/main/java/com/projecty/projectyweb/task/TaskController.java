@@ -6,15 +6,12 @@ import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.ProjectService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
-
-import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @CrossOrigin()
 @RestController
@@ -30,15 +27,12 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    private final MessageSource messageSource;
-
     public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, TaskService taskService, MessageSource messageSource) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.taskValidator = taskValidator;
         this.taskRepository = taskRepository;
         this.taskService = taskService;
-        this.messageSource = messageSource;
     }
 
     @GetMapping("addTask")
@@ -57,11 +51,9 @@ public class TaskController {
     public void addTaskPost(
             @RequestParam Long projectId,
             @ModelAttribute Task task,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes
+            BindingResult bindingResult
     ) {
         taskValidator.validate(task, bindingResult);
-        redirectAttributes.addAttribute("projectId", projectId);
         Optional<Project> project = projectRepository.findById(projectId);
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -71,7 +63,6 @@ public class TaskController {
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
             taskRepository.save(task);
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.add.success", new Object[]{task.getName(), project.get().getName()}, Locale.getDefault())));
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -97,32 +88,22 @@ public class TaskController {
 
     @PostMapping("deleteTask")
     @EditPermission
-    public ModelAndView deleteTaskPost(
-            @RequestParam Long taskId,
-            RedirectAttributes redirectAttributes
+    public void deleteTaskPost(
+            @RequestParam Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
-        redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(
-                messageSource.getMessage("task.delete.success", new Object[]{task.getName()}, Locale.getDefault())));
-        redirectAttributes.addAttribute("projectId", task.getProject().getId());
         taskRepository.delete(task);
-        return new ModelAndView("redirect:taskList");
     }
 
     @PostMapping("changeStatus")
-    public ModelAndView changeStatusPost(
+    public void changeStatusPost(
             @RequestParam Long taskId,
-            @RequestParam String status,
-            RedirectAttributes redirectAttributes
+            @RequestParam String status
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         if (optionalTask.isPresent() && taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(optionalTask.get())) {
-            Task task = optionalTask.get();
             taskService.changeTaskStatus(optionalTask.get(), status);
-            redirectAttributes.addAttribute("projectId", task.getProject().getId());
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_SUCCESS, Collections.singletonList(messageSource.getMessage("task.status.change.success", new Object[]{optionalTask.get().getName()}, Locale.getDefault())));
-            return new ModelAndView("redirect:taskList");
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -143,20 +124,17 @@ public class TaskController {
     }
 
     @PostMapping("editTaskDetails")
-    public String editTaskDetailsPost(
+    public void editTaskDetailsPost(
             @ModelAttribute Task task,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes
-    ) {
+            BindingResult bindingResult
+    ) throws BindException {
         taskValidator.validate(task, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "fragments/task/manage-task";
+            throw new BindException(bindingResult);
         } else {
             Optional<Task> optionalTask = taskRepository.findById(task.getId());
             if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
                 taskService.updateTaskDetails(optionalTask.get(), task);
-                redirectAttributes.addAttribute("projectId", optionalTask.get().getProject().getId());
-                return "redirect:taskList";
             }
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -164,29 +142,23 @@ public class TaskController {
 
     @PostMapping("assignUser")
     @EditPermission
-    public String assignUserPost(
+    public void assignUserPost(
             Long taskId,
-            String username,
-            RedirectAttributes redirectAttributes
+            String username
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
         taskService.assignUserByUsername(task, username);
-        redirectAttributes.addAttribute("taskId", task.getId());
-        return "redirect:manageTask";
     }
 
     @PostMapping("removeAssignment")
     @EditPermission
-    public String removeAssignment(
+    public void removeAssignment(
             Long taskId,
-            String username,
-            RedirectAttributes redirectAttributes
+            String username
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
         taskService.removeAssignmentByUsername(task, username);
-        redirectAttributes.addAttribute("taskId", task.getId());
-        return "redirect:manageTask";
     }
 }
