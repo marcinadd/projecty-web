@@ -15,5 +15,6 @@ public class ProjectValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "name.empty");
+        errors.rejectValue("name", "name.empty");
     }
 }

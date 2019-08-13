@@ -11,18 +11,15 @@ import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.*;
 
-import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_FAILED;
 
 @CrossOrigin()
 @RestController
@@ -35,9 +32,8 @@ public class TeamController {
     private final ProjectValidator projectValidator;
     private final TeamRoleService teamRoleService;
     private final TeamRoleRepository teamRoleRepository;
-    private final MessageSource messageSource;
 
-    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService, TeamRoleRepository teamRoleRepository, MessageSource messageSource) {
+    public TeamController(TeamValidator teamValidator, TeamRepository teamRepository, UserService userService, TeamService teamService, ProjectValidator projectValidator, TeamRoleService teamRoleService, TeamRoleRepository teamRoleRepository) {
         this.teamValidator = teamValidator;
         this.teamRepository = teamRepository;
         this.userService = userService;
@@ -45,12 +41,11 @@ public class TeamController {
         this.projectValidator = projectValidator;
         this.teamRoleService = teamRoleService;
         this.teamRoleRepository = teamRoleRepository;
-        this.messageSource = messageSource;
     }
 
     @GetMapping("addTeam")
-    public ModelAndView addTeam() {
-        return new ModelAndView("fragments/team/add-team", "team", new Team());
+    public void addTeam() throws NoManagersInTeamException {
+        throw new NoManagersInTeamException();
     }
 
     @PostMapping("addTeam")
@@ -181,45 +176,18 @@ public class TeamController {
         return map;
     }
 
-    @GetMapping("deleteTeamConfirm")
-    @EditPermission
-    public ModelAndView deleteTeamConfirm(@RequestParam Long teamId) {
-        Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        return new ModelAndView("fragments/team/delete-team-confirm", "team", optionalTeam.get());
-    }
-
     @PostMapping("deleteTeam")
     @EditPermission
-    public String deleteTeamPost(@RequestParam Long teamId) {
+    public void deleteTeamPost(@RequestParam Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         teamRepository.delete(optionalTeam.get());
-        return "redirect:/team/myTeams";
-    }
-
-    @GetMapping("leaveTeamConfirm")
-    @AnyPermission
-    public ModelAndView leaveTeamConfirm(@RequestParam Long teamId) {
-        Optional<Team> optionalTeam = teamRepository.findById(teamId);
-        return new ModelAndView("fragments/team/leave-team-confirm", "team", optionalTeam.get());
     }
 
     @PostMapping("leaveTeam")
     @AnyPermission
-    public String leaveTeamPost(
-            Long teamId,
-            RedirectAttributes redirectAttributes
-    ) {
+    public void leaveTeamPost(Long teamId) {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         User current = userService.getCurrentUser();
-        try {
-            teamRoleService.leaveTeam(optionalTeam.get(), current);
-        } catch (NoManagersInTeamException e) {
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
-                    Collections.singletonList(
-                            messageSource.getMessage("team.no_managers.exception",
-                                    null,
-                                    Locale.getDefault())));
-        }
-        return "redirect:/team/myTeams";
+        teamRoleService.leaveTeam(optionalTeam.get(), current);
     }
 }

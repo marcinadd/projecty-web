@@ -4,12 +4,16 @@ import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.AppConfig;
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
-import com.projecty.projectyweb.project.role.*;
+import com.projecty.projectyweb.project.role.ProjectRole;
+import com.projecty.projectyweb.project.role.ProjectRoleRepository;
+import com.projecty.projectyweb.project.role.ProjectRoleService;
+import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,7 +22,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.util.*;
 
-import static com.projecty.projectyweb.configurations.AppConfig.*;
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES;
+import static com.projecty.projectyweb.configurations.AppConfig.REDIRECT_MESSAGES_SUCCESS;
 
 @CrossOrigin()
 @RestController
@@ -57,11 +62,13 @@ public class ProjectController {
             @RequestParam(required = false) List<String> usernames,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
-    ) {
+    ) throws BindException {
         projectValidator.validate(project, bindingResult);
         if (bindingResult.hasErrors()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            System.out.println(bindingResult.getAllErrors());
+            throw new BindException(bindingResult);
         }
+
         List<RedirectMessage> redirectMessages = new ArrayList<>();
         projectService.createNewProjectAndSave(project, usernames, redirectMessages);
         redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES, redirectMessages);
@@ -162,22 +169,10 @@ public class ProjectController {
 
     @PostMapping("leaveProject")
     @AnyPermission
-    public String leaveProject(
-            Long projectId,
-            RedirectAttributes redirectAttributes
-    ) {
+    public void leaveProject(Long projectId) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         User current = userService.getCurrentUser();
-        try {
-            projectRoleService.leaveProject(optionalProject.get(), current);
-        } catch (NoAdminsInProjectException e) {
-            redirectAttributes.addFlashAttribute(REDIRECT_MESSAGES_FAILED,
-                    Collections.singletonList(
-                            messageSource.getMessage("project.no_admins.exception",
-                                    null,
-                                    Locale.getDefault())));
-        }
-        return "redirect:myprojects";
+        projectRoleService.leaveProject(optionalProject.get(), current);
     }
 
     @PostMapping("changeName")
