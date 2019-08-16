@@ -131,13 +131,13 @@ public class TaskController {
         taskValidator.validate(task, bindingResult);
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
-        } else {
-            Optional<Task> optionalTask = taskRepository.findById(task.getId());
-            if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
-                taskService.updateTaskDetails(optionalTask.get(), task);
-            }
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        Optional<Task> optionalTask = taskRepository.findById(task.getId());
+        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
+            taskService.updateTaskDetails(optionalTask.get(), task);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping("assignUser")

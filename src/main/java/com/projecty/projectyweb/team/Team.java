@@ -6,7 +6,6 @@ import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.team.role.TeamRole;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity
@@ -15,7 +14,6 @@ public class Team {
     @GeneratedValue
     private Long id;
 
-    @NotBlank
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

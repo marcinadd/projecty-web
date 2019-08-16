@@ -8,7 +8,6 @@ import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,11 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -56,6 +54,10 @@ public class TaskControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
+    private Project project;
+
+    private Task task;
+
     @Before
     public void setup() {
         User user = new User();
@@ -65,7 +67,7 @@ public class TaskControllerTests {
         user1.setId(2L);
         user1.setUsername("user1");
 
-        Project project = new Project();
+        project = new Project();
         project.setName("Test");
         project.setId(1L);
 
@@ -98,7 +100,7 @@ public class TaskControllerTests {
 
 
         List<Task> tasks = new ArrayList<>();
-        Task task = new Task();
+        task = new Task();
         task.setId(1L);
         task.setName("Test task");
         task.setProject(project);
@@ -127,28 +129,29 @@ public class TaskControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnMyProject_shouldReturnMyprojectsViewWithTask() throws Exception {
+    public void givenRequestOnMyProject_shouldReturnMap() throws Exception {
         mockMvc.perform(get("/project/task/taskList?projectId=1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/task/task-list"))
-                .andExpect(model().attribute("project", hasProperty("name", Matchers.equalTo("Test"))))
-                .andExpect(model().attribute("project", hasProperty("tasks", hasItem(Matchers.<Task>hasProperty("name", Matchers.equalTo("Test task"))))));
+                .andExpect(jsonPath("$.toDoTasks").isArray())
+                .andExpect(jsonPath("$.inProgressTasks").isArray())
+                .andExpect(jsonPath("$.doneTasks").isArray())
+                .andExpect(jsonPath("$.project.name").value(project.getName()))
+                .andExpect(jsonPath("$.hasPermissionToEdit").value(true));
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnDeleteTask_shouldRedirectToTaskListView() throws Exception {
+    public void givenRequestOnDeleteTask_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:taskList"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnAddTask_shouldReturnAddTaskView() throws Exception {
-        mockMvc.perform(get("/project/task/addtasks?projectId=1"))
+    public void givenRequestOnAddTask_shouldReturnProject() throws Exception {
+        mockMvc.perform(get("/project/task/addTask?projectId=1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/task/add-task"));
+                .andExpect(jsonPath("$.name").value(project.getName()));
     }
 
     @Test
@@ -160,24 +163,24 @@ public class TaskControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnChangeStatus_shouldRedirectToTaskListView() throws Exception {
+    public void givenRequestOnChangeStatus_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&status=DONE"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:taskList"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnManageTask_shouldReturnManageTaskView() throws Exception {
+    public void givenRequestOnManageTask_shouldReturnMap() throws Exception {
         mockMvc.perform(get("/project/task/manageTask?taskId=1"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("task"))
-                .andExpect(view().name("fragments/task/manage-task"));
+                .andExpect(jsonPath("$.task.name").value(task.getName()))
+                .andExpect(jsonPath("$.projectId").value(task.getProject().getId()))
+                .andExpect(jsonPath("$.notAssignedUsernames").isArray());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnEditTaskDetails_shouldRedirectToManageTask() throws Exception {
+    public void givenRequestOnEditTaskDetails_shouldReturnOk() throws Exception {
         Task task = new Task();
         task.setId(1L);
         task.setName("Sample name");
@@ -186,24 +189,20 @@ public class TaskControllerTests {
         task.setStatus(TaskStatus.TO_DO);
         mockMvc.perform(post("/project/task/editTaskDetails")
                 .flashAttr("task", task))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:taskList"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnAssignUser_shouldRedirectToManageTask() throws Exception {
+    public void givenRequestOnAssignUser_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/project/task/assignUser?taskId=1&username=user1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:manageTask"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnRemoveAssignment_shouldRedirectToManageTask() throws Exception {
+    public void givenRequestOnRemoveAssignment_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/project/task/removeAssignment?taskId=1&username=user1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:manageTask"));
+                .andExpect(status().isOk());
     }
-
 }

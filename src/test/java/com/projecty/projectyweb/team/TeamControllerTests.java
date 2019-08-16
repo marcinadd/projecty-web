@@ -31,7 +31,8 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -61,6 +62,7 @@ public class TeamControllerTests {
 
     private Team team;
     private Project project;
+    private Project newProject;
 
     @Before
     public void init() {
@@ -85,13 +87,26 @@ public class TeamControllerTests {
         teamRole.setName(TeamRoles.MANAGER);
         teamRole.setTeam(team);
 
+        TeamRole teamRole2 = new TeamRole();
+        teamRole2.setId(4L);
+        teamRole2.setUser(user1);
+        teamRole2.setName(TeamRoles.MANAGER);
+        teamRole2.setTeam(team);
+
         List<TeamRole> teamRoles = new ArrayList<>();
         teamRoles.add(teamRole);
+        teamRoles.add(teamRole2);
 
         team.setTeamRoles(teamRoles);
         user.setTeamRoles(teamRoles);
         project = new Project();
         project.setName("Sample");
+        List<Project> projects = new ArrayList<>();
+        projects.add(project);
+        team.setProjects(projects);
+
+        newProject = new Project();
+        newProject.setName("Sample new project");
 
         Mockito.when(teamRepository.findById(team.getId()))
                 .thenReturn(java.util.Optional.ofNullable(team));
@@ -126,149 +141,116 @@ public class TeamControllerTests {
         Mockito.when(teamRoleRepository.findById(teamRole.getId()))
                 .thenReturn(java.util.Optional.of(teamRole));
 
+        Mockito.when(teamRoleRepository.findByTeamAndAndUser(team, user))
+                .thenReturn(java.util.Optional.of(teamRole));
     }
 
     @Test
     @WithMockUser
-    public void givenGetRequestOnMyTeams_shouldReturnMyTeamsView() throws Exception {
+    public void givenGetRequestOnMyTeams_shouldReturnMyTeamRoles() throws Exception {
         mockMvc.perform(get("/team/myTeams"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("teamRoles"))
-                .andExpect(view().name("fragments/team/my-teams"));
+                .andExpect(jsonPath("$").isArray());
     }
 
     @Test
     @WithMockUser
-    public void givenGetRequestOnAddTeam_shouldReturnAddTeamView() throws Exception {
-        mockMvc.perform(get("/team/addTeam"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("team"))
-                .andExpect(view().name("fragments/team/add-team"));
-    }
-
-    @Test
-    @WithMockUser
-    public void givenPostRequestOnAddTeam_shouldReturnMyTeamsView() throws Exception {
+    public void givenPostRequestOnAddTeam_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/team/addTeam")
                 .flashAttr("team", team))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/team/myTeams"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenGetRequestOnAddTeamProject_shouldReturnAddTeamProjectView() throws Exception {
-        mockMvc.perform(get("/team/addTeamProject"))
+    public void givenGetRequestOnAddTeamProject_shouldReturnTeamRoles() throws Exception {
+        mockMvc.perform(get("/team/addProjectToTeam"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("project"))
-                .andExpect(view().name("fragments/team/add-project-team"));
+                .andExpect(jsonPath("$").isArray());
     }
 
     @Test
     @WithMockUser
-    public void givenGetRequestOnAddTeamProjectForSpecifiedTeam_shouldReturnAddTeamProjectViewForSpecifiedTeam() throws Exception {
-        mockMvc.perform(get("/team/addTeamProject")
+    public void givenGetRequestOnAddTeamProjectForSpecifiedTeam_shouldRetunTeamName() throws Exception {
+        mockMvc.perform(get("/team/addProjectToTeam")
                 .param("teamId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("project"))
-                .andExpect(view().name("fragments/team/add-project-specified-team"));
+                .andExpect(jsonPath("$").isString());
     }
 
     @Test
     @WithMockUser
-    public void givenPostRequestOnAddTeamProject_shouldRedirectToMyTeams() throws Exception {
-        mockMvc.perform(post("/team/addTeamProject")
-                .flashAttr("project", project)
+    public void givenPostRequestOnAddTeamProject_shouldReturnOk() throws Exception {
+        mockMvc.perform(post("/team/addProjectToTeam")
+                .flashAttr("project", newProject)
                 .param("teamId", "1"))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/team/myTeams"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenGetRequestOnManageTeam_shouldReturnManageTeamView() throws Exception {
+    public void givenGetRequestOnManageTeam_shouldReturnMap() throws Exception {
         mockMvc.perform(get("/team/manageTeam")
                 .param("teamId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/team/manage-team"));
+                .andExpect(jsonPath("$.team").isNotEmpty())
+                .andExpect(jsonPath("$.currentUser").isNotEmpty())
+                .andExpect(jsonPath("$.teamRoles").isNotEmpty());
     }
 
     @Test
     @WithMockUser
-    public void givenPostRequestOnChangeName_shouldRedirectToManageTeam() throws Exception {
+    public void givenPostRequestOnChangeName_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/team/changeName")
                 .param("teamId", "1")
                 .param("newName", "New name"))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/team/manageTeam?teamId=1"));
+                .andExpect(status().isOk());
     }
 
     // TODO: 6/28/19 Check if user has been added
     @Test
     @WithMockUser
-    public void givenPostRequestOnAddUsersToTeam_shouldRedirectToManageTeam() throws Exception {
+    public void givenPostRequestOnAddUsersToTeam_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/team/addUsers")
                 .param("teamId", "1")
                 .param("usernames", "user1"))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/team/manageTeam?teamId=1"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnDeleteTeamRole_shouldRedirectToManageUsers() throws Exception {
+    public void givenRequestOnDeleteTeamRole_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/team/deleteTeamRole")
-                .param("teamId", "1")
                 .param("teamRoleId", "4"))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/team/manageTeam?teamId=1"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnChangeTeamRole_shouldRedirectToManageUsers() throws Exception {
+    public void givenRequestOnChangeTeamRole_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/team/changeTeamRole")
                 .param("teamId", "1")
                 .param("teamRoleId", "4")
                 .param("newRoleName", String.valueOf(TeamRoles.MEMBER)))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/team/manageTeam?teamId=1"));
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnProjectList_shouldReturnTeamProjectList() throws Exception {
+    public void givenRequestOnProjectList_shouldReturnMap() throws Exception {
         mockMvc.perform(get("/team/projectList")
                 .param("teamId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/team/project-list"));
+                .andExpect(jsonPath("$.teamName").value(team.getName()))
+                .andExpect(jsonPath("$.projects").exists())
+                .andExpect(jsonPath("$.isCurrentUserTeamManager").exists());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnDeleteTeamConfirm_shouldReturnDeleteTeamConfirmView() throws Exception {
-        mockMvc.perform(get("/team/deleteTeamConfirm")
-                .param("teamId", "1"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("team"))
-                .andExpect(view().name("fragments/team/delete-team-confirm"));
-    }
-
-    @Test
-    @WithMockUser
-    public void givenRequestOnLeaveTeamConfirm_shouldReturnLeaveTeamView() throws Exception {
-        mockMvc.perform(get("/team/leaveTeamConfirm")
-                .param("teamId", "1"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("team"))
-                .andExpect(view().name("fragments/team/leave-team-confirm"));
-    }
-
-    @Test
-    @WithMockUser
-    public void givenRequestOnLeaveTeamPost_shouldRedirectToMyTeams() throws Exception {
+    public void givenRequestOnLeaveTeamPost_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/team/leaveTeam")
                 .param("teamId", "1"))
-                .andExpect(view().name("redirect:/team/myTeams"));
+                .andExpect(status().isOk());
     }
 }

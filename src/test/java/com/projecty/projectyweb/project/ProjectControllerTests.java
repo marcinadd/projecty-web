@@ -4,6 +4,9 @@ import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.team.Team;
+import com.projecty.projectyweb.team.role.TeamRole;
+import com.projecty.projectyweb.team.role.TeamRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -26,7 +29,8 @@ import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -46,10 +50,10 @@ public class ProjectControllerTests {
     private MockMvc mockMvc;
 
     private Project project;
-
+    private User user;
     @Before
     public void setup() {
-        User user = new User();
+        user = new User();
         user.setId(1L);
         user.setUsername("user");
         User user1 = new User();
@@ -76,6 +80,14 @@ public class ProjectControllerTests {
         projectRole1.setName(ProjectRoles.USER);
         projectRoles.add(projectRole1);
 
+        Team team = new Team();
+        TeamRole teamRole = new TeamRole();
+        teamRole.setName(TeamRoles.MANAGER);
+        teamRole.setTeam(team);
+        teamRole.setUser(user);
+
+        List<TeamRole> teamRoles = new ArrayList<>();
+        user.setTeamRoles(teamRoles);
 
         List<ProjectRole> rolesUser = new ArrayList<>();
         rolesUser.add(projectRole);
@@ -113,71 +125,62 @@ public class ProjectControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnMyProject_shouldReturnMyprojectsView() throws Exception {
-        mockMvc.perform(get("/project/myprojects"))
+    public void givenRequestOnMyProject_shouldReturnProjectRolesAndTeamRoles() throws Exception {
+        mockMvc.perform(get("/project/myProjects"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("projectRoles"))
-                .andExpect(view().name("fragments/project/my-projects"));
+                .andExpect(jsonPath("projectRoles").exists())
+                .andExpect(jsonPath("teamRoles").exists());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnAddProject_shouldReturnAddprojectView() throws Exception {
-        mockMvc.perform(get("/project/addproject"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("fragments/project/add-project"));
-    }
-
-    @Test
-    @WithMockUser
-    public void givenRequestOnPostFormWithoutOtherUsers_shouldRedirectToMyProjects() throws Exception {
-        mockMvc.perform(post("/project/addproject")
+    public void givenRequestOnPostFormWithoutOtherUsers_shouldReturnOk() throws Exception {
+        mockMvc.perform(post("/project/addProject")
                 .flashAttr("project", project))
-                .andExpect(redirectedUrl("/project/myprojects"))
-                .andExpect(status().isFound());
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnManageProject_shouldReturnUserList() throws Exception {
+    public void givenRequestOnManageProject_shouldReturnMap() throws Exception {
         mockMvc.perform(get("/project/manageProject?projectId=1")
                 .flashAttr("project", project))
                 .andExpect(status().isOk())
-                .andExpect(view().name("/fragments/project/manage-project"));
+                .andExpect(jsonPath("$.project").isNotEmpty())
+                .andExpect(jsonPath("$.projectRoles").isArray())
+                .andExpect(jsonPath("$.currentUser.username").value(user.getUsername()));
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnDeleteUser_shouldRedirectToManageProject() throws Exception {
-        mockMvc.perform(post("/project/deleteuser?projectId=1&userId=2"))
-                .andExpect(redirectedUrl("/project/manageProject?projectId=1"))
-                .andExpect(status().isFound());
+    public void givenRequestOnDeleteUser_shouldReturnOk() throws Exception {
+        mockMvc.perform(post("/project/deleteUser?projectId=1&userId=2"))
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnAddUsers_shouldRedirectToManageProject() throws Exception {
+    public void givenRequestOnAddUsers_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/project/addUsers?projectId=1")
                 .param("usernames", "user1"))
-                .andExpect(redirectedUrl("/project/manageProject?projectId=1"))
-                .andExpect(status().isFound());
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnChangeRole_shouldRedirect() throws Exception {
+    public void givenRequestOnChangeRole_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/project/changeRole?projectId=1&roleId=2&newRoleName=USER"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnChangeName_shouldRedirectToManageProject() throws Exception {
+    public void givenRequestOnChangeName_shouldReturnOk() throws Exception {
         Project editedProject = new Project();
         editedProject.setId(1L);
         editedProject.setName("New sample project");
         mockMvc.perform(post("/project/changeName")
                 .flashAttr("project", editedProject))
-                .andExpect(redirectedUrl("manageProject?projectId=1"));
+                .andExpect(status().isOk());
     }
 }

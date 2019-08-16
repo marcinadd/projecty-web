@@ -20,8 +20,8 @@ import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -74,67 +74,66 @@ public class MessageControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnSendMessageToUserWhichNotExists_shouldReturnError() throws Exception {
-        mockMvc.perform(post("/messages/sendMessage")
+    public void givenRequestOnSendMessageToUserWhichNotExists_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post("/message/sendMessage")
                 .flashAttr("message", message)
                 .param("recipientUsername", "notExistsUsername"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("fragments/message/send-message"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnSendMessageToYourself_shouldReturnError() throws Exception {
-        mockMvc.perform(post("/messages/sendMessage")
+    public void givenRequestOnSendMessageToYourself_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post("/message/sendMessage")
                 .flashAttr("message", message)
                 .param("recipientUsername", "user"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("fragments/message/send-message"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnSendMessage_shouldRedirectToMessageList() throws Exception {
-        mockMvc.perform(post("/messages/sendMessage")
+    public void givenRequestOnSendMessage_shouldReturnOk() throws Exception {
+        mockMvc.perform(post("/message/sendMessage")
                 .flashAttr("message", message)
                 .param("recipientUsername", recipientUsername))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/messages/messageList"));
-    }
-
-    @Test
-    @WithMockUser
-    public void givenRequestOnViewMessage_shouldReturnViewMessageView() throws Exception {
-        mockMvc.perform(get("/messages/viewMessage?messageId=1"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
+    public void givenRequestOnViewMessage_shouldReturnMessage() throws Exception {
+        mockMvc.perform(get("/message/viewMessage?messageId=1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text").value(message.getText()));
+    }
+
+    @Test
+    @WithMockUser
     public void givenRequestOnViewMessageWhichNotExistsOrForbidden_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(get("/messages/viewMessage?messageId=2"))
+        mockMvc.perform(get("/message/viewMessage?messageId=2"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnMessageList_shouldReturnReceivedMessageListView() throws Exception {
-        mockMvc.perform(get("/messages/messageList"))
-                .andExpect(view().name("fragments/message/received-message-list"));
+    public void givenRequestOnReceivedMessages_shouldReturnReceivedMessages() throws Exception {
+        mockMvc.perform(get("/message/receivedMessages"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnMessageListWithTypeReceived_shouldReturnReceivedMessageListView() throws Exception {
-        mockMvc.perform(get("/messages/messageList?type=received"))
-                .andExpect(view().name("fragments/message/received-message-list"));
+    public void givenRequestOnSentMessages_shouldReturnSentMessages() throws Exception {
+        mockMvc.perform(get("/message/sentMessages"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnMessageListWithTypeSent_shouldReturnReceivedMessageListView() throws Exception {
-        mockMvc.perform(get("/messages/messageList?type=sent"))
-                .andExpect(view().name("fragments/message/sent-message-list"));
+    public void givenRequestOnGetUnreadMessageCount_shouldReturnNumber() throws Exception {
+        mockMvc.perform(get("/message/getUnreadMessageCount"))
+                .andExpect(jsonPath("$").isNumber());
     }
-
 }

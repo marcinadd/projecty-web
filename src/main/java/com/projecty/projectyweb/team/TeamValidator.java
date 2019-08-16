@@ -15,6 +15,6 @@ public class TeamValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "name.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "name.empty.team.name");
     }
 }

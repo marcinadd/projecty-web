@@ -47,7 +47,7 @@ public class ProjectController {
         this.projectRoleService = projectRoleService;
     }
 
-    @PostMapping("addproject")
+    @PostMapping("addProject")
     public void addProjectPost(
             @Valid @ModelAttribute Project project,
             @RequestParam(required = false) List<String> usernames,
@@ -104,13 +104,14 @@ public class ProjectController {
             User toDeleteUser = toDeleteOptionalUser.get();
             Project project = optionalProject.get();
             projectRoleService.deleteUserFromProject(toDeleteUser, project);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("changeRole")
     @EditPermission
-    public String changeRolePost(
+    public void changeRolePost(
             @RequestParam Long projectId,
             @RequestParam Long roleId,
             @RequestParam String newRoleName
@@ -120,8 +121,9 @@ public class ProjectController {
             ProjectRole projectRole = optionalRole.get();
             projectRole.setName(ProjectRoles.valueOf(newRoleName));
             projectRoleRepository.save(projectRole);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("manageProject")
@@ -158,7 +160,8 @@ public class ProjectController {
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             Project existingProject = optionalProject.get();
             projectService.changeName(existingProject, newProject.getName());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 }

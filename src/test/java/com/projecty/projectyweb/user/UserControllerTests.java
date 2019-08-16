@@ -18,8 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -43,6 +43,7 @@ public class UserControllerTests {
     @Before
     public void init() {
         user = new User();
+        user.setId(1L);
         user.setUsername("user");
         user.setEmail("admin@example.com");
         user.setPassword(encoder.encode("password123"));
@@ -51,37 +52,31 @@ public class UserControllerTests {
     }
 
     @Test
-    public void givenRequestOnLoginForm_shouldReturnLoginView() throws Exception {
-        mockMvc.perform(get("/login"))
+    @WithMockUser
+    public void givenRequestOnSettings_shouldReturnCurrentUser() throws Exception {
+        mockMvc.perform(get("/settings"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("fragments/user/login"));
-    }
-
-    @Test
-    public void givenRequestOnRegisterForm_shouldReturnRegisterView() throws Exception {
-        mockMvc.perform(get("/register"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("fragments/user/register"));
+                .andExpect(jsonPath("$.username").value(user.getUsername()))
+                .andExpect(jsonPath("$.id").value(user.getId()));
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnSettings_shouldReturnSettingsView() throws Exception {
-        mockMvc.perform(get("/settings").flashAttr("user", user))
-                .andExpect(status().isOk())
-                .andExpect(view().name("fragments/user/settings"));
-    }
-
-    @Test
-    @WithMockUser
-    public void givenRequestOnChangePasswordFormWithValidData_shouldRedirectToSettings() throws Exception {
+    public void givenRequestOnChangePasswordFormWithValidData_shouldReturnOk() throws Exception {
         mockMvc.perform(
                 post("/changePassword")
                         .param("currentPassword", "password123")
                         .param("newPassword", "newPassword123")
                         .param("repeatPassword", "newPassword123"))
-                .andExpect(view().name("redirect:/settings"));
+                .andExpect(status().isOk());
     }
 
-
+    @Test
+    @WithMockUser
+    public void givenRequestOnAuth_shouldReturnCurrentUser() throws Exception {
+        mockMvc.perform(get("/auth"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(user.getUsername()))
+                .andExpect(jsonPath("$.id").value(user.getId()));
+    }
 }

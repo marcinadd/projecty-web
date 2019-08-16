@@ -44,7 +44,7 @@ public class TeamController {
 
     @PostMapping("addTeam")
     public void addTeamPost(
-            @Valid @ModelAttribute Team team,
+            @ModelAttribute Team team,
             @RequestParam(required = false) List<String> usernames,
             BindingResult bindingResult
     ) throws BindException {
@@ -85,10 +85,12 @@ public class TeamController {
         Optional<Team> optionalTeam = teamRepository.findById(teamId);
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
-        } else if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            teamService.createProjectForTeam(optionalTeam.get(), project);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
+            teamService.createProjectForTeam(optionalTeam.get(), project);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("manageTeam")
@@ -133,8 +135,9 @@ public class TeamController {
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
         if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam())) {
             teamRoleRepository.delete(optionalTeamRole.get());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("changeTeamRole")
@@ -145,8 +148,9 @@ public class TeamController {
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findById(teamRoleId);
         if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam())) {
             teamRoleService.changeTeamRole(optionalTeamRole.get(), newRoleName);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("projectList")
