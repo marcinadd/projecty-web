@@ -8,11 +8,12 @@ import com.projecty.projectyweb.team.role.TeamRole;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 @Entity
 @JsonSerialize(using = UserSerializer.class)
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue
     private Long id;

@@ -3,6 +3,7 @@ package com.projecty.projectyweb.configurations;
 import com.projecty.projectyweb.user.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -51,15 +52,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http.csrf().disable().authorizeRequests()
-//                .antMatchers("/register*").permitAll()
-//                .antMatchers("/oauth/**").permitAll()
-//                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll().anyRequest().authenticated()
-//                .and().httpBasic();
-        http
-                .authorizeRequests()
-                .antMatchers("/actuator/health").permitAll()
-                .anyRequest().denyAll()
+        http.csrf().disable().authorizeRequests()
+                .antMatchers("/register*")
+                .permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
                 .and()
                 .formLogin()
                 .disable();
