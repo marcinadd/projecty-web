@@ -90,19 +90,6 @@ public class TeamRoleService {
         teamRoleRepository.save(teamRole);
     }
 
-    @Deprecated
-    private int getTeamManagersCount(Team team) {
-        List<TeamRole> teamRoles = team.getTeamRoles();
-        List<TeamRole> managers = new ArrayList<>();
-        for (TeamRole teamRole : teamRoles
-        ) {
-            if (teamRole.getName().equals(TeamRoles.MANAGER)) {
-                managers.add(teamRole);
-            }
-        }
-        return managers.size();
-    }
-
     public List<TeamRole> getTeamRolesWhereManager(User user) {
         List<TeamRole> managerTeamRoles = new ArrayList<>();
         for (TeamRole teamRole : user.getTeamRoles()
@@ -118,7 +105,7 @@ public class TeamRoleService {
         Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(team, user);
         if (optionalTeamRole.isPresent()) {
             team.getTeamRoles().remove(optionalTeamRole.get());
-            if (getTeamManagersCount(team) == 0) {
+            if (teamRoleRepository.countByTeamAndName(team, TeamRoles.MANAGER) == 0) {
                 throw new NoManagersInTeamException();
             }
             teamRepository.save(team);

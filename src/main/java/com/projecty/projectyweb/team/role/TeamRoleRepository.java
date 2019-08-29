@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface TeamRoleRepository extends JpaRepository<TeamRole, Long> {
     Optional<TeamRole> findByTeamAndAndUser(Team team, User user);
     List<TeamRole> findByTeam(Team team);
+    int countByTeamAndName(Team project, TeamRoles name);
 }
