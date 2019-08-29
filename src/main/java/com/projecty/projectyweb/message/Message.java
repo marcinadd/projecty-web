@@ -1,10 +1,12 @@
 package com.projecty.projectyweb.message;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projecty.projectyweb.user.User;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.sql.Blob;
 import java.util.Date;
 
 @Entity
@@ -31,6 +33,11 @@ public class Message {
 
     @NotBlank
     private String text;
+
+    @JsonIgnore
+    private Blob file;
+
+    private String fileName;
 
     public Long getId() {
         return id;
@@ -86,5 +93,21 @@ public class Message {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Blob getFile() {
+        return file;
+    }
+
+    public void setFile(Blob file) {
+        this.file = file;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

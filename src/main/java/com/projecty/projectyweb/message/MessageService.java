@@ -7,7 +7,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.rowset.serial.SerialBlob;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.Optional;
@@ -45,7 +49,7 @@ public class MessageService {
         }
     }
 
-    public void sendMessage(String recipientUsername, Message message, BindingResult bindingResult) {
+    public void sendMessage(String recipientUsername, Message message, BindingResult bindingResult, MultipartFile multipartFile) throws IOException, SQLException {
         Optional<User> recipient = userRepository.findByUsername(recipientUsername);
         User sender = userService.getCurrentUser();
         if (!recipient.isPresent()) {
@@ -57,6 +61,10 @@ public class MessageService {
         } else {
             message.setSender(sender);
             message.setRecipient(recipient.get());
+            if (multipartFile != null) {
+                message.setFile(new SerialBlob(multipartFile.getBytes()));
+                message.setFileName(multipartFile.getOriginalFilename());
+            }
             messageRepository.save(message);
         }
     }

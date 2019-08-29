@@ -1,26 +1,27 @@
 # Projecty Web
-Projecty project management app based on spring.
+Projecty is a project management app based on spring.
 
 ## Motivation
-My main assumption is to create a free and open source focused on privacy project management application for everyone.
-I know that project data are really sensitive so you feel better when you are owner of them.
+My main assumption is to create a free and open-source focused on privacy project management application for everyone.
+I know that project data are really sensitive so you feel better when you are the owner of them.
 And for those who do not have a server, 
 Projecty will be available on the hosted server completely free (in the future).
 
 ## Note
-App is in early beta versions. It works but layout isn't perfect. My priorities are to develop backend not frontend.
+The app is in early beta versions. It works but the layout isn't perfect. My priorities are to develop backend not frontend.
 
 ## Getting Started
 1. Clone repository
 1. Import it to your favourite IDE
-1. **Remember to edit application.properites**
+1. **Remember to edit application.properties**
     ```
-    spring.datasource.url=jdbc:mysql://db_host:db_port/db_name?serverTimezone=UTC
+    spring.datasource.url=jdbc:mysql://db_host:db_port/db_name
     spring.datasource.username=db_user
     spring.datasource.password=db_password
     ```
     Make sure that this user have full access to database
 1. Build app, run it and enjoy
+1. Remember to check if timezone is set corectly
 
 ## Prerequisites
 * JRE ≥ 1.8

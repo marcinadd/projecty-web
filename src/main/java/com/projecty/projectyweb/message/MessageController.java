@@ -2,13 +2,19 @@ package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,13 +50,35 @@ public class MessageController {
     @PostMapping("sendMessage")
     public void sendMessagePost(
             @RequestParam String recipientUsername,
-            @Valid @ModelAttribute Message message,
-            BindingResult bindingResult
-    ) throws BindException {
-            messageService.sendMessage(recipientUsername,message,bindingResult);
+            @ModelAttribute Message message,
+            BindingResult bindingResult,
+            @RequestParam(required = false) MultipartFile multipartFile
+
+    ) throws BindException, IOException, SQLException {
+        messageService.sendMessage(recipientUsername, message, bindingResult, multipartFile);
             if (bindingResult.hasErrors()) {
                 throw new BindException(bindingResult);
             }
+    }
+
+    @GetMapping(value = "downloadFile")
+    public @ResponseBody
+    byte[] downloadFile(
+            @RequestParam Long messageId,
+            HttpServletResponse response
+    ) throws IOException, SQLException {
+
+        Optional<Message> optionalMessage = messageRepository.findById(messageId);
+        if (optionalMessage.isPresent()) {
+            Message message = optionalMessage.get();
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment; filename=" + message.getFileName());
+            response.flushBuffer();
+            Blob blob = message.getFile();
+            InputStream inputStream = blob.getBinaryStream();
+            return IOUtils.toByteArray(inputStream);
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("viewMessage")
