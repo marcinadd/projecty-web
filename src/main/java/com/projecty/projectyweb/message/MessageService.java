@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.message;
 
+import com.projecty.projectyweb.message.attachment.AttachmentService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -7,7 +8,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.Optional;
@@ -19,12 +23,14 @@ public class MessageService {
     private static MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final MessageSource messageSource;
+    private final AttachmentService attachmentService;
 
-    public MessageService(UserService userService, MessageRepository messageRepository, UserRepository userRepository, MessageSource messageSource) {
+    public MessageService(UserService userService, MessageRepository messageRepository, UserRepository userRepository, MessageSource messageSource, AttachmentService attachmentService) {
         MessageService.userService = userService;
         MessageService.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.messageSource = messageSource;
+        this.attachmentService = attachmentService;
     }
 
     public int getUnreadMessageCountForCurrentUser() {
@@ -45,7 +51,7 @@ public class MessageService {
         }
     }
 
-    public void sendMessage(String recipientUsername, Message message, BindingResult bindingResult) {
+    public void sendMessage(String recipientUsername, Message message, BindingResult bindingResult, MultipartFile[] multipartFiles) throws IOException, SQLException {
         Optional<User> recipient = userRepository.findByUsername(recipientUsername);
         User sender = userService.getCurrentUser();
         if (!recipient.isPresent()) {
@@ -57,6 +63,9 @@ public class MessageService {
         } else {
             message.setSender(sender);
             message.setRecipient(recipient.get());
+            if (multipartFiles != null) {
+                attachmentService.addFilesToMessage(multipartFiles, message);
+            }
             messageRepository.save(message);
         }
     }

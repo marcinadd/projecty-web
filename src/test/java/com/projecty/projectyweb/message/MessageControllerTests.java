@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,9 +40,10 @@ public class MessageControllerTests {
 
     private Message message;
     private String recipientUsername;
+    private byte[] file;
 
     @Before
-    public void init() {
+    public void init() throws SQLException {
         User user = new User();
         user.setId(1L);
         user.setUsername("user");
@@ -59,6 +61,9 @@ public class MessageControllerTests {
         recipientUsername = "user1";
         message.setRecipient(user);
         message.setSender(user1);
+        //message.setFileName("sample.txt");
+        file = new byte[]{0, 1, 2, 3, 4, 5};
+        //message.setFile(new SerialBlob(file));
 
         Mockito.when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.of(user));
@@ -135,5 +140,12 @@ public class MessageControllerTests {
     public void givenRequestOnGetUnreadMessageCount_shouldReturnNumber() throws Exception {
         mockMvc.perform(get("/message/getUnreadMessageCount"))
                 .andExpect(jsonPath("$").isNumber());
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnDownloadFile_shouldReturnFileToDownload() throws Exception {
+        mockMvc.perform(get("/message/downloadFile?messageId=1"))
+                .andExpect(status().isOk());
     }
 }

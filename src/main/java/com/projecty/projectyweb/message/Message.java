@@ -1,11 +1,13 @@
 package com.projecty.projectyweb.message;
 
+import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.user.User;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Message {
@@ -31,6 +33,12 @@ public class Message {
 
     @NotBlank
     private String text;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Attachment> attachments;
 
     public Long getId() {
         return id;
@@ -86,5 +94,13 @@ public class Message {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 }
