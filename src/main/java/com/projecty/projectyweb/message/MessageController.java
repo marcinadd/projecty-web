@@ -1,8 +1,9 @@
 package com.projecty.projectyweb.message;
 
+import com.projecty.projectyweb.message.attachment.Attachment;
+import com.projecty.projectyweb.message.attachment.AttachmentService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
-import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -12,8 +13,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -29,10 +28,13 @@ public class MessageController {
 
     private final MessageService messageService;
 
-    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService) {
+    private final AttachmentService attachmentService;
+
+    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, AttachmentService attachmentService) {
         this.userService = userService;
         this.messageRepository = messageRepository;
         this.messageService = messageService;
+        this.attachmentService = attachmentService;
     }
 
     @GetMapping("receivedMessages")
@@ -52,10 +54,10 @@ public class MessageController {
             @RequestParam String recipientUsername,
             @ModelAttribute Message message,
             BindingResult bindingResult,
-            @RequestParam(required = false) MultipartFile multipartFile
+            @RequestParam(required = false) MultipartFile[] multipartFiles
 
     ) throws BindException, IOException, SQLException {
-        messageService.sendMessage(recipientUsername, message, bindingResult, multipartFile);
+        messageService.sendMessage(recipientUsername, message, bindingResult, multipartFiles);
             if (bindingResult.hasErrors()) {
                 throw new BindException(bindingResult);
             }
@@ -65,18 +67,18 @@ public class MessageController {
     public @ResponseBody
     byte[] downloadFile(
             @RequestParam Long messageId,
+            @RequestParam(required = false, defaultValue = "0") Long fileId,
             HttpServletResponse response
     ) throws IOException, SQLException {
 
         Optional<Message> optionalMessage = messageRepository.findById(messageId);
         if (optionalMessage.isPresent()) {
             Message message = optionalMessage.get();
+            Attachment attachment = message.getAttachments().get(Math.toIntExact(fileId));
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment; filename=" + message.getFileName());
+            response.setHeader("Content-Disposition", "attachment; filename=" + attachment.getFileName());
             response.flushBuffer();
-            Blob blob = message.getFile();
-            InputStream inputStream = blob.getBinaryStream();
-            return IOUtils.toByteArray(inputStream);
+            return attachmentService.getByteArrayFromAttachment(attachment);
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }

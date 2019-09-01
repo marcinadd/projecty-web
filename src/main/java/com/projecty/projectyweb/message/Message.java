@@ -1,13 +1,13 @@
 package com.projecty.projectyweb.message;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.user.User;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.sql.Blob;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Message {
@@ -34,10 +34,11 @@ public class Message {
     @NotBlank
     private String text;
 
-    @JsonIgnore
-    private Blob file;
-
-    private String fileName;
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Attachment> attachments;
 
     public Long getId() {
         return id;
@@ -95,19 +96,11 @@ public class Message {
         this.text = text;
     }
 
-    public Blob getFile() {
-        return file;
+    public List<Attachment> getAttachments() {
+        return attachments;
     }
 
-    public void setFile(Blob file) {
-        this.file = file;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 }

@@ -16,7 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.sql.rowset.serial.SerialBlob;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -62,9 +61,9 @@ public class MessageControllerTests {
         recipientUsername = "user1";
         message.setRecipient(user);
         message.setSender(user1);
-        message.setFileName("sample.txt");
+        //message.setFileName("sample.txt");
         file = new byte[]{0, 1, 2, 3, 4, 5};
-        message.setFile(new SerialBlob(file));
+        //message.setFile(new SerialBlob(file));
 
         Mockito.when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.of(user));
