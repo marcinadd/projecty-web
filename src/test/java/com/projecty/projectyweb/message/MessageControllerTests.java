@@ -1,6 +1,7 @@
 package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.ProjectyWebApplication;
+import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Before;
@@ -17,7 +18,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+
+import javax.sql.rowset.serial.SerialBlob;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -64,6 +69,15 @@ public class MessageControllerTests {
         //message.setFileName("sample.txt");
         file = new byte[]{0, 1, 2, 3, 4, 5};
         //message.setFile(new SerialBlob(file));
+
+        // set attachment
+		List<Attachment> attachments = new ArrayList<>();
+		Attachment attachment = new Attachment();
+		attachment.setFile(new SerialBlob(file));
+		attachment.setFileName("testFileName");
+		attachments.add(attachment);
+		message.setAttachments(attachments);
+
 
         Mockito.when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.of(user));
