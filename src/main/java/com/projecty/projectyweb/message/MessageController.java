@@ -74,11 +74,15 @@ public class MessageController {
         Optional<Message> optionalMessage = messageRepository.findById(messageId);
         if (optionalMessage.isPresent()) {
             Message message = optionalMessage.get();
-            Attachment attachment = message.getAttachments().get(Math.toIntExact(fileId));
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment; filename=" + attachment.getFileName());
-            response.flushBuffer();
-            return attachmentService.getByteArrayFromAttachment(attachment);
+            Attachment attachment = null;
+			if (message != null && message.getAttachments() != null) {
+				attachment = message.getAttachments().get(Math.toIntExact(fileId));
+				response.setContentType("application/octet-stream");
+				response.setHeader("Content-Disposition", "attachment; filename=" + attachment.getFileName());
+				response.flushBuffer();
+			}
+			if (attachment != null)
+				return attachmentService.getByteArrayFromAttachment(attachment);
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
