@@ -1,15 +1,14 @@
 package com.projecty.projectyweb.message;
 
+import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.message.attachment.AttachmentService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -64,35 +63,30 @@ public class MessageController {
     }
 
     @GetMapping(value = "downloadFile")
+    @AnyPermission
     public @ResponseBody
     byte[] downloadFile(
             @RequestParam Long messageId,
             @RequestParam(required = false, defaultValue = "0") Long fileId,
             HttpServletResponse response
     ) throws IOException, SQLException {
-
         Optional<Message> optionalMessage = messageRepository.findById(messageId);
-        if (optionalMessage.isPresent()) {
-            Message message = optionalMessage.get();
-            Attachment attachment = message.getAttachments().get(Math.toIntExact(fileId));
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment; filename=" + attachment.getFileName());
-            response.flushBuffer();
-            return attachmentService.getByteArrayFromAttachment(attachment);
-        }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        Message message = optionalMessage.get();
+        Attachment attachment = message.getAttachments().get(Math.toIntExact(fileId));
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=" + attachment.getFileName());
+        response.flushBuffer();
+        return attachmentService.getByteArrayFromAttachment(attachment);
     }
 
     @GetMapping("viewMessage")
+    @AnyPermission
     public Message viewMessage(
             @RequestParam Long messageId
     ) {
         Optional<Message> optMessage = messageRepository.findById(messageId);
-        if (optMessage.isPresent() && messageService.checkIfCurrentUserHasPermissionToView(optMessage.get())) {
-            messageService.updateSeenDate(optMessage.get());
-            return optMessage.get();
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        messageService.updateSeenDate(optMessage.get());
+        return optMessage.get();
     }
 
     @GetMapping("getUnreadMessageCount")
