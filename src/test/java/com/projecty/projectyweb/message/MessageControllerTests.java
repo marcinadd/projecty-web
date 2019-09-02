@@ -1,6 +1,7 @@
 package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.ProjectyWebApplication;
+import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Before;
@@ -16,7 +17,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.sql.rowset.serial.SerialBlob;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -40,7 +43,6 @@ public class MessageControllerTests {
 
     private Message message;
     private String recipientUsername;
-    private byte[] file;
 
     @Before
     public void init() throws SQLException {
@@ -54,6 +56,10 @@ public class MessageControllerTests {
         user1.setUsername("user1");
         user1.setEmail("user1@example.com");
 
+        User user2 = new User();
+        user2.setId(3L);
+        user2.setUsername("user2");
+
         message = new Message();
         message.setId(1L);
         message.setText("This is sample message");
@@ -61,9 +67,10 @@ public class MessageControllerTests {
         recipientUsername = "user1";
         message.setRecipient(user);
         message.setSender(user1);
-        //message.setFileName("sample.txt");
-        file = new byte[]{0, 1, 2, 3, 4, 5};
-        //message.setFile(new SerialBlob(file));
+        byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
+        Attachment attachment = new Attachment();
+        attachment.setFile(new SerialBlob(bytes));
+        message.setAttachments(Collections.singletonList(attachment));
 
         Mockito.when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.of(user));
@@ -73,6 +80,8 @@ public class MessageControllerTests {
                 .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
                 .thenReturn(Optional.of(user1));
+        Mockito.when(userRepository.findByUsername(user2.getUsername()))
+                .thenReturn(Optional.of(user2));
         Mockito.when(messageRepository.findById(message.getId()))
                 .thenReturn(Optional.ofNullable(message));
     }
@@ -114,7 +123,7 @@ public class MessageControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnViewMessageWhichNotExistsOrForbidden_shouldReturnNotFound() throws Exception {
+    public void givenRequestOnViewMessageWhichNotFound_shouldReturnNotFound() throws Exception {
         mockMvc.perform(get("/message/viewMessage?messageId=2"))
                 .andExpect(status().isNotFound());
     }
@@ -147,5 +156,19 @@ public class MessageControllerTests {
     public void givenRequestOnDownloadFile_shouldReturnFileToDownload() throws Exception {
         mockMvc.perform(get("/message/downloadFile?messageId=1"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser("user2")
+    public void givenRequestOnDownloadFileWithNoPermission_shouldReturnFileNotFound() throws Exception {
+        mockMvc.perform(get("/message/downloadFile?messageId=1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser("user2")
+    public void givenRequestOnMessageWithNoPermission_shouldReturnNotFound() throws Exception {
+        mockMvc.perform(get("/message/viewMessage?messageId=1"))
+                .andExpect(status().isNotFound());
     }
 }
