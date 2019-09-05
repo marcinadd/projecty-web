@@ -1,12 +1,9 @@
 plugins {
     id 'org.springframework.boot' version '2.1.7.RELEASE'
     id 'java'
-    id 'nebula.lint' version '6.1.4'
 }
 
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'nebula.lint'
-gradleLint.rules = ['all-dependency']
 
 group = 'com.projecty'
 version = '0.0.1-SNAPSHOT'
