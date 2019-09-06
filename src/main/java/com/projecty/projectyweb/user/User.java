@@ -14,6 +14,21 @@ import java.util.List;
 @Entity
 @JsonSerialize(using = UserSerializer.class)
 public class User implements Serializable {
+    public User(String username, String email, String password, String passwordRepeat, List<ProjectRole> projectRoles, List<TeamRole> teamRoles, List<Message> messagesFrom, List<Message> messagesTo, List<Task> assignedTasks) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.passwordRepeat = passwordRepeat;
+        this.projectRoles = projectRoles;
+        this.teamRoles = teamRoles;
+        this.messagesFrom = messagesFrom;
+        this.messagesTo = messagesTo;
+        this.assignedTasks = assignedTasks;
+    }
+
+    public User() {
+    }
+
     @Id
     @GeneratedValue
     private Long id;

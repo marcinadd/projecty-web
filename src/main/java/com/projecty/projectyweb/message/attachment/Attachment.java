@@ -9,6 +9,14 @@ import java.sql.Blob;
 
 @Entity
 public class Attachment {
+    public Attachment(String fileName, Blob file) {
+        this.fileName = fileName;
+        this.file = file;
+    }
+
+    public Attachment() {
+
+    }
     @Id
     @GeneratedValue
     private long id;

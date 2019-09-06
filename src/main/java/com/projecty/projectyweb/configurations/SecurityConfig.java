@@ -14,9 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-//@EnableWebSecurity
-//@EnableAspectJAutoProxy
-//@CrossOrigin(origins = "*")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final MyUserDetailsService myUserDetailsService;
@@ -26,7 +23,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(authenticationProvider());
     }
 

@@ -18,13 +18,9 @@ import java.util.*;
 @RequestMapping("project/task")
 public class TaskController {
     private final ProjectRepository projectRepository;
-
     private final ProjectService projectService;
-
     private final TaskValidator taskValidator;
-
     private final TaskRepository taskRepository;
-
     private final TaskService taskService;
 
     public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, TaskService taskService, MessageSource messageSource) {
