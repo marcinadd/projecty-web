@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -84,11 +85,20 @@ public class MessageControllerTests {
                 .thenReturn(Optional.of(user2));
         Mockito.when(messageRepository.findById(message.getId()))
                 .thenReturn(Optional.ofNullable(message));
+        Mockito.when(messageRepository.save(any(Message.class))).thenReturn(message);
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnSendMessageToUserWhichNotExists_shouldReturnBadRequest() throws Exception {
+        Message message = new Message();
+        message.setId(2L);
+        message.setText("This is sample message");
+        message.setTitle("sample title");
+        User user = new User();
+        User user1 = new User();
+        message.setRecipient(user);
+        message.setSender(user1);
         mockMvc.perform(post("/message/sendMessage")
                 .flashAttr("message", message)
                 .param("recipientUsername", "notExistsUsername"))
@@ -98,6 +108,14 @@ public class MessageControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnSendMessageToYourself_shouldReturnBadRequest() throws Exception {
+        Message message = new Message();
+        message.setId(3L);
+        message.setText("This is sample message");
+        message.setTitle("sample title");
+        User user = new User();
+        User user1 = new User();
+        message.setRecipient(user);
+        message.setSender(user1);
         mockMvc.perform(post("/message/sendMessage")
                 .flashAttr("message", message)
                 .param("recipientUsername", "user"))
