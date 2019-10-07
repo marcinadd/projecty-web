@@ -29,6 +29,13 @@ public class ProjectRoleService {
         projectRoleRepository.save(projectRole);
     }
 
+    @Deprecated
+    public boolean isValidRoleName(String roleName) {
+
+        return true;
+        //return AppConfig.ROLE_NAMES.contains(roleName);
+    }
+
     public void addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
         List<ProjectRole> projectRoles = new ArrayList<>();
         if (usernames != null) {
@@ -36,7 +43,10 @@ public class ProjectRoleService {
             removeExistingUsersInProjectFromSet(users, project);
             for (User user : users
             ) {
-                ProjectRole projectRole = new ProjectRole(ProjectRoles.USER, user, project);
+                ProjectRole projectRole = new ProjectRole();
+                projectRole.setProject(project);
+                projectRole.setUser(user);
+                projectRole.setName(ProjectRoles.USER);
                 projectRoles.add(projectRole);
                     RedirectMessage message = new RedirectMessage();
                     message.setType(RedirectMessageTypes.SUCCESS);
@@ -65,13 +75,19 @@ public class ProjectRoleService {
     public Set<User> getProjectRoleUsers(Project project) {
         List<ProjectRole> projectRoles = projectRoleRepository.findByProject(project);
         Set<User> users = new HashSet<>();
-        projectRoles.forEach(projectRole -> users.add(projectRole.getUser()));
+        for (ProjectRole projectRole : projectRoles
+        ) {
+            users.add(projectRole.getUser());
+        }
         return users;
     }
 
     public void addCurrentUserToProjectAsAdmin(Project project) {
         User current = userService.getCurrentUser();
-        ProjectRole projectRole = new ProjectRole(ProjectRoles.ADMIN, current, project);
+        ProjectRole projectRole = new ProjectRole();
+        projectRole.setProject(project);
+        projectRole.setName(ProjectRoles.ADMIN);
+        projectRole.setUser(current);
         if (project.getProjectRoles() == null) {
             List<ProjectRole> projectRoles = new ArrayList<>();
             projectRoles.add(projectRole);

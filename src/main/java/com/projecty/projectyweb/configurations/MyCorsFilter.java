@@ -13,7 +13,7 @@ import java.io.IOException;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MyCorsFilter implements Filter {
     @Override
-    public void init(FilterConfig fc) {
+    public void init(FilterConfig fc) throws ServletException {
     }
 
     @Override

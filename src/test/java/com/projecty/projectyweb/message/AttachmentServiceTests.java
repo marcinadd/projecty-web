@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -45,7 +44,7 @@ public class AttachmentServiceTests {
         byte[] content = {0, 1, 2, 3, 4, 5, 6};
         MultipartFile multipartFile = new MockMultipartFile(name, originalFileName, contentType, content);
         MultipartFile multipartFile1 = new MockMultipartFile(name, originalFileName, contentType, content);
-        attachmentService.addFilesToMessage(Arrays.asList(multipartFile, multipartFile1), message);
+        attachmentService.addFilesToMessage(new MultipartFile[]{multipartFile, multipartFile1}, message);
         assertThat(message.getAttachments(), hasSize(greaterThan(0)));
         assertThat(message.getAttachments().get(1).getFileName(), is(name));
     }

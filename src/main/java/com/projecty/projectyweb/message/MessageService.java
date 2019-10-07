@@ -10,8 +10,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -50,12 +51,7 @@ public class MessageService {
         }
     }
 
-    public void sendMessage(
-            String recipientUsername,
-            Message message,
-            BindingResult bindingResult,
-            List<MultipartFile> multipartFiles
-    ) {
+    public void sendMessage(String recipientUsername, Message message, BindingResult bindingResult, MultipartFile[] multipartFiles) throws IOException, SQLException {
         Optional<User> recipient = userRepository.findByUsername(recipientUsername);
         User sender = userService.getCurrentUser();
         if (!recipient.isPresent()) {

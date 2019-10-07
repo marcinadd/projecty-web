@@ -66,19 +66,27 @@ public class ProjectControllerTests {
 
         List<ProjectRole> projectRoles = new ArrayList<>();
 
-        ProjectRole projectRole = new ProjectRole(ProjectRoles.ADMIN, user, project);
+        ProjectRole projectRole = new ProjectRole();
         projectRole.setId(1L);
+        projectRole.setUser(user);
+        projectRole.setProject(project);
+        projectRole.setName(ProjectRoles.ADMIN);
         projectRoles.add(projectRole);
 
-        ProjectRole projectRole1 = new ProjectRole(ProjectRoles.USER, user1, project);
+        ProjectRole projectRole1 = new ProjectRole();
         projectRole1.setId(2L);
+        projectRole1.setUser(user1);
+        projectRole1.setProject(project);
+        projectRole1.setName(ProjectRoles.USER);
         projectRoles.add(projectRole1);
 
         Team team = new Team();
-        TeamRole teamRole = new TeamRole(TeamRoles.MANAGER, user, team);
+        TeamRole teamRole = new TeamRole();
+        teamRole.setName(TeamRoles.MANAGER);
+        teamRole.setTeam(team);
+        teamRole.setUser(user);
 
         List<TeamRole> teamRoles = new ArrayList<>();
-        teamRoles.add(teamRole);
         user.setTeamRoles(teamRoles);
 
         List<ProjectRole> rolesUser = new ArrayList<>();

@@ -22,17 +22,14 @@ public class AttachmentService {
         return IOUtils.toByteArray(inputStream);
     }
 
-    public void addFilesToMessage(List<MultipartFile> multipartFiles, Message message) {
+    public void addFilesToMessage(MultipartFile[] multipartFiles, Message message) throws IOException, SQLException {
         List<Attachment> attachments = new ArrayList<>();
-        multipartFiles.forEach(multipartFile -> {
-            try {
-                attachments.add(new Attachment(
-                        multipartFile.getOriginalFilename(),
-                        new SerialBlob(multipartFile.getBytes())
-                ));
-            } catch (SQLException | IOException ignored) {
-            }
-        });
+        for (MultipartFile multipartFile : multipartFiles) {
+            Attachment attachment = new Attachment();
+            attachment.setFile(new SerialBlob(multipartFile.getBytes()));
+            attachment.setFileName(multipartFile.getOriginalFilename());
+            attachments.add(attachment);
+        }
         message.setAttachments(attachments);
     }
 }

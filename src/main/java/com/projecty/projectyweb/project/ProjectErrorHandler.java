@@ -20,7 +20,7 @@ public class ProjectErrorHandler {
     }
 
     @ExceptionHandler(NoAdminsInProjectException.class)
-    public ResponseEntity<Object> handleNoAdminsInProjectException() {
+    public ResponseEntity<Object> handleNoAdminsInProjectException(NoAdminsInProjectException ex) {
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST,
                 messageSource.getMessage(
                         "project.no_admins_in_project_exception",

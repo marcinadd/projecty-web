@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -36,7 +37,9 @@ public class RestErrorHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleBindException(final BindException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         final List<String> errors = new ArrayList<>();
-        ex.getBindingResult().getFieldErrors().forEach(fieldError -> errors.add(messageSource.getMessage(fieldError, Locale.getDefault())));
+        for (final FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.add(messageSource.getMessage(error, Locale.getDefault()));
+        }
         final ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errors);
         return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
     }
