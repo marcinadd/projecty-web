@@ -9,7 +9,7 @@ import org.springframework.validation.Validator;
 public class TaskValidator implements Validator {
     @Override
     public boolean supports(Class<?> clazz) {
-        return false;
+        return Task.class.equals(clazz);
     }
 
     @Override
