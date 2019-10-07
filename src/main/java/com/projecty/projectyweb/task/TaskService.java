@@ -113,5 +113,19 @@ public class TaskService {
         Project project = task.getProject();
         return projectService.hasCurrentUserPermissionToEdit(project) || task.getAssignedUsers().contains(user);
     }
+
+    public Task findTaskInRepositoryAndUpdateFields(Task newTask) {
+        if (newTask.getId() != null) {
+            Optional<Task> optionalTask = taskRepository.findById(newTask.getId());
+            if (optionalTask.isPresent()) {
+                Task task = optionalTask.get();
+                if (newTask.getName() != null) task.setName(newTask.getName());
+                if (newTask.getStartDate() != null) task.setStartDate(newTask.getStartDate());
+                if (newTask.getEndDate() != null) task.setEndDate(newTask.getEndDate());
+                return task;
+            }
+        }
+        return null;
+    }
 }
 

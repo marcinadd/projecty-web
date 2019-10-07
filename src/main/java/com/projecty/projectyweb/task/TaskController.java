@@ -8,6 +8,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.DataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -121,16 +122,18 @@ public class TaskController {
 
     @PostMapping("editTaskDetails")
     public void editTaskDetailsPost(
-            @ModelAttribute Task task,
-            BindingResult bindingResult
+            @ModelAttribute Task task
     ) throws BindException {
-        taskValidator.validate(task, bindingResult);
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
-        Optional<Task> optionalTask = taskRepository.findById(task.getId());
-        if (optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject())) {
-            taskService.updateTaskDetails(optionalTask.get(), task);
+        Task newTaskCandidate = taskService.findTaskInRepositoryAndUpdateFields(task);
+        if (newTaskCandidate != null && projectService.hasCurrentUserPermissionToEdit(newTaskCandidate.getProject())) {
+            DataBinder dataBinder = new DataBinder(newTaskCandidate);
+            dataBinder.setValidator(taskValidator);
+            dataBinder.validate();
+            BindingResult result = dataBinder.getBindingResult();
+            if (result.hasErrors()) {
+                throw new BindException(result);
+            }
+            taskRepository.save(newTaskCandidate);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

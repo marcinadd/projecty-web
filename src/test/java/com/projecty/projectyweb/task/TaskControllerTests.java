@@ -48,9 +48,6 @@ public class TaskControllerTests {
     @MockBean
     ProjectRoleRepository projectRoleRepository;
 
-    @MockBean
-    TaskService taskService;
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -104,6 +101,7 @@ public class TaskControllerTests {
         task.setId(1L);
         task.setName("Test task");
         task.setProject(project);
+        task.setAssignedUsers(new ArrayList<>());
         tasks.add(task);
 
         project.setTasks(tasks);
@@ -122,9 +120,6 @@ public class TaskControllerTests {
                 .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findByUsername(user1.getUsername()))
                 .thenReturn(Optional.of(user1));
-
-        Mockito.when(taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(Mockito.any(Task.class)))
-                .thenReturn(true);
     }
 
     @Test

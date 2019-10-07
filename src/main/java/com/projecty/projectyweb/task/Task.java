@@ -6,8 +6,6 @@ import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.user.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.sql.Date;
 import java.util.List;
 
@@ -18,10 +16,8 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     private String name;
 
-    @NotNull
     private Date startDate;
 
     private Date endDate;

@@ -57,9 +57,9 @@ public class MessageController {
 
     ) throws BindException {
         messageService.sendMessage(recipientUsername, message, bindingResult, multipartFiles);
-            if (bindingResult.hasErrors()) {
-                throw new BindException(bindingResult);
-            }
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
     }
 
     @GetMapping(value = "downloadFile")
