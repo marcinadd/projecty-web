@@ -12,6 +12,15 @@ import javax.persistence.*;
 @Entity
 @JsonSerialize
 public class ProjectRole {
+    public ProjectRole(ProjectRoles name, User user, Project project) {
+        this.name = name;
+        this.user = user;
+        this.project = project;
+    }
+
+    public ProjectRole() {
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

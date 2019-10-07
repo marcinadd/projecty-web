@@ -26,14 +26,7 @@ public class TeamRoleService {
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
             removeExistingUsersInTeamFromSet(users, team);
-            for (User user : users
-            ) {
-                TeamRole teamRole = new TeamRole();
-                teamRole.setTeam(team);
-                teamRole.setUser(user);
-                teamRole.setName(TeamRoles.MEMBER);
-                teamRoles.add(teamRole);
-            }
+            users.forEach(user -> teamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
         }
         if (team.getTeamRoles() == null) {
             team.setTeamRoles(teamRoles);
@@ -44,10 +37,7 @@ public class TeamRoleService {
 
     public void addCurrentUserAsTeamManager(Team team) {
         User current = userService.getCurrentUser();
-        TeamRole teamRole = new TeamRole();
-        teamRole.setTeam(team);
-        teamRole.setName(TeamRoles.MANAGER);
-        teamRole.setUser(current);
+        TeamRole teamRole = new TeamRole(TeamRoles.MANAGER, current, team);
         if (team.getTeamRoles() == null) {
             List<TeamRole> teamRoles = new ArrayList<>();
             teamRoles.add(teamRole);
@@ -71,10 +61,7 @@ public class TeamRoleService {
     public Set<User> getTeamRoleUsers(Team team) {
         List<TeamRole> teamRoles = teamRoleRepository.findByTeam(team);
         Set<User> users = new HashSet<>();
-        for (TeamRole teamRole : teamRoles
-        ) {
-            users.add(teamRole.getUser());
-        }
+        teamRoles.forEach(teamRole -> users.add(teamRole.getUser()));
         return users;
     }
 
@@ -90,27 +77,25 @@ public class TeamRoleService {
         teamRoleRepository.save(teamRole);
     }
 
-    @Deprecated
     private int getTeamManagersCount(Team team) {
         List<TeamRole> teamRoles = team.getTeamRoles();
-        List<TeamRole> managers = new ArrayList<>();
+        int managers = 0;
         for (TeamRole teamRole : teamRoles
         ) {
             if (teamRole.getName().equals(TeamRoles.MANAGER)) {
-                managers.add(teamRole);
+                managers++;
             }
         }
-        return managers.size();
+        return managers;
     }
 
     public List<TeamRole> getTeamRolesWhereManager(User user) {
         List<TeamRole> managerTeamRoles = new ArrayList<>();
-        for (TeamRole teamRole : user.getTeamRoles()
-        ) {
+        user.getTeamRoles().forEach(teamRole -> {
             if (teamRole.getName() == TeamRoles.MANAGER) {
                 managerTeamRoles.add(teamRole);
             }
-        }
+        });
         return managerTeamRoles;
     }
 

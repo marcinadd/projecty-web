@@ -53,9 +53,9 @@ public class MessageController {
             @RequestParam String recipientUsername,
             @ModelAttribute Message message,
             BindingResult bindingResult,
-            @RequestParam(required = false) MultipartFile[] multipartFiles
+            @RequestParam(required = false) List<MultipartFile> multipartFiles
 
-    ) throws BindException, IOException, SQLException {
+    ) throws BindException {
         messageService.sendMessage(recipientUsername, message, bindingResult, multipartFiles);
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);

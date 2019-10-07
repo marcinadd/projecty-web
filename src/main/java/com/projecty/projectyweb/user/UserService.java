@@ -89,19 +89,16 @@ public class UserService {
 
     public List<String> getUsernamesFromUserList(List<User> users) {
         List<String> usernames = new ArrayList<>();
-        for (User user : users
-        ) {
-            usernames.add(user.getUsername());
-        }
+        users.forEach(user -> usernames.add(user.getUsername()));
         return usernames;
     }
 
     User createUserFromRegisterForm(RegisterForm registerForm) {
-        User user = new User();
-        user.setUsername(registerForm.getUsername());
-        user.setEmail(registerForm.getEmail());
-        user.setPassword(registerForm.getPassword());
-        user.setPasswordRepeat(registerForm.getPasswordRepeat());
-        return user;
+        return new UserBuilder()
+                .username(registerForm.getUsername())
+                .email(registerForm.getEmail())
+                .password(registerForm.getPassword())
+                .passwordRepeat(registerForm.getPasswordRepeat())
+                .build();
     }
 }

@@ -10,6 +10,16 @@ import javax.persistence.*;
 @Entity
 @Table(name = "teamrole")
 public class TeamRole {
+
+    public TeamRole(TeamRoles name, User user, Team team) {
+        this.name = name;
+        this.user = user;
+        this.team = team;
+    }
+
+    public TeamRole() {
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

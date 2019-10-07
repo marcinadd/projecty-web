@@ -43,10 +43,12 @@ public class UserControllerTests {
     @Before
     public void init() {
         user = new User();
+        user = new UserBuilder()
+                .username("user")
+                .email("admin@example.com")
+                .password(encoder.encode("password123"))
+                .build();
         user.setId(1L);
-        user.setUsername("user");
-        user.setEmail("admin@example.com");
-        user.setPassword(encoder.encode("password123"));
         Mockito.when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(java.util.Optional.ofNullable(user));
     }
