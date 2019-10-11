@@ -33,10 +33,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ProjectyWebApplication.class)
 @AutoConfigureMockMvc
 public class MessageControllerTests {
-    @MockBean
+    @MockBean(name = "userRepository")
     UserRepository userRepository;
 
-    @MockBean
+    @MockBean(name = "messageRepository")
     MessageRepository messageRepository;
 
     @Autowired
