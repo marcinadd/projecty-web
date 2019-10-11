@@ -7,6 +7,7 @@ import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,7 +44,7 @@ public class ProjectRoleService {
                     String text = messageSource.getMessage(
                             "projectRole.add.success",
                             new Object[]{user.getUsername(), project.getName()},
-                            Locale.getDefault());
+                            LocaleContextHolder.getLocale());
                     message.setText(text);
                     messages.add(message);
             }
