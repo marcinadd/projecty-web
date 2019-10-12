@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  projecty:
+    image: projecty-web:latest
+    networks:
+      - projecty-network
+    depends_on:
+      - database
+    ports:
+      - 8080:8080
+
+  database:
+   image: mysql:8
+   networks:
+    - projecty-network
+   environment:
+    - MYSQL_ROOT_PASSWORD=password
+    - MYSQL_DATABASE=projecty
+   ports:
+     - 3306:33060
+   volumes:
+     - db-data:/var/lib/mysql
+
+networks:
+  projecty-network:
+
+volumes:
+  db-data:

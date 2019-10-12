@@ -12,6 +12,16 @@ The app has been divided into two separate projects.
 You can find front-end based on Vue at [projecty-web-front-end](https://github.com/marcinadd/projecty-web-front-end).
 
 ## Getting Started
+### Via Docker
+1. After changes run `./build_image.sh` in a project root directory to build application image.
+2. Run`docker-compose up` in a project root directory.
+3. Run this command in terminal to create missing tables: 
+```
+docker exec -i projecty-web_database_1 mysql -uroot -ppassword  <<< "use projecty; CREATE TABLE oauth_access_token (token_id varchar(255) DEFAULT NULL, token mediumblob, authentication_id varchar(255) NOT NULL, user_name varchar(255) DEFAULT NULL, client_id varchar(255) DEFAULT NULL, authentication mediumblob, refresh_token varchar(255) DEFAULT NULL, PRIMARY KEY (authentication_id)); CREATE TABLE oauth_refresh_token (token_id varchar(255) DEFAULT NULL, token mediumblob, authentication mediumblob);"
+```
+This command must be run only once. Data is stored in a volume `db-data`.
+
+### Setup project manually
 1. Clone repository
 1. Import it to your favourite IDE
 1. **Remember to edit application.properties**
