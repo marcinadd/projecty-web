@@ -3,6 +3,7 @@ package com.projecty.projectyweb.team;
 import com.projecty.projectyweb.misc.ApiError;
 import com.projecty.projectyweb.team.role.NoManagersInTeamException;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class TeamErrorHandler {
                 messageSource.getMessage(
                         "team.no_managers_in_team_exception",
                         null,
-                        Locale.getDefault()
+                        LocaleContextHolder.getLocale()
                 ));
         return new ResponseEntity<>(
                 apiError, new HttpHeaders(), apiError.getStatus());

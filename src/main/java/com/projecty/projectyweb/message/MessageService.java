@@ -5,6 +5,7 @@ import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -12,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 
@@ -59,10 +59,10 @@ public class MessageService {
         Optional<User> recipient = userRepository.findByUsername(recipientUsername);
         User sender = userService.getCurrentUser();
         if (!recipient.isPresent()) {
-            ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.invalid", null, Locale.getDefault()));
+            ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.invalid", null, LocaleContextHolder.getLocale()));
             bindingResult.addError(objectError);
         } else if (sender == recipient.get()) {
-            ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.yourself", null, Locale.getDefault()));
+            ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.yourself", null, LocaleContextHolder.getLocale()));
             bindingResult.addError(objectError);
         } else {
             message.setSender(sender);
