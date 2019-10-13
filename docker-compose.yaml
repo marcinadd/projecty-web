@@ -3,6 +3,7 @@ version: "3"
 services:
   projecty:
     image: projecty-web:latest
+    restart: always
     networks:
       - projecty-network
     depends_on:
@@ -12,6 +13,7 @@ services:
 
   database:
    image: mysql:8
+   restart: always
    networks:
     - projecty-network
    environment:
@@ -21,6 +23,7 @@ services:
      - 3306:33060
    volumes:
      - db-data:/var/lib/mysql
+     - ./sql-scripts:/docker-entrypoint-initdb.d
 
 networks:
   projecty-network:
