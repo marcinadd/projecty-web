@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -43,6 +44,7 @@ public class MessageControllerTests {
     private MockMvc mockMvc;
 
     private Message message;
+    private Message replyMessage;
     private String recipientUsername;
 
     @Before
@@ -73,6 +75,11 @@ public class MessageControllerTests {
         attachment.setFile(new SerialBlob(bytes));
         message.setAttachments(Collections.singletonList(attachment));
 
+        replyMessage = new Message();
+        replyMessage.setId(11L);
+        replyMessage.setText("This is sample reply message");
+        replyMessage.setTitle("sample reply title");
+
         Mockito.when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findById(user1.getId()))
@@ -85,7 +92,10 @@ public class MessageControllerTests {
                 .thenReturn(Optional.of(user2));
         Mockito.when(messageRepository.findById(message.getId()))
                 .thenReturn(Optional.ofNullable(message));
-        Mockito.when(messageRepository.save(any(Message.class))).thenReturn(message);
+        Mockito.when(messageRepository.save(eq(message))).thenReturn(message);
+        Mockito.when(messageRepository.findById(replyMessage.getId()))
+                .thenReturn(Optional.ofNullable(replyMessage));
+
     }
 
     @Test
@@ -189,4 +199,41 @@ public class MessageControllerTests {
         mockMvc.perform(get("/message/viewMessage?messageId=1"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnReplyToMessageWhichNotExists_shouldReturnNotFound() throws Exception {
+        Message replyMessage = new Message();
+        replyMessage.setId(11L);
+        replyMessage.setText("This is sample reply message");
+        replyMessage.setTitle("sample reply title");
+        mockMvc.perform(post("/message/12/reply")
+                .flashAttr("message", replyMessage))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser("user1")
+    public void givenRequestOnReplyToYourself_shouldReturnBadRequest() throws Exception {
+        Message replyMessage = new Message();
+        replyMessage.setId(11L);
+        replyMessage.setText("This is sample reply message");
+        replyMessage.setTitle("sample reply title");
+        mockMvc.perform(post("/message/1/reply")
+                .flashAttr("message", replyMessage))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnReply_shouldReturnOk() throws Exception {
+        Message replyMessage = new Message();
+        replyMessage.setId(11L);
+        replyMessage.setText("This is sample reply message");
+        replyMessage.setTitle("sample reply title");
+        mockMvc.perform(post("/message/1/reply")
+                .flashAttr("message", replyMessage))
+                .andExpect(status().isOk());
+    }
+
 }
