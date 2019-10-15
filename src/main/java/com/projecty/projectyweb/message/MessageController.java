@@ -93,4 +93,18 @@ public class MessageController {
     public int getUnreadMessageCount() {
         return messageService.getUnreadMessageCountForCurrentUser();
     }
+
+    @PostMapping("{replyToMessageId}/reply")
+    public void reply(
+            @PathVariable(name = "replyToMessageId") Long replyToMessageId,
+            @ModelAttribute Message message,
+            BindingResult bindingResult,
+            @RequestParam(required = false) List<MultipartFile> multipartFiles
+
+    ) throws BindException {
+        messageService.reply(replyToMessageId, message, bindingResult, multipartFiles);
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
+    }
 }

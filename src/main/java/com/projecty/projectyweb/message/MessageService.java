@@ -6,10 +6,12 @@ import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -74,4 +76,20 @@ public class MessageService {
         }
     }
 
+    public void reply(Long replyToMessageId,
+                      Message message,
+                      BindingResult bindingResult,
+                      List<MultipartFile> multipartFiles) {
+        Optional<Message> replyToMessage = messageRepository.findById(replyToMessageId);
+        if(replyToMessage.isPresent()) {
+            message.setReplyToMessage(replyToMessage.get());
+            sendMessage(
+                    replyToMessage.get().getSender().getUsername(),
+                    message,
+                    bindingResult,
+                    multipartFiles);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
 }

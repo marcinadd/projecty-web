@@ -40,6 +40,10 @@ public class Message {
     )
     private List<Attachment> attachments;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reply_to_message_id")
+    private Message replyToMessage;
+
     public Long getId() {
         return id;
     }
@@ -102,5 +106,13 @@ public class Message {
 
     public void setAttachments(List<Attachment> attachments) {
         this.attachments = attachments;
+    }
+
+    public Message getReplyToMessage() {
+        return replyToMessage;
+    }
+
+    public void setReplyToMessage(Message replyToMessage) {
+        this.replyToMessage = replyToMessage;
     }
 }
