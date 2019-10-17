@@ -109,4 +109,13 @@ public class TeamRoleService {
             teamRepository.save(team);
         }
     }
+
+	public Optional<TeamRole> findById(Long teamRoleId) {
+		return teamRoleRepository.findById(teamRoleId);
+	}
+
+	public void delete(TeamRole teamRole) {
+		teamRoleRepository.delete(teamRole);
+	}
+    
 }

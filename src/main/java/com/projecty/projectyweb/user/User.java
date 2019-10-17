@@ -15,7 +15,12 @@ import java.util.List;
 @JsonSerialize(using = UserSerializer.class)
 //@EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
-    public User(String username, String email, String password, String passwordRepeat, List<ProjectRole> projectRoles, List<TeamRole> teamRoles, List<Message> messagesFrom, List<Message> messagesTo, List<Task> assignedTasks) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public User(String username, String email, String password, String passwordRepeat, List<ProjectRole> projectRoles, List<TeamRole> teamRoles, List<Message> messagesFrom, List<Message> messagesTo, List<Task> assignedTasks) {
         this.username = username;
         this.email = email;
         this.password = password;
