@@ -99,6 +99,7 @@ public class UserService {
                 .email(registerForm.getEmail())
                 .password(registerForm.getPassword())
                 .passwordRepeat(registerForm.getPasswordRepeat())
+                .avatar(registerForm.getAvatar())
                 .build();
     }
 }
