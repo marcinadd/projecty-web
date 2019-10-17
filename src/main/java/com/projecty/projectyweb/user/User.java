@@ -5,6 +5,7 @@ import com.projecty.projectyweb.message.Message;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.role.TeamRole;
+import com.projecty.projectyweb.user.avatar.Avatar;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -16,11 +17,19 @@ import java.util.List;
 //@EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	public User(String username, String email, String password, String passwordRepeat, List<ProjectRole> projectRoles, List<TeamRole> teamRoles, List<Message> messagesFrom, List<Message> messagesTo, List<Task> assignedTasks) {
+    public User(String username,
+                String email,
+                String password,
+                String passwordRepeat,
+                List<ProjectRole> projectRoles,
+                List<TeamRole> teamRoles,
+                List<Message> messagesFrom,
+                List<Message> messagesTo,
+                List<Task> assignedTasks) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -84,6 +93,13 @@ public class User implements Serializable {
             cascade = CascadeType.ALL
     )
     private List<Task> assignedTasks;
+
+    @OneToOne(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Avatar avatar;
 
     public Long getId() {
         return id;
@@ -171,6 +187,14 @@ public class User implements Serializable {
 
     public void setAssignedTasks(List<Task> assignedTasks) {
         this.assignedTasks = assignedTasks;
+    }
+
+    public Avatar getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(Avatar avatar) {
+        this.avatar = avatar;
     }
 
     @Override

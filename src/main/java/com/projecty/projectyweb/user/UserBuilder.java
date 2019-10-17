@@ -4,7 +4,12 @@ import com.projecty.projectyweb.message.Message;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.role.TeamRole;
+import com.projecty.projectyweb.user.avatar.Avatar;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.rowset.serial.SerialBlob;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class UserBuilder {
@@ -17,6 +22,7 @@ public class UserBuilder {
     private List<Message> messagesFrom;
     private List<Message> messagesTo;
     private List<Task> assignedTasks;
+    private MultipartFile avatar;
 
     public UserBuilder username(String username) {
         this.username = username;
@@ -63,7 +69,23 @@ public class UserBuilder {
         return this;
     }
 
+    public UserBuilder avatar(MultipartFile avatar) {
+        this.avatar = avatar;
+        return this;
+    }
+
     public User build() {
-        return new User(username, email, password, passwordRepeat, projectRoles, teamRoles, messagesFrom, messagesTo, assignedTasks);
+        final User user = new User(username, email, password, passwordRepeat, projectRoles, teamRoles, messagesFrom, messagesTo, assignedTasks);
+        if (avatar != null) {
+            Avatar avatar = new Avatar();
+            avatar.setContentType(this.avatar.getContentType());
+            avatar.setUser(user);
+            try {
+                avatar.setFile(new SerialBlob(this.avatar.getBytes()));
+            } catch (SQLException | IOException ignored) {
+            }
+            user.setAvatar(avatar);
+        }
+        return user;
     }
 }

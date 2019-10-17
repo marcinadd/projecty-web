@@ -1,10 +1,13 @@
 package com.projecty.projectyweb.user;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class RegisterForm {
     private String username;
     private String email;
     private String password;
     private String passwordRepeat;
+    private MultipartFile avatar;
 
     public String getUsername() {
         return username;
@@ -36,5 +39,13 @@ public class RegisterForm {
 
     public void setPasswordRepeat(String passwordRepeat) {
         this.passwordRepeat = passwordRepeat;
+    }
+
+    public MultipartFile getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(MultipartFile avatar) {
+        this.avatar = avatar;
     }
 }
