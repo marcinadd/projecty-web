@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
+	
     List<Task> findByProjectAndStatus(Project project, TaskStatus status);
 
     List<Task> findByProjectAndStatusOrderByStartDate(Project project, TaskStatus status);
