@@ -121,9 +121,9 @@ public class MessageController {
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "{id}")
     public void deleteMessage(
-            @RequestParam Long messageId
+            @PathVariable("id") long messageId
     ) {
         Optional<Message> optMessage = messageRepository.findById(messageId);
         optMessage.ifPresent(messageService::deleteMessage);

@@ -157,21 +157,6 @@ public class User implements Serializable {
         this.projectRoles = projectRoles;
     }
 
-    public List<Message> getMessagesFrom() {
-        return messagesFrom;
-    }
-
-    public void setMessagesFrom(List<Message> messagesFrom) {
-        this.messagesFrom = messagesFrom;
-    }
-
-    public List<Message> getMessagesTo() {
-        return messagesTo;
-    }
-
-    public void setMessagesTo(List<Message> messagesTo) {
-        this.messagesTo = messagesTo;
-    }
 
     public List<TeamRole> getTeamRoles() {
         return teamRoles;

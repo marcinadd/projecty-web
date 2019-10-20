@@ -19,6 +19,15 @@ public class Association {
     @JoinColumn(name = "message_id")
     private Message message;
 
+    @PreRemove
+    public void preRemove() {
+        if(message.getSender().equals(user)) {
+            message.setSender(null);
+        }else {
+            message.setRecipient(null);
+        }
+    }
+
     public Long getId() {
         return id;
     }

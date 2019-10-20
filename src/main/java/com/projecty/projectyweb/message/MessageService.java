@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -104,5 +105,8 @@ public class MessageService {
     public void deleteMessage(Message message){
         User currentUser = userService.getCurrentUser();
         associationService.deleteMessageForUser(message,currentUser);
+        if(Objects.isNull(message.getSender())&& Objects.isNull(message.getRecipient())){
+           messageRepository.delete(message);
+        }
     }
 }
