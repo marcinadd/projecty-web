@@ -35,16 +35,12 @@ public class AssociationService {
     }
 
     public void deleteMessageForUser(Message messageToBeDeleted, User user){
-        Optional<Association> messageOptional = associationRepository.findByUser(user).stream()
-                .filter(association -> messageToBeDeleted.equals(association.getMessage()))
-                .findFirst();
+        Optional<Association> messageOptional = associationRepository.findFirstByUserAndMessage(user,messageToBeDeleted);
         messageOptional.ifPresent(associationRepository::delete);
     }
     public boolean isVisibleForUser(Message message,User user){
         if(message.getRecipient().equals(user) || message.getSender().equals(user)){
-            Optional<Association> messageOptional = associationRepository.findByUser(user).stream()
-                    .filter(association -> message.equals(association.getMessage()))
-                    .findFirst();
+            Optional<Association> messageOptional = associationRepository.findFirstByUserAndMessage(user,message);
             return messageOptional.isPresent();
         }
         return false;

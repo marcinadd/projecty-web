@@ -118,9 +118,9 @@ public class MessageControllerTests {
                 .thenReturn(Optional.ofNullable(replyMessage));
 
 
-        Mockito.when(associationRepository.findByUser(Mockito.eq(user1))).thenReturn(Collections.singletonList(associationForSender));
-        Mockito.when(associationRepository.findByUser(Mockito.eq(user2))).thenReturn(Collections.emptyList());
-        Mockito.when(associationRepository.findByUser(Mockito.eq(user))).thenReturn(Collections.singletonList(associationForRecipient));
+        Mockito.when(associationRepository.findFirstByUserAndMessage(Mockito.eq(user1),any(Message.class))).thenReturn(Optional.ofNullable(associationForSender));
+        Mockito.when(associationRepository.findFirstByUserAndMessage(Mockito.eq(user2),any(Message.class))).thenReturn(Optional.empty());
+        Mockito.when(associationRepository.findFirstByUserAndMessage(Mockito.eq(user),any(Message.class))).thenReturn(Optional.ofNullable(associationForRecipient));
     }
 
     @Test
