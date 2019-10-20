@@ -1,5 +1,7 @@
 package com.projecty.projectyweb.message;
 
+import com.projecty.projectyweb.message.association.AssociationRepository;
+import com.projecty.projectyweb.message.association.AssociationService;
 import com.projecty.projectyweb.message.attachment.AttachmentService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
@@ -15,33 +17,38 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
 public class MessageService {
-    private static UserService userService;
-    private static MessageRepository messageRepository;
+    private final UserService userService;
+    private final AssociationService associationService;
+    private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final MessageSource messageSource;
     private final AttachmentService attachmentService;
 
-    public MessageService(UserService userService, MessageRepository messageRepository, UserRepository userRepository, MessageSource messageSource, AttachmentService attachmentService) {
-        MessageService.userService = userService;
-        MessageService.messageRepository = messageRepository;
+    public MessageService(UserService userService, MessageRepository messageRepository, UserRepository userRepository, MessageSource messageSource, AttachmentService attachmentService,AssociationService associationService) {
+        this.userService = userService;
+        this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.messageSource = messageSource;
         this.attachmentService = attachmentService;
+        this.associationService = associationService;
     }
 
     public int getUnreadMessageCountForCurrentUser() {
         User current = userService.getCurrentUser();
-        return messageRepository.findByRecipientAndSeenDateIsNull(current).size();
+        return (int) messageRepository.findByRecipientAndSeenDateIsNull(current).stream()
+                .filter(message -> this.associationService.isVisibleForUser(message, current))
+                .count();
     }
 
     public boolean checkIfCurrentUserHasPermissionToView(Message message) {
-        User current = userService.getCurrentUser();
-        return message.getRecipient().equals(current) || message.getSender().equals(current);
+        return this.associationService.isVisibleForUser(message,userService.getCurrentUser());
     }
 
     public void updateSeenDate(Message message) {
@@ -73,15 +80,17 @@ public class MessageService {
                 attachmentService.addFilesToMessage(multipartFiles, message);
             }
             messageRepository.save(message);
+            associationService.recordMessage(message);
         }
     }
+
 
     public void reply(Long replyToMessageId,
                       Message message,
                       BindingResult bindingResult,
                       List<MultipartFile> multipartFiles) {
         Optional<Message> replyToMessage = messageRepository.findById(replyToMessageId);
-        if(replyToMessage.isPresent()) {
+        if (replyToMessage.isPresent()) {
             message.setReplyToMessage(replyToMessage.get());
             sendMessage(
                     replyToMessage.get().getSender().getUsername(),
@@ -90,6 +99,14 @@ public class MessageService {
                     multipartFiles);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public void deleteMessage(Message message){
+        User currentUser = userService.getCurrentUser();
+        associationService.deleteMessageForUser(message,currentUser);
+        if(Objects.isNull(message.getSender())&& Objects.isNull(message.getRecipient())){
+           messageRepository.delete(message);
         }
     }
 }

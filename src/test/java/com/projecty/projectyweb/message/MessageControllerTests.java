@@ -1,6 +1,8 @@
 package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.ProjectyWebApplication;
+import com.projecty.projectyweb.message.association.Association;
+import com.projecty.projectyweb.message.association.AssociationRepository;
 import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -40,12 +43,18 @@ public class MessageControllerTests {
     @MockBean(name = "messageRepository")
     MessageRepository messageRepository;
 
+    @MockBean(name="associationRepository")
+    AssociationRepository associationRepository;
+
     @Autowired
     private MockMvc mockMvc;
 
     private Message message;
     private Message replyMessage;
     private String recipientUsername;
+
+    private Association associationForRecipient;
+    private Association associationForSender;
 
     @Before
     public void init() throws SQLException {
@@ -70,6 +79,18 @@ public class MessageControllerTests {
         recipientUsername = "user1";
         message.setRecipient(user);
         message.setSender(user1);
+
+
+        associationForRecipient = new Association();
+        associationForRecipient.setUser(user);
+        associationForRecipient.setMessage(message);
+        associationForRecipient.setId(1L);
+
+        associationForSender = new Association();
+        associationForSender.setUser(user1);
+        associationForSender.setMessage(message);
+        associationForSender.setId(2L);
+
         byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
         Attachment attachment = new Attachment();
         attachment.setFile(new SerialBlob(bytes));
@@ -96,6 +117,10 @@ public class MessageControllerTests {
         Mockito.when(messageRepository.findById(replyMessage.getId()))
                 .thenReturn(Optional.ofNullable(replyMessage));
 
+
+        Mockito.when(associationRepository.findFirstByUserAndMessage(Mockito.eq(user1),any(Message.class))).thenReturn(Optional.ofNullable(associationForSender));
+        Mockito.when(associationRepository.findFirstByUserAndMessage(Mockito.eq(user2),any(Message.class))).thenReturn(Optional.empty());
+        Mockito.when(associationRepository.findFirstByUserAndMessage(Mockito.eq(user),any(Message.class))).thenReturn(Optional.ofNullable(associationForRecipient));
     }
 
     @Test

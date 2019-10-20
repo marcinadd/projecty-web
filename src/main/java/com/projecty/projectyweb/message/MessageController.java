@@ -1,10 +1,13 @@
 package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.configurations.AnyPermission;
+import com.projecty.projectyweb.message.association.AssociationService;
 import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.message.attachment.AttachmentService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +30,16 @@ public class MessageController {
 
     private final MessageService messageService;
 
+    private final AssociationService associationService;
+
     private final AttachmentService attachmentService;
 
-    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, AttachmentService attachmentService) {
+    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, AttachmentService attachmentService , AssociationService associationService) {
         this.userService = userService;
         this.messageRepository = messageRepository;
         this.messageService = messageService;
         this.attachmentService = attachmentService;
+        this.associationService = associationService;
     }
 
     @GetMapping("receivedMessages")
@@ -81,12 +87,19 @@ public class MessageController {
 
     @GetMapping("viewMessage")
     @AnyPermission
-    public Message viewMessage(
+    public ResponseEntity<Message> viewMessage(
             @RequestParam Long messageId
     ) {
         Optional<Message> optMessage = messageRepository.findById(messageId);
-        messageService.updateSeenDate(optMessage.get());
-        return optMessage.get();
+        if(optMessage.isPresent()) {
+            final Message message = optMessage.get();
+            if (associationService.isVisibleForUser(message, userService.getCurrentUser())) {
+                messageService.updateSeenDate(message);
+                return ResponseEntity.ok(message);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     @GetMapping("getUnreadMessageCount")
@@ -107,4 +120,13 @@ public class MessageController {
             throw new BindException(bindingResult);
         }
     }
+
+    @DeleteMapping(value = "{id}")
+    public void deleteMessage(
+            @PathVariable("id") long messageId
+    ) {
+        Optional<Message> optMessage = messageRepository.findById(messageId);
+        optMessage.ifPresent(messageService::deleteMessage);
+    }
+
 }
