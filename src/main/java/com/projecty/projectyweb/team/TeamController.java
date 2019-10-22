@@ -2,7 +2,6 @@ package com.projecty.projectyweb.team;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +27,6 @@ import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleService;
-import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 
 
@@ -164,26 +162,18 @@ public class TeamController {
     @GetMapping("projectList")
     @AnyPermission
     public Map<String, Object> projectList(@RequestParam Long teamId) {
-        Optional<Team> optionalTeam = teamService.findById(teamId);
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("teamName", optionalTeam.get().getName());
-        map.put("projects", optionalTeam.get().getProjects());
-        map.put("isCurrentUserTeamManager", teamRoleService.isCurrentUserTeamManager(optionalTeam.get()));
-        return map;
+        return teamService.findProjects(teamId);
     }
 
     @PostMapping("deleteTeam")
     @EditPermission
     public void deleteTeamPost(@RequestParam Long teamId) {
-        Optional<Team> optionalTeam = teamService.findById(teamId);
-        teamService.delete(optionalTeam.get());
+        teamService.delete(teamId);
     }
 
     @PostMapping("leaveTeam")
     @AnyPermission
     public void leaveTeamPost(Long teamId) {
-        Optional<Team> optionalTeam = teamService.findById(teamId);
-        User current = userService.getCurrentUser();
-        teamRoleService.leaveTeam(optionalTeam.get(), current);
+        teamRoleService.leaveTeam(teamId);
     }
 }

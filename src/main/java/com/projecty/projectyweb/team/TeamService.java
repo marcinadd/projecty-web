@@ -2,7 +2,9 @@ package com.projecty.projectyweb.team;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import com.projecty.projectyweb.team.role.TeamRoleService;
 
 @Service
 public class TeamService {
+	
     private final TeamRepository teamRepository;
     private final TeamRoleService teamRoleService;
     private final ProjectRepository projectRepository;
@@ -59,7 +62,22 @@ public class TeamService {
 		return teamRepository.save(team);
 	}
 
-	public void delete(Team team) {
-		teamRepository.delete(team);
+	public void delete(Long teamId) {
+		Optional<Team> optionalTeam = findById(teamId);
+		if(optionalTeam.isPresent()) {
+			teamRepository.delete(optionalTeam.get());
+		}
+		else {
+			// FIXME throw a 404 exception
+		}
+	}
+	
+	public Map<String, Object> findProjects(Long teamId) {
+		Optional<Team> optionalTeam = findById(teamId);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("teamName", optionalTeam.get().getName());
+        map.put("projects", optionalTeam.get().getProjects());
+        map.put("isCurrentUserTeamManager", teamRoleService.isCurrentUserTeamManager(optionalTeam.get()));
+        return map;
 	}
 }

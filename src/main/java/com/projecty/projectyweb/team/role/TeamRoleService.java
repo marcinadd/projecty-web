@@ -3,6 +3,7 @@ package com.projecty.projectyweb.team.role;
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.team.TeamRepository;
+import com.projecty.projectyweb.team.TeamService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,13 @@ import java.util.*;
 @Service
 public class TeamRoleService {
     private final UserService userService;
+    private final TeamService teamService;
     private final TeamRoleRepository teamRoleRepository;
     private final TeamRepository teamRepository;
 
-    public TeamRoleService(UserService userService, TeamRoleRepository teamRoleRepository, TeamRepository teamRepository) {
-        this.userService = userService;
+    public TeamRoleService(UserService userService, TeamService teamService, TeamRoleRepository teamRoleRepository, TeamRepository teamRepository) {
+        this.teamService = teamService;
+		this.userService = userService;
         this.teamRoleRepository = teamRoleRepository;
         this.teamRepository = teamRepository;
     }
@@ -99,15 +102,25 @@ public class TeamRoleService {
         return managerTeamRoles;
     }
 
-    public void leaveTeam(Team team, User user) throws NoManagersInTeamException {
-        Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(team, user);
-        if (optionalTeamRole.isPresent()) {
-            team.getTeamRoles().remove(optionalTeamRole.get());
-            if (getTeamManagersCount(team) == 0) {
-                throw new NoManagersInTeamException();
+    public void leaveTeam(Long teamId) throws NoManagersInTeamException {
+    	Optional<Team> optionalTeam = teamService.findById(teamId);
+    	User user = userService.getCurrentUser();
+    	Team foundTeam = null;
+    	if(optionalTeam.isPresent() && user != null) {
+    		foundTeam = optionalTeam.get();
+    		Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(optionalTeam.get(), user);
+            if (optionalTeamRole.isPresent()) {
+            	foundTeam.getTeamRoles().remove(optionalTeamRole.get());
+                if (getTeamManagersCount(foundTeam) == 0) {
+                    throw new NoManagersInTeamException();
+                }
+                teamRepository.save(foundTeam);
             }
-            teamRepository.save(team);
-        }
+    	}
+    	else {
+    		//fIXME : throw a 40 exception for example
+    	}
+        
     }
 
 	public Optional<TeamRole> findById(Long teamRoleId) {
