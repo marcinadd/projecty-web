@@ -14,9 +14,11 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.MySQLContainer;
@@ -57,8 +59,13 @@ public class UserRegistrationTests {
         final String baseUrl = "http://localhost:"+randomServerPort+"/register";
         try {
             HttpHeaders headers  = new HttpHeaders();
-            headers.add("Authorization","");
-            HttpEntity<RegisterForm> request = new HttpEntity<>(registerForm, headers);
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+            map.set("username", registerForm.getUsername());
+            map.set("email",registerForm.getEmail());
+            map.set("password",registerForm.getPassword());
+            map.set("passwordRepeat",registerForm.getPassword());
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
             ResponseEntity<String> registerFormResponseEntity = restTemplate.postForEntity(new URI(baseUrl), request, String.class);
             assertEquals(200, registerFormResponseEntity.getStatusCodeValue());
         } catch (URISyntaxException e) {
