@@ -15,21 +15,22 @@ repositories {
 }
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter-web')
-    compile group: 'org.springframework.security', name: 'spring-security-core', version: '5.1.6.RELEASE'
-    compile group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.1.6.RELEASE'
-    compile group: 'org.springframework.security', name: 'spring-security-web', version: '5.1.6.RELEASE'
-    compile group: 'org.springframework.security', name: 'spring-security-config', version: '5.1.6.RELEASE'
-    compile("org.springframework.boot:spring-boot-starter-security")
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation group: 'org.springframework.security', name: 'spring-security-core', version: '5.1.6.RELEASE'
+    implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.1.6.RELEASE'
+    implementation group: 'org.springframework.security', name: 'spring-security-web', version: '5.1.6.RELEASE'
+    implementation group: 'org.springframework.security', name: 'spring-security-config', version: '5.1.6.RELEASE'
+    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'mysql:mysql-connector-java'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompile group: 'com.h2database', name: 'h2', version: '1.4.199'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.12.2'
     testCompile group: 'org.springframework.security', name: 'spring-security-test', version: '5.1.6.RELEASE'
-    compile group: 'org.springframework', name: 'spring-aop', version: '5.1.8.RELEASE'
-    compile group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.6.RELEASE'
-    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
-    compile group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.2'
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation group: 'org.springframework', name: 'spring-aop', version: '5.1.8.RELEASE'
+    implementation group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.6.RELEASE'
+    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.2'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation("org.flywaydb:flyway-core")
 }

@@ -23,7 +23,6 @@ services:
      - 3306:33060
    volumes:
      - db-data:/var/lib/mysql
-     - ./sql-scripts:/docker-entrypoint-initdb.d
 
 networks:
   projecty-network:
