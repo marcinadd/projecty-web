@@ -118,7 +118,7 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnMyProject_shouldReturnProjectRolesAndTeamRoles() throws Exception {
-        mockMvc.perform(get("/project/myProjects"))
+        mockMvc.perform(get("/projects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("projectRoles").exists())
                 .andExpect(jsonPath("teamRoles").exists());
@@ -127,7 +127,7 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnPostFormWithoutOtherUsers_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/addProject")
+        mockMvc.perform(post("/projects")
                 .flashAttr("project", project))
                 .andExpect(status().isOk());
     }
@@ -135,7 +135,7 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnManageProject_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/project/manageProject?projectId=1")
+        mockMvc.perform(get("/projects/1")
                 .flashAttr("project", project))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.project").isNotEmpty())
@@ -146,7 +146,7 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteUser_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/deleteUser?projectId=1&userId=2"))
+        mockMvc.perform(post("/projects/deleteUser?projectId=1&userId=2"))
                 .andExpect(status().isOk());
     }
 
