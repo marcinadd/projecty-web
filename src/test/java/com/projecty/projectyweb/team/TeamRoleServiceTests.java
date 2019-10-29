@@ -175,9 +175,10 @@ public class TeamRoleServiceTests {
         teamRoles.add(currentRole);
         team.setTeamRoles(teamRoles);
         teamRepository.save(team);
-        teamRoleService.leaveTeam(team.getId());
+        teamRoleService.leaveTeam(team);
         Optional<Team> optionalTeam = teamRepository.findById(team.getId());
         if (optionalTeam.isPresent()) {
+        	System.out.println(optionalTeam.get().getTeamRoles().size() + " DDDDDDDD");
             assertThat(optionalTeam.get().getTeamRoles().size(), is(1));
         } else {
             assert false;
@@ -216,6 +217,6 @@ public class TeamRoleServiceTests {
         teamRoles.add(currentRole);
         team.setTeamRoles(teamRoles);
         teamRepository.save(team);
-        teamRoleService.leaveTeam(team.getId());
+        teamRoleService.leaveTeam(team);
     }
 }
