@@ -142,7 +142,7 @@ public class TeamService {
 	public void leaveTeam(Long teamId) {
 		Optional<Team> optionalTeam = findById(teamId);
 		if(optionalTeam.isPresent()) {
-			teamRoleService.leaveTeam(optionalTeam.get());
+			teamRoleService.leaveTeam(optionalTeam.get(), null);
 		}
 		
 	}

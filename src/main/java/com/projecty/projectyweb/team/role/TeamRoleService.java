@@ -17,12 +17,10 @@ import com.projecty.projectyweb.user.UserService;
 @Service
 public class TeamRoleService {
     private final UserService userService;
-//    private final TeamService teamService;
     private final TeamRoleRepository teamRoleRepository;
     private final TeamRepository teamRepository;
 
     public TeamRoleService(UserService userService, TeamRoleRepository teamRoleRepository, TeamRepository teamRepository) {
-//        this.teamService = teamService;
 		this.userService = userService;
         this.teamRoleRepository = teamRoleRepository;
         this.teamRepository = teamRepository;
@@ -106,10 +104,8 @@ public class TeamRoleService {
         return managerTeamRoles;
     }
 
-    public void leaveTeam(Team team) throws NoManagersInTeamException {
-    	User user = userService.getCurrentUser();
-    	if(user != null) {
-    		Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(team, user);
+    public void leaveTeam(Team team, User user) throws NoManagersInTeamException {
+    		Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(team, user == null ? userService.getCurrentUser() : user);
             if (optionalTeamRole.isPresent()) {
             	team.getTeamRoles().remove(optionalTeamRole.get());
                 if (getTeamManagersCount(team) == 0) {
@@ -120,10 +116,6 @@ public class TeamRoleService {
             else {
             	throw new NoManagersInTeamException();
             }
-    	}
-    	else {
-    		throw new NoManagersInTeamException();
-    	}
         
     }
 

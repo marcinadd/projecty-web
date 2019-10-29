@@ -142,3 +142,4 @@ hs_err_pid*
 ### Gradle Patch ###
 **/build/
 /bin/
+/.DS_Store
