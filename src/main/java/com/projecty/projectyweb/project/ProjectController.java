@@ -50,6 +50,7 @@ public class ProjectController {
 			System.out.println(bindingResult.getAllErrors());
 			throw new BindException(bindingResult);
 		}
+		//FIXME : remove this System.out.println later
 		System.out.println(project.getUsernames());
 		List<RedirectMessage> redirectMessages = new ArrayList<>();
 		projectService.createNewProjectAndSave(project, project.getUsernames(), redirectMessages);

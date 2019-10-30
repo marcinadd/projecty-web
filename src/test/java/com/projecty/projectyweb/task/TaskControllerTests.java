@@ -125,7 +125,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnMyProject_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/project/task/taskList?projectId=1"))
+        mockMvc.perform(get("/project/task/taskList/project/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.toDoTasks").isArray())
                 .andExpect(jsonPath("$.inProgressTasks").isArray())
@@ -137,14 +137,14 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteTask_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
+        mockMvc.perform(post("/project/task/deleteTask/project/1/task/1"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnAddTask_shouldReturnProject() throws Exception {
-        mockMvc.perform(get("/project/task/addTask?projectId=1"))
+        mockMvc.perform(get("/project/task/addTask/project/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(project.getName()));
     }
@@ -152,7 +152,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser(username = "user1")
     public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
+        mockMvc.perform(post("/project/task/deleteTask/project/1/task/1"))
                 .andExpect(status().isNotFound());
     }
 

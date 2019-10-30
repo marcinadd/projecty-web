@@ -32,9 +32,9 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping("addTask")
+    @GetMapping("addTask/project/{projectId}")
     public Project addTask(
-            @RequestParam Long projectId
+            @PathVariable("projectId") Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
@@ -44,9 +44,9 @@ public class TaskController {
         }
     }
 
-    @PostMapping("addTask")
+    @PostMapping("addTask/project/{projectId}")
     public void addTaskPost(
-            @RequestParam Long projectId,
+    		@PathVariable("projectId") Long projectId,
             @ModelAttribute Task task,
             BindingResult bindingResult
     ) {
@@ -65,9 +65,9 @@ public class TaskController {
         }
     }
 
-    @GetMapping("taskList")
+    @GetMapping("taskList/project/{projectId}")
     public Map<String, Object> taskList(
-            @RequestParam Long projectId
+    		@PathVariable("projectId") Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Project project = optionalProject.get();
@@ -83,10 +83,10 @@ public class TaskController {
         return map;
     }
 
-    @PostMapping("deleteTask")
+    @PostMapping({"deleteTask/project/{projectId}/task/{taskId}", "deleteTask/task/{taskId}", "deleteTask/project/task/{taskId}"})
     @EditPermission
     public void deleteTaskPost(
-            @RequestParam Long taskId
+            @PathVariable("taskId") Long taskId, @PathVariable("projectId") Optional<Long> projectId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
