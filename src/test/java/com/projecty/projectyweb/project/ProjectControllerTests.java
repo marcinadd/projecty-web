@@ -129,7 +129,7 @@ public class ProjectControllerTests {
     public void givenRequestOnPostFormWithoutOtherUsers_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/projects")
                 .flashAttr("project", project))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -147,7 +147,7 @@ public class ProjectControllerTests {
     @WithMockUser
     public void givenRequestOnDeleteUser_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/projects/deleteUser?projectId=1&userId=2"))
-                .andExpect(status().isOk());
+                .andExpect(status().isMethodNotAllowed());
     }
 
     @Test
@@ -155,14 +155,14 @@ public class ProjectControllerTests {
     public void givenRequestOnAddUsers_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/project/addUsers?projectId=1")
                 .param("usernames", "user1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnChangeRole_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/project/changeRole?projectId=1&roleId=2&newRoleName=USER"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -173,6 +173,6 @@ public class ProjectControllerTests {
         editedProject.setName("New sample project");
         mockMvc.perform(post("/project/changeName")
                 .flashAttr("project", editedProject))
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 }

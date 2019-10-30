@@ -1,129 +1,89 @@
 package com.projecty.projectyweb.project;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
+
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
-import com.projecty.projectyweb.project.role.ProjectRoleRepository;
-import com.projecty.projectyweb.project.role.ProjectRoleService;
-import com.projecty.projectyweb.user.User;
-import com.projecty.projectyweb.user.UserRepository;
-import com.projecty.projectyweb.user.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import javax.validation.Valid;
-import java.io.IOException;
-import java.util.*;
 
 @CrossOrigin()
 @RestController
 @RequestMapping("projects")
 public class ProjectController {
-    private final ProjectService projectService;
 
-    private final ProjectRepository projectRepository;
+	private final ProjectService projectService;
 
-    private final UserRepository userRepository;
+	private final ProjectValidator projectValidator;
 
-    private final UserService userService;
+	public ProjectController(ProjectService projectService, ProjectValidator projectValidator) {
+		this.projectService = projectService;
+		this.projectValidator = projectValidator;
+	}
 
-    private final ProjectRoleRepository projectRoleRepository;
+	@GetMapping("")
+	public Map<String, Object> myProjects() {
+		return projectService.getProjects();
+	}
 
-    private final ProjectValidator projectValidator;
+	@PostMapping("")
+	public void addProjectPost(@Valid @RequestBody Project project, BindingResult bindingResult) throws BindException {
+		projectValidator.validate(project, bindingResult);
+		if (bindingResult.hasErrors()) {
+			System.out.println(bindingResult.getAllErrors());
+			throw new BindException(bindingResult);
+		}
+		System.out.println(project.getUsernames());
+		List<RedirectMessage> redirectMessages = new ArrayList<>();
+		projectService.createNewProjectAndSave(project, project.getUsernames(), redirectMessages);
+	}
 
-    private final ProjectRoleService projectRoleService;
+	@DeleteMapping("/{projectId}")
+	@EditPermission
+	public void deleteProject(@PathVariable Long projectId) {
+		projectService.deleteProject(projectId);
+	}
 
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectValidator projectValidator, ProjectRoleService projectRoleService) {
-        this.projectService = projectService;
-        this.projectRepository = projectRepository;
-        this.userRepository = userRepository;
-        this.userService = userService;
-        this.projectRoleRepository = projectRoleRepository;
-        this.projectValidator = projectValidator;
-        this.projectRoleService = projectRoleService;
-    }
+	@PostMapping("/{projectId}/roles")
+	@EditPermission
+	public void addUsersToExistingProjectPost(@PathVariable Long projectId,
+			@RequestBody(required = false) String usernames) throws IOException {
+		InputUsernameList data = new ObjectMapper().readValue(usernames, InputUsernameList.class);
+		projectService.addUserToProject(projectId, data.getUsernames());
+	}
 
-    @GetMapping("")
-    public Map<String, Object> myProjects() {
-        User current = userService.getCurrentUser();
-        Map<String, Object> map = new HashMap<>();
-        map.put("projectRoles", current.getProjectRoles());
-        map.put("teamRoles", current.getTeamRoles());
-        return map;
-    }
+	@GetMapping("/{projectId}")
+	@EditPermission
+	public Map<String, Object> manageProject(@PathVariable Long projectId) {
+		return projectService.manageProject(projectId);
+	}
 
-    @PostMapping("")
-    public void addProjectPost(
-            @Valid @RequestBody Project project,
-            BindingResult bindingResult
-    ) throws BindException {
-        projectValidator.validate(project, bindingResult);
-        if (bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getAllErrors());
-            throw new BindException(bindingResult);
-        }
-        System.out.println(project.getUsernames());
-        List<RedirectMessage> redirectMessages = new ArrayList<>();
-        projectService.createNewProjectAndSave(project, project.getUsernames(), redirectMessages);
-    }
+	@PostMapping("/{projectId}/leave")
+	@AnyPermission
+	public void leaveProject(@PathVariable Long projectId) {
+		projectService.leaveProject(projectId);
+	}
 
-    @DeleteMapping("/{projectId}")
-    @EditPermission
-    public void deleteProject(@PathVariable Long projectId) {
-        Optional<Project> project = projectRepository.findById(projectId);
-        projectRepository.delete(project.get());
-    }
-
-    @PostMapping("/{projectId}/roles")
-    @EditPermission
-    public void addUsersToExistingProjectPost(
-            @PathVariable Long projectId,
-            @RequestBody(required = false) String usernames
-    ) throws IOException {
-        InputUsernameList data = new ObjectMapper().readValue(usernames, InputUsernameList.class);
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
-        Project project = optionalProject.get();
-        List<RedirectMessage> redirectMessages = new ArrayList<>();
-        projectRoleService.addRolesToProjectByUsernames(project, data.getUsernames(), redirectMessages);
-        projectRepository.save(project);
-    }
-
-    @GetMapping("/{projectId}")
-    @EditPermission
-    public Map<String, Object> manageProject(
-            @PathVariable Long projectId
-    ) {
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
-        Map<String, Object> map = new HashMap<>();
-        map.put("project", optionalProject.get());
-        map.put("projectRoles", optionalProject.get().getProjectRoles());
-        map.put("currentUser", userService.getCurrentUser());
-        return map;
-    }
-
-    @PostMapping("/{projectId}/leave")
-    @AnyPermission
-    public void leaveProject(@PathVariable Long projectId) {
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
-        User current = userService.getCurrentUser();
-        projectRoleService.leaveProject(optionalProject.get(), current);
-    }
-
-    @PatchMapping("/{projectId}")
-    public void changeNamePost(
-            @PathVariable("projectId") Long projectId,
-            @RequestBody Map<String, String> fields
-    ) {
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
-        String name = fields.get("name");
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && !name.isEmpty()) {
-            projectService.changeName(optionalProject.get(), name.trim());
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
+	@PatchMapping("/{projectId}")
+	public void changeNamePost(@PathVariable("projectId") Long projectId, @RequestBody Map<String, String> fields) {
+		final String name = fields.get("name");
+		projectService.rename(projectId, name);
+	}
 }
