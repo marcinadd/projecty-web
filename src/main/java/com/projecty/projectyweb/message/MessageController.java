@@ -54,9 +54,9 @@ public class MessageController {
         return messageRepository.findBySenderOrderBySendDateDesc(user);
     }
 
-    @PostMapping("sendMessage")
+    @PostMapping("sendMessage/to/{username}")
     public void sendMessagePost(
-            @RequestParam String recipientUsername,
+            @PathVariable("username") String recipientUsername,
             @ModelAttribute Message message,
             BindingResult bindingResult,
             @RequestParam(required = false) List<MultipartFile> multipartFiles
@@ -68,27 +68,27 @@ public class MessageController {
         }
     }
 
-    @GetMapping(value = "downloadFile")
+    @GetMapping(value = {"downloadFile/message/{messageId}/file/{fileId}", "downloadFile/message/{messageId}/file", "downloadFile/message/{messageId}"})
     @AnyPermission
     public @ResponseBody
     byte[] downloadFile(
-            @RequestParam Long messageId,
-            @RequestParam(required = false, defaultValue = "0") Long fileId,
+            @PathVariable("messageId") Long messageId,
+            @PathVariable("fileId") Optional<Long> fileId,
             HttpServletResponse response
     ) throws IOException, SQLException {
         Optional<Message> optionalMessage = messageRepository.findById(messageId);
         Message message = optionalMessage.get();
-        Attachment attachment = message.getAttachments().get(Math.toIntExact(fileId));
+        Attachment attachment = message.getAttachments().get(fileId.isPresent() ? Math.toIntExact(fileId.get()) : 0);
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=" + attachment.getFileName());
         response.flushBuffer();
         return attachmentService.getByteArrayFromAttachment(attachment);
     }
 
-    @GetMapping("viewMessage")
+    @GetMapping("viewMessage/message/{messageId}")
     @AnyPermission
     public ResponseEntity<Message> viewMessage(
-            @RequestParam Long messageId
+            @PathVariable Long messageId
     ) {
         Optional<Message> optMessage = messageRepository.findById(messageId);
         if(optMessage.isPresent()) {
