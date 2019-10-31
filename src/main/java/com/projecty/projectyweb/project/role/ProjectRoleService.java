@@ -82,14 +82,12 @@ public class ProjectRoleService {
         }
     }
 
-    public void deleteUserFromProject(User user, Project project) {
-        Optional<ProjectRole> toDeleteRole = projectRoleRepository.findRoleByUserAndProject(user, project);
-        if (toDeleteRole.isPresent()) {
-            List<ProjectRole> projectRoles = project.getProjectRoles();
-            projectRoles.remove(toDeleteRole.get());
-            project.setProjectRoles(projectRoles);
-            projectRepository.save(project);
-        }
+    public void deleteRoleFromProject(ProjectRole role) {
+        Project project = role.getProject();
+        List<ProjectRole> projectRoles = project.getProjectRoles();
+        projectRoles.remove(role);
+        project.setProjectRoles(projectRoles);
+        projectRepository.save(project);
     }
 
     public void leaveProject(Project project, User user) throws NoAdminsInProjectException {

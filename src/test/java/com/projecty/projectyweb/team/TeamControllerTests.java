@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.team;
 
+import com.google.gson.Gson;
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.message.MessageRepository;
 import com.projecty.projectyweb.project.Project;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,8 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -148,7 +149,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenGetRequestOnMyTeams_shouldReturnMyTeamRoles() throws Exception {
-        mockMvc.perform(get("/team/myTeams"))
+        mockMvc.perform(get("/teams"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
     }
@@ -156,15 +157,17 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenPostRequestOnAddTeam_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/team/addTeam")
-                .flashAttr("team", team))
+        team.setTeamRoles(null);
+        mockMvc.perform(post("/teams")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new Gson().toJson(team)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenGetRequestOnAddTeamProject_shouldReturnTeamRoles() throws Exception {
-        mockMvc.perform(get("/team/addProjectToTeam"))
+        mockMvc.perform(get("/teams/addProjectToTeam"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
     }
@@ -172,8 +175,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenGetRequestOnAddTeamProjectForSpecifiedTeam_shouldRetunTeamName() throws Exception {
-        mockMvc.perform(get("/team/addProjectToTeam")
-                .param("teamId", "1"))
+        mockMvc.perform(get("/teams/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isString());
     }
@@ -181,17 +183,16 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenPostRequestOnAddTeamProject_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/team/addProjectToTeam")
-                .flashAttr("project", newProject)
-                .param("teamId", "1"))
+        mockMvc.perform(post("/teams/1/project")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new Gson().toJson(newProject)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenGetRequestOnManageTeam_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/team/manageTeam")
-                .param("teamId", "1"))
+        mockMvc.perform(get("/teams/1?roles=true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.team").isNotEmpty())
                 .andExpect(jsonPath("$.currentUser").isNotEmpty())
@@ -201,9 +202,9 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenPostRequestOnChangeName_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/team/changeName")
-                .param("teamId", "1")
-                .param("newName", "New name"))
+        mockMvc.perform(patch("/teams/1/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"New name\"}"))
                 .andExpect(status().isOk());
     }
 
@@ -211,35 +212,17 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenPostRequestOnAddUsersToTeam_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/team/addUsers")
-                .param("teamId", "1")
-                .param("usernames", "user1"))
+        mockMvc.perform(post("/teams/1/roles")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new Gson().toJson(Collections.singletonList("user1"))))
                 .andExpect(status().isOk());
     }
 
-    @Test
-    @WithMockUser
-    public void givenRequestOnDeleteTeamRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/team/deleteTeamRole")
-                .param("teamRoleId", "4"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser
-    public void givenRequestOnChangeTeamRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/team/changeTeamRole")
-                .param("teamId", "1")
-                .param("teamRoleId", "4")
-                .param("newRoleName", String.valueOf(TeamRoles.MEMBER)))
-                .andExpect(status().isOk());
-    }
 
     @Test
     @WithMockUser
     public void givenRequestOnProjectList_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/team/projectList")
-                .param("teamId", "1"))
+        mockMvc.perform(get("/teams/1/projects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.teamName").value(team.getName()))
                 .andExpect(jsonPath("$.projects").exists())
@@ -249,8 +232,24 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnLeaveTeamPost_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/team/leaveTeam")
-                .param("teamId", "1"))
+        mockMvc.perform(post("/teams/1/leave"))
+                .andExpect(status().isOk());
+    }
+
+    // TODO Move this two methods to separate class
+    @Test
+    @WithMockUser
+    public void givenRequestOnDeleteTeamRole_shouldReturnOk() throws Exception {
+        mockMvc.perform(delete("/teamRoles/4"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnChangeTeamRole_shouldReturnOk() throws Exception {
+        mockMvc.perform(patch("/teamRoles/4")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"" + TeamRoles.MEMBER + "\"}"))
                 .andExpect(status().isOk());
     }
 }
