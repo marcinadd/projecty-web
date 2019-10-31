@@ -1,8 +1,15 @@
 package com.projecty.projectyweb.user;
 
-import com.projecty.projectyweb.ProjectyWebApplication;
-import com.projecty.projectyweb.message.MessageRepository;
-import com.projecty.projectyweb.user.avatar.Avatar;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.sql.SQLException;
+
+import javax.sql.rowset.serial.SerialBlob;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -20,13 +28,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import javax.sql.rowset.serial.SerialBlob;
-import java.sql.SQLException;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.projecty.projectyweb.ProjectyWebApplication;
+import com.projecty.projectyweb.message.MessageRepository;
+import com.projecty.projectyweb.user.avatar.Avatar;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -108,10 +112,13 @@ public class UserControllerTests {
     @WithMockUser
     public void givenRequestOnChangePasswordFormWithValidData_shouldReturnOk() throws Exception {
         mockMvc.perform(
-                post("/changePassword")
-                        .param("currentPassword", "password123")
-                        .param("newPassword", "newPassword123")
-                        .param("repeatPassword", "newPassword123"))
+                put("/changePassword") //
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\n" + 
+                		" \"currentPassword\": \"password123\",\n" + 
+                		" \"newPassword\": \"newPassword123\",\n" + 
+                		" \"repeatPassword\": \"newPassword123\"\n" + 
+                		"}"))
                 .andExpect(status().isOk());
     }
 
