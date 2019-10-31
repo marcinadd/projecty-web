@@ -29,6 +29,7 @@ import java.util.Optional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -126,7 +127,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnMyProject_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/project/task/taskList/project/1"))
+        mockMvc.perform(get("/project/task/taskList/project/{projectId}", 1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.toDoTasks").isArray())
                 .andExpect(jsonPath("$.inProgressTasks").isArray())
@@ -138,14 +139,14 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteTask_shouldReturnOk() throws Exception {
-        mockMvc.perform(delete("/project/task/deleteTask/project/1/task/1"))
+        mockMvc.perform(delete("/project/task/deleteTask/project/{projectId}/task/{taskId}", 1, 1))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnAddTask_shouldReturnProject() throws Exception {
-        mockMvc.perform(get("/project/task/addTask/project/1"))
+        mockMvc.perform(put("/project/task/addTask/project/{projectId}", 1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(project.getName()));
     }
@@ -153,21 +154,21 @@ public class TaskControllerTests {
     @Test
     @WithMockUser(username = "user1")
     public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(delete("/project/task/deleteTask/project/1/task/1"))
+        mockMvc.perform(delete("/project/task/deleteTask/project/{projectId}/task/{taskId}", 1, 1))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnChangeStatus_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/task/changeStatus/project/1/task/1/status/DONE"))
+        mockMvc.perform(post("/project/task/changeStatus/project/{projectId}/task/{taskId}/status/{status}", 1, 1, TaskStatus.DONE.name()))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnManageTask_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/project/task/manageTask/task/1"))
+        mockMvc.perform(get("/project/task/manageTask/task/{taskId}", 1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.task.name").value(task.getName()))
                 .andExpect(jsonPath("$.projectId").value(task.getProject().getId()))

@@ -129,7 +129,7 @@ public class MessageControllerTests {
 		User user1 = new User();
 		message.setRecipient(user);
 		message.setSender(user1);
-		mockMvc.perform(post("/message/sendMessage/to/".concat("notExistsUsername")).flashAttr("message", message))
+		mockMvc.perform(post("/message/sendMessage/to/{username}", "notExistsUsername").flashAttr("message", message))
 				.andExpect(status().isBadRequest());
 	}
 
@@ -144,28 +144,28 @@ public class MessageControllerTests {
 		User user1 = new User();
 		message.setRecipient(user);
 		message.setSender(user1);
-		mockMvc.perform(post("/message/sendMessage/to/".concat("user")).flashAttr("message", message))
+		mockMvc.perform(post("/message/sendMessage/to/{username}", "user").flashAttr("message", message))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	@WithMockUser
 	public void givenRequestOnSendMessage_shouldReturnOk() throws Exception {
-		mockMvc.perform(post("/message/sendMessage/to/".concat(recipientUsername)).flashAttr("message", message))
+		mockMvc.perform(post("/message/sendMessage/to/{username}", recipientUsername).flashAttr("message", message))
 				.andExpect(status().isOk());
 	}
 
 	@Test
 	@WithMockUser
 	public void givenRequestOnViewMessage_shouldReturnMessage() throws Exception {
-		mockMvc.perform(get("/message/viewMessage/message/1")).andExpect(status().isOk())
+		mockMvc.perform(get("/message/viewMessage/message/{messageId}", 1)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.text").value(message.getText()));
 	}
 
 	@Test
 	@WithMockUser
 	public void givenRequestOnViewMessageWhichNotFound_shouldReturnNotFound() throws Exception {
-		mockMvc.perform(get("/message/viewMessage/message/2")).andExpect(status().isNotFound());
+		mockMvc.perform(get("/message/viewMessage/message/{messageId}", 2)).andExpect(status().isNotFound());
 	}
 
 	@Test
@@ -189,19 +189,19 @@ public class MessageControllerTests {
 	@Test
 	@WithMockUser
 	public void givenRequestOnDownloadFile_shouldReturnFileToDownload() throws Exception {
-		mockMvc.perform(get("/message/downloadFile/message/1")).andExpect(status().isOk());
+		mockMvc.perform(get("/message/downloadFile/message/{messageId}", 1)).andExpect(status().isOk());
 	}
 
 	@Test
 	@WithMockUser("user2")
 	public void givenRequestOnDownloadFileWithNoPermission_shouldReturnFileNotFound() throws Exception {
-		mockMvc.perform(get("/message/downloadFile/message/1")).andExpect(status().isNotFound());
+		mockMvc.perform(get("/message/downloadFile/message/{messageId}", 1)).andExpect(status().isNotFound());
 	}
 
 	@Test
 	@WithMockUser("user2")
 	public void givenRequestOnMessageWithNoPermission_shouldReturnNotFound() throws Exception {
-		mockMvc.perform(get("/message/viewMessage/message/1")).andExpect(status().isNotFound());
+		mockMvc.perform(get("/message/viewMessage/message/{messageId}", 1)).andExpect(status().isNotFound());
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class MessageControllerTests {
 		replyMessage.setId(11L);
 		replyMessage.setText("This is sample reply message");
 		replyMessage.setTitle("sample reply title");
-		mockMvc.perform(post("/message/12/reply").flashAttr("message", replyMessage)).andExpect(status().isNotFound());
+		mockMvc.perform(post("/message/{replyToMessageId}/reply", 12).flashAttr("message", replyMessage)).andExpect(status().isNotFound());
 	}
 
 	@Test
@@ -221,7 +221,7 @@ public class MessageControllerTests {
 		replyMessage.setId(11L);
 		replyMessage.setText("This is sample reply message");
 		replyMessage.setTitle("sample reply title");
-		mockMvc.perform(post("/message/1/reply").flashAttr("message", replyMessage)).andExpect(status().isBadRequest());
+		mockMvc.perform(post("/message/{replyToMessageId}/reply", 1).flashAttr("message", replyMessage)).andExpect(status().isBadRequest());
 	}
 
 	@Test
@@ -231,7 +231,7 @@ public class MessageControllerTests {
 		replyMessage.setId(11L);
 		replyMessage.setText("This is sample reply message");
 		replyMessage.setTitle("sample reply title");
-		mockMvc.perform(post("/message/1/reply").flashAttr("message", replyMessage)).andExpect(status().isOk());
+		mockMvc.perform(post("/message/{replyToMessageId}/reply", 1).flashAttr("message", replyMessage)).andExpect(status().isOk());
 	}
 
 }

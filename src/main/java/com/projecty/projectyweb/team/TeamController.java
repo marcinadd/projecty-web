@@ -13,9 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,19 +77,19 @@ public class TeamController {
         return teamRoleService.getTeamRolesWhereManager(userService.getCurrentUser());
     }
 
-    @GetMapping(value = "addProjectToTeam", params = "teamId")
+    @GetMapping(value = "addProjectToTeam/team/{teamId}")
     @EditPermission
     public String addProjectToSpecifiedTeamPost(
-            @RequestParam Long teamId
+            @PathVariable Long teamId
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         return optionalTeam.get().getName();
     }
 
-    @PostMapping("addProjectToTeam")
+    @PostMapping("addProjectToTeam/team/{teamId}")
     public void addProjectToTeamPost(
             @Valid @ModelAttribute Project project,
-            @RequestParam Long teamId,
+            @PathVariable Long teamId,
             BindingResult bindingResult
     ) throws BindException {
         projectValidator.validate(project, bindingResult);
@@ -101,10 +104,10 @@ public class TeamController {
         }
     }
 
-    @GetMapping("manageTeam")
+    @GetMapping("manageTeam/team/{teamId}")
     @EditPermission
     public Map<String, Object> manageTeam(
-            @RequestParam Long teamId
+            @PathVariable Long teamId
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         Map<String, Object> map = new HashMap<>();
@@ -114,20 +117,20 @@ public class TeamController {
         return map;
     }
 
-    @PostMapping("changeName")
+    @PutMapping("changeName/team/{teamId}/into/{name}")
     @EditPermission
     public void changeNamePost(
-            @RequestParam Long teamId,
-            @RequestParam String newName
+            @PathVariable Long teamId,
+            @PathVariable String name
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        teamService.changeTeamName(optionalTeam.get(), newName);
+        teamService.changeTeamName(optionalTeam.get(), name);
     }
 
-    @PostMapping("addUsers")
+    @PutMapping("addUsers/{teamId}")
     @EditPermission
     public void addUsersPost(
-            @RequestParam Long teamId,
+            @PathVariable Long teamId,
             @RequestParam(required = false) List<String> usernames
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
@@ -135,9 +138,9 @@ public class TeamController {
         teamService.save(optionalTeam.get());
     }
 
-    @PostMapping("deleteTeamRole")
+    @DeleteMapping("deleteTeamRole/teamRole/{teamRoleId}")
     public void deleteTeamRole(
-            @RequestParam Long teamRoleId
+            @PathVariable Long teamRoleId
     ) {
         // TODO: 6/28/19 Prevent from delete current user from team
         Optional<TeamRole> optionalTeamRole = teamRoleService.findById(teamRoleId);
@@ -148,22 +151,22 @@ public class TeamController {
         }
     }
 
-    @PostMapping("changeTeamRole")
+    @PutMapping("changeTeamRole/teamRole/{teamRoleId}/to/{roleName}")
     public void changeTeamRolePost(
-            @RequestParam Long teamRoleId,
-            @RequestParam String newRoleName
+            @PathVariable Long teamRoleId,
+            @PathVariable String roleName
     ) {
         Optional<TeamRole> optionalTeamRole = teamRoleService.findById(teamRoleId);
         if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam())) {
-            teamRoleService.changeTeamRole(optionalTeamRole.get(), newRoleName);
+            teamRoleService.changeTeamRole(optionalTeamRole.get(), roleName);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping("projectList")
+    @GetMapping("projectList/{teamId}")
     @AnyPermission
-    public Map<String, Object> projectList(@RequestParam Long teamId) {
+    public Map<String, Object> projectList(@PathVariable Long teamId) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("teamName", optionalTeam.get().getName());
@@ -172,16 +175,16 @@ public class TeamController {
         return map;
     }
 
-    @PostMapping("deleteTeam")
+    @DeleteMapping("deleteTeam/{teamId}")
     @EditPermission
-    public void deleteTeamPost(@RequestParam Long teamId) {
+    public void deleteTeamPost(@PathVariable Long teamId) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         teamService.delete(optionalTeam.get());
     }
 
-    @PostMapping("leaveTeam")
+    @PutMapping("leaveTeam/{teamId}")
     @AnyPermission
-    public void leaveTeamPost(Long teamId) {
+    public void leaveTeamPost(@PathVariable Long teamId) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         User current = userService.getCurrentUser();
         teamRoleService.leaveTeam(optionalTeam.get(), current);

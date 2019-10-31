@@ -32,7 +32,7 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping("addTask/project/{projectId}")
+    @PutMapping("addTask/project/{projectId}")
     public Project addTask(
             @PathVariable("projectId") Long projectId
     ) {
@@ -85,7 +85,7 @@ public class TaskController {
 
     @DeleteMapping({"deleteTask/project/{projectId}/task/{taskId}", "deleteTask/task/{taskId}", "deleteTask/project/task/{taskId}"})
     @EditPermission
-    public void deleteTaskPost(
+    public void delete(
             @PathVariable("taskId") Long taskId, @PathVariable("projectId") Optional<Long> projectId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
