@@ -1,13 +1,18 @@
 package com.projecty.projectyweb.team.role;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
 import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Service
 public class TeamRoleService {
@@ -16,7 +21,7 @@ public class TeamRoleService {
     private final TeamRepository teamRepository;
 
     public TeamRoleService(UserService userService, TeamRoleRepository teamRoleRepository, TeamRepository teamRepository) {
-        this.userService = userService;
+		this.userService = userService;
         this.teamRoleRepository = teamRoleRepository;
         this.teamRepository = teamRepository;
     }
@@ -100,14 +105,18 @@ public class TeamRoleService {
     }
 
     public void leaveTeam(Team team, User user) throws NoManagersInTeamException {
-        Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(team, user);
-        if (optionalTeamRole.isPresent()) {
-            team.getTeamRoles().remove(optionalTeamRole.get());
-            if (getTeamManagersCount(team) == 0) {
-                throw new NoManagersInTeamException();
+    		Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(team, user == null ? userService.getCurrentUser() : user);
+            if (optionalTeamRole.isPresent()) {
+            	team.getTeamRoles().remove(optionalTeamRole.get());
+                if (getTeamManagersCount(team) == 0) {
+                    throw new NoManagersInTeamException();
+                }
+                teamRepository.save(team);
             }
-            teamRepository.save(team);
-        }
+            else {
+            	throw new NoManagersInTeamException();
+            }
+        
     }
 
 	public Optional<TeamRole> findById(Long teamRoleId) {
