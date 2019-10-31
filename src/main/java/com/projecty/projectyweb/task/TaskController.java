@@ -93,10 +93,10 @@ public class TaskController {
         taskRepository.delete(task);
     }
 
-    @PostMapping("changeStatus")
+    @PostMapping({"changeStatus/project/{projectId}/task/{taskId}/status/{status}", "changeStatus/task/{taskId}/status/{status}", "changeStatus/project/task/{taskId}/status/{status}"})
     public void changeStatusPost(
-            @RequestParam Long taskId,
-            @RequestParam String status
+            @PathVariable("taskId") Long taskId,
+            @PathVariable("status") String status
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         if (optionalTask.isPresent() && taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(optionalTask.get())) {
@@ -106,10 +106,10 @@ public class TaskController {
         }
     }
 
-    @GetMapping("manageTask")
+    @GetMapping("manageTask/task/{taskId}")
     @EditPermission
     public Map<String, Object> manageTask(
-            @RequestParam Long taskId
+    		@PathVariable("taskId") Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();

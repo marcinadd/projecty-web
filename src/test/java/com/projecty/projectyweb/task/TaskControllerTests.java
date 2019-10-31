@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -137,7 +138,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteTask_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/task/deleteTask/project/1/task/1"))
+        mockMvc.perform(delete("/project/task/deleteTask/project/1/task/1"))
                 .andExpect(status().isOk());
     }
 
@@ -152,21 +153,21 @@ public class TaskControllerTests {
     @Test
     @WithMockUser(username = "user1")
     public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(post("/project/task/deleteTask/project/1/task/1"))
+        mockMvc.perform(delete("/project/task/deleteTask/project/1/task/1"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnChangeStatus_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&status=DONE"))
+        mockMvc.perform(post("/project/task/changeStatus/project/1/task/1/status/DONE"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnManageTask_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/project/task/manageTask?taskId=1"))
+        mockMvc.perform(get("/project/task/manageTask/task/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.task.name").value(task.getName()))
                 .andExpect(jsonPath("$.projectId").value(task.getProject().getId()))
