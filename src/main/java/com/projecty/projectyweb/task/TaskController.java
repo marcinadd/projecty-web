@@ -83,7 +83,7 @@ public class TaskController {
         return map;
     }
 
-    @PostMapping({"deleteTask/project/{projectId}/task/{taskId}", "deleteTask/task/{taskId}", "deleteTask/project/task/{taskId}"})
+    @DeleteMapping({"deleteTask/project/{projectId}/task/{taskId}", "deleteTask/task/{taskId}", "deleteTask/project/task/{taskId}"})
     @EditPermission
     public void deleteTaskPost(
             @PathVariable("taskId") Long taskId, @PathVariable("projectId") Optional<Long> projectId
