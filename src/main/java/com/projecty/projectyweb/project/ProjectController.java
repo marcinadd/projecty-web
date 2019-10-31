@@ -1,13 +1,10 @@
 package com.projecty.projectyweb.project;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
-import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.user.User;
-import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -16,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.*;
 
 @CrossOrigin()
@@ -27,22 +23,16 @@ public class ProjectController {
 
     private final ProjectRepository projectRepository;
 
-    private final UserRepository userRepository;
-
     private final UserService userService;
-
-    private final ProjectRoleRepository projectRoleRepository;
 
     private final ProjectValidator projectValidator;
 
     private final ProjectRoleService projectRoleService;
 
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserRepository userRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectValidator projectValidator, ProjectRoleService projectRoleService) {
+    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserService userService, ProjectValidator projectValidator, ProjectRoleService projectRoleService) {
         this.projectService = projectService;
         this.projectRepository = projectRepository;
-        this.userRepository = userRepository;
         this.userService = userService;
-        this.projectRoleRepository = projectRoleRepository;
         this.projectValidator = projectValidator;
         this.projectRoleService = projectRoleService;
     }
@@ -82,17 +72,15 @@ public class ProjectController {
     @EditPermission
     public void addUsersToExistingProjectPost(
             @PathVariable Long projectId,
-            @RequestBody(required = false) String usernames
-    ) throws IOException {
-        InputUsernameList data = new ObjectMapper().readValue(usernames, InputUsernameList.class);
+            @RequestBody List<String> usernames) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Project project = optionalProject.get();
         List<RedirectMessage> redirectMessages = new ArrayList<>();
-        projectRoleService.addRolesToProjectByUsernames(project, data.getUsernames(), redirectMessages);
+        projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
         projectRepository.save(project);
     }
 
-    @GetMapping("/{projectId}")
+    @GetMapping(value = "/{projectId}", params = "roles")
     @EditPermission
     public Map<String, Object> manageProject(
             @PathVariable Long projectId
@@ -122,6 +110,18 @@ public class ProjectController {
         String name = fields.get("name");
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && !name.isEmpty()) {
             projectService.changeName(optionalProject.get(), name.trim());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/{projectId}")
+    public Project getProjectData(
+            @PathVariable Long projectId
+    ) {
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+            return optionalProject.get();
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

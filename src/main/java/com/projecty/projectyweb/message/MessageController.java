@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @CrossOrigin()
 @RestController
-@RequestMapping("message")
+@RequestMapping("messages")
 public class MessageController {
     private final UserService userService;
 
@@ -56,24 +56,23 @@ public class MessageController {
 
     @PostMapping("sendMessage")
     public void sendMessagePost(
-            @RequestParam String recipientUsername,
-            @ModelAttribute Message message,
+            @RequestBody Message message,
             BindingResult bindingResult,
             @RequestParam(required = false) List<MultipartFile> multipartFiles
 
     ) throws BindException {
-        messageService.sendMessage(recipientUsername, message, bindingResult, multipartFiles);
+        messageService.sendMessage(message.getRecipientUsername(), message, bindingResult, multipartFiles);
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
     }
 
-    @GetMapping(value = "downloadFile")
+    @GetMapping("/{messageId}/files/{fileId}")
     @AnyPermission
     public @ResponseBody
     byte[] downloadFile(
-            @RequestParam Long messageId,
-            @RequestParam(required = false, defaultValue = "0") Long fileId,
+            @PathVariable Long messageId,
+            @PathVariable(required = false) Long fileId,
             HttpServletResponse response
     ) throws IOException, SQLException {
         Optional<Message> optionalMessage = messageRepository.findById(messageId);
@@ -85,10 +84,10 @@ public class MessageController {
         return attachmentService.getByteArrayFromAttachment(attachment);
     }
 
-    @GetMapping("viewMessage")
+    @GetMapping("/{messageId}")
     @AnyPermission
     public ResponseEntity<Message> viewMessage(
-            @RequestParam Long messageId
+            @PathVariable Long messageId
     ) {
         Optional<Message> optMessage = messageRepository.findById(messageId);
         if(optMessage.isPresent()) {

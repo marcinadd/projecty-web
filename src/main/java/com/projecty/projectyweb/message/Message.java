@@ -44,6 +44,9 @@ public class Message {
     @JoinColumn(name = "reply_to_message_id")
     private Message replyToMessage;
 
+    @Transient
+    private String recipientUsername;
+
     public Long getId() {
         return id;
     }
@@ -114,5 +117,13 @@ public class Message {
 
     public void setReplyToMessage(Message replyToMessage) {
         this.replyToMessage = replyToMessage;
+    }
+
+    public String getRecipientUsername() {
+        return recipientUsername;
+    }
+
+    public void setRecipientUsername(String recipientUsername) {
+        this.recipientUsername = recipientUsername;
     }
 }

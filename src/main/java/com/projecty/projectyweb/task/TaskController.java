@@ -16,7 +16,7 @@ import java.util.*;
 
 @CrossOrigin()
 @RestController
-@RequestMapping("project/task")
+@RequestMapping("tasks")
 public class TaskController {
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
@@ -32,21 +32,9 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping("addTask")
-    public Project addTask(
-            @RequestParam Long projectId
-    ) {
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
-            return optionalProject.get();
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @PostMapping("addTask")
+    @PostMapping("/project/{projectId}")
     public void addTaskPost(
-            @RequestParam Long projectId,
+            @PathVariable Long projectId,
             @ModelAttribute Task task,
             BindingResult bindingResult
     ) {
@@ -65,9 +53,9 @@ public class TaskController {
         }
     }
 
-    @GetMapping("taskList")
+    @GetMapping("/project/{projectId}")
     public Map<String, Object> taskList(
-            @RequestParam Long projectId
+            @PathVariable Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Project project = optionalProject.get();
@@ -83,33 +71,20 @@ public class TaskController {
         return map;
     }
 
-    @PostMapping("deleteTask")
+    @DeleteMapping("/{taskId}")
     @EditPermission
     public void deleteTaskPost(
-            @RequestParam Long taskId
+            @PathVariable Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
         taskRepository.delete(task);
     }
 
-    @PostMapping("changeStatus")
-    public void changeStatusPost(
-            @RequestParam Long taskId,
-            @RequestParam String status
-    ) {
-        Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (optionalTask.isPresent() && taskService.hasCurrentUserPermissionToEditOrIsAssignedToTask(optionalTask.get())) {
-            taskService.changeTaskStatus(optionalTask.get(), status);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("manageTask")
+    @GetMapping("/{taskId}")
     @EditPermission
-    public Map<String, Object> manageTask(
-            @RequestParam Long taskId
+    public Map<String, Object> getTask(
+            @PathVariable Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
@@ -120,10 +95,12 @@ public class TaskController {
         return map;
     }
 
-    @PostMapping("editTaskDetails")
+    @PatchMapping("/{taskId}")
     public void editTaskDetailsPost(
-            @ModelAttribute Task task
+            @PathVariable Long taskId,
+            @RequestBody Task task
     ) throws BindException {
+        task.setId(taskId);
         Task newTaskCandidate = taskService.findTaskInRepositoryAndUpdateFields(task);
         if (newTaskCandidate != null && projectService.hasCurrentUserPermissionToEdit(newTaskCandidate.getProject())) {
             DataBinder dataBinder = new DataBinder(newTaskCandidate);
@@ -139,25 +116,25 @@ public class TaskController {
         }
     }
 
-    @PostMapping("assignUser")
+    @PostMapping("/{taskId}/assign")
     @EditPermission
     public void assignUserPost(
-            Long taskId,
-            String username
+            @PathVariable Long taskId,
+            @RequestBody Map<String, String> fields
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
-        taskService.assignUserByUsername(task, username);
+        taskService.assignUserByUsername(task, fields.get("username"));
     }
 
-    @PostMapping("removeAssignment")
+    @DeleteMapping("/{taskId}/assign")
     @EditPermission
     public void removeAssignment(
-            Long taskId,
-            String username
+            @PathVariable Long taskId,
+            @RequestBody Map<String, String> fields
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
-        taskService.removeAssignmentByUsername(task, username);
+        taskService.removeAssignmentByUsername(task, fields.get("username"));
     }
 }

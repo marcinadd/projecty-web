@@ -30,6 +30,9 @@ public class Team {
     )
     private List<Project> projects;
 
+    @Transient
+    private List<String> usernames;
+
     public Long getId() {
         return id;
     }
@@ -60,6 +63,14 @@ public class Team {
 
     public void setProjects(List<Project> projects) {
         this.projects = projects;
+    }
+
+    public List<String> getUsernames() {
+        return usernames;
+    }
+
+    public void setUsernames(List<String> usernames) {
+        this.usernames = usernames;
     }
 
     @Override
