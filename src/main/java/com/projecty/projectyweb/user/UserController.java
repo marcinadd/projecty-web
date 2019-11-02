@@ -29,7 +29,7 @@ public class UserController {
 
     @PostMapping("register")
     public void registerPost(
-            @Valid @ModelAttribute RegisterForm registerForm,
+            @Valid RegisterForm registerForm,
             BindingResult bindingResult
     ) throws BindException {
         User user = userService.createUserFromRegisterForm(registerForm);
