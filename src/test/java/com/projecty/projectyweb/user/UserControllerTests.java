@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -127,14 +130,24 @@ public class UserControllerTests {
     @Test
     public void givenRequestOnRegisterForExistingUser__shouldReturnBadRequest() throws Exception {
         mockMvc.perform(post("/register")
-                .flashAttr("registerForm", registerFormExistingUser))
-                .andExpect(status().isBadRequest());
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("username", registerFormExistingUser.getUsername())
+                .param("email",registerFormExistingUser.getEmail())
+                .param("password",registerFormExistingUser.getPassword())
+                .param("passwordRepeat",registerFormExistingUser.getPassword())
+        ).andExpect(status().isBadRequest());
     }
 
     @Test
     public void givenRequestOnRegister__shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/register")
-                .flashAttr("registerForm", registerForm))
+        mockMvc.perform(
+                post("/register")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("username", registerForm.getUsername())
+                        .param("email",registerForm.getEmail())
+                        .param("password",registerForm.getPassword())
+                        .param("passwordRepeat",registerForm.getPassword())
+                )
                 .andExpect(status().isOk());
 
         Mockito.verify(userRepository).findByUsername(registerForm.getUsername());
@@ -146,8 +159,7 @@ public class UserControllerTests {
         Assert.assertEquals(registerForm.getUsername(), savedUser.getUsername());
         Assert.assertEquals(registerForm.getEmail(), savedUser.getEmail());
         Assert.assertTrue(encoder.matches(registerForm.getPassword(), savedUser.getPassword()));
-        Assert.assertEquals(registerForm.getAvatar().getContentType(), savedUser.getAvatar().getContentType());
-        Assert.assertEquals(new SerialBlob(registerForm.getAvatar().getBytes()), savedUser.getAvatar().getFile());
+
 
         Mockito.verifyNoMoreInteractions(userRepository);
     }
