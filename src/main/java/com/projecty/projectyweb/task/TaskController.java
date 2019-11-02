@@ -35,9 +35,10 @@ public class TaskController {
     @PostMapping("/project/{projectId}")
     public void addTaskPost(
             @PathVariable Long projectId,
-            @ModelAttribute Task task,
+            @RequestBody Task task,
             BindingResult bindingResult
     ) {
+        task.setId(null);
         taskValidator.validate(task, bindingResult);
         Optional<Project> project = projectRepository.findById(projectId);
         if (bindingResult.hasErrors()) {

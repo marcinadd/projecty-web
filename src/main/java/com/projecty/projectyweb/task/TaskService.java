@@ -122,6 +122,7 @@ public class TaskService {
                 if (newTask.getName() != null) task.setName(newTask.getName());
                 if (newTask.getStartDate() != null) task.setStartDate(newTask.getStartDate());
                 if (newTask.getEndDate() != null) task.setEndDate(newTask.getEndDate());
+                if (newTask.getStatus() != null) task.setStatus(newTask.getStatus());
                 return task;
             }
         }

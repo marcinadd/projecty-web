@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projecty.projectyweb.user.User;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Blob;
 
 @Entity
-public class Avatar {
+public class Avatar implements Serializable {
     @Id
-    private Long userId;
+    @GeneratedValue
+    private Long id;
 
     private String contentType;
 
@@ -21,12 +23,12 @@ public class Avatar {
     @JsonIgnore
     private User user;
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getContentType() {
