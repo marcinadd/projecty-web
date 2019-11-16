@@ -62,9 +62,6 @@ public class MessageController {
 
     ) throws BindException {
         messageService.sendMessage(message.getRecipientUsername(), message, bindingResult, multipartFiles);
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
     }
 
     @GetMapping("/{messageId}/files/{fileId}")
@@ -127,5 +124,4 @@ public class MessageController {
         Optional<Message> optMessage = messageRepository.findById(messageId);
         optMessage.ifPresent(messageService::deleteMessage);
     }
-
 }
