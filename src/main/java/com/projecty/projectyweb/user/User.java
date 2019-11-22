@@ -96,7 +96,7 @@ public class User implements Serializable {
 
     @OneToOne(
             mappedBy = "user",
-            cascade = CascadeType.ALL,
+            cascade = CascadeType.MERGE,
             orphanRemoval = true
     )
     private Avatar avatar;

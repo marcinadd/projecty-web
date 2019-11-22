@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.project;
 
+import com.google.gson.Gson;
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
@@ -18,17 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,7 +120,7 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnMyProject_shouldReturnProjectRolesAndTeamRoles() throws Exception {
-        mockMvc.perform(get("/project/myProjects"))
+        mockMvc.perform(get("/projects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("projectRoles").exists())
                 .andExpect(jsonPath("teamRoles").exists());
@@ -127,16 +129,18 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnPostFormWithoutOtherUsers_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/addProject")
-                .flashAttr("project", project))
+        Project project1 = project;
+        project1.setProjectRoles(null);
+        mockMvc.perform(post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new Gson().toJson(project1)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnManageProject_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/project/manageProject?projectId=1")
-                .flashAttr("project", project))
+        mockMvc.perform(get("/projects/1?roles=true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.project").isNotEmpty())
                 .andExpect(jsonPath("$.projectRoles").isArray())
@@ -145,25 +149,20 @@ public class ProjectControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnDeleteUser_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/deleteUser?projectId=1&userId=2"))
+    public void givenRequestOnDeleteRole_shouldReturnOk() throws Exception {
+        mockMvc.perform(delete("/projectRoles/2"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnAddUsers_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/addUsers?projectId=1")
-                .param("usernames", "user1"))
+        mockMvc.perform(post("/projects/1/roles")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new Gson().toJson(Collections.singletonList("user2"))))
                 .andExpect(status().isOk());
     }
 
-    @Test
-    @WithMockUser
-    public void givenRequestOnChangeRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/changeRole?projectId=1&roleId=2&newRoleName=USER"))
-                .andExpect(status().isOk());
-    }
 
     @Test
     @WithMockUser
@@ -171,8 +170,26 @@ public class ProjectControllerTests {
         Project editedProject = new Project();
         editedProject.setId(1L);
         editedProject.setName("New sample project");
-        mockMvc.perform(post("/project/changeName")
-                .flashAttr("project", editedProject))
+        mockMvc.perform(patch("/projects/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new Gson().toJson(editedProject)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnGetProject_shouldReturnProject() throws Exception {
+        mockMvc.perform(get("/projects/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(project.getName()));
+    }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnChangeRole_shouldReturnOk() throws Exception {
+        mockMvc.perform(patch("/projectRoles/2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"" + ProjectRoles.ADMIN + "\"}"))
                 .andExpect(status().isOk());
     }
 }

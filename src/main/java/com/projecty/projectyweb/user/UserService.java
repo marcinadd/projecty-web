@@ -1,12 +1,18 @@
 package com.projecty.projectyweb.user;
 
+import com.projecty.projectyweb.user.avatar.Avatar;
+import com.projecty.projectyweb.user.avatar.AvatarService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.rowset.serial.SerialBlob;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -21,10 +27,13 @@ public class UserService {
 
     private final UserValidator userValidator;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserValidator userValidator) {
+    private final AvatarService avatarService;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserValidator userValidator, AvatarService avatarService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userValidator = userValidator;
+        this.avatarService = avatarService;
     }
 
     public void saveWithPasswordEncrypt(User user) {
@@ -101,5 +110,21 @@ public class UserService {
                 .passwordRepeat(registerForm.getPasswordRepeat())
                 .avatar(registerForm.getAvatar())
                 .build();
+    }
+
+    public void setUserAvatar(MultipartFile multipartFile) throws IOException, SQLException {
+        if (!multipartFile.isEmpty()) {
+            User current = getCurrentUser();
+            Avatar currentAvatar = current.getAvatar();
+            if (currentAvatar != null) {
+                avatarService.delete(currentAvatar);
+            }
+            Avatar avatar = new Avatar();
+            avatar.setContentType(multipartFile.getContentType());
+            avatar.setFile(new SerialBlob(multipartFile.getBytes()));
+            avatar.setUser(current);
+            current.setAvatar(avatar);
+            userRepository.save(current);
+        }
     }
 }

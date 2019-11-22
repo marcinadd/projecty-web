@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +29,7 @@ public class UserController {
 
     @PostMapping("register")
     public void registerPost(
-            @Valid @ModelAttribute RegisterForm registerForm,
+            @Valid RegisterForm registerForm,
             BindingResult bindingResult
     ) throws BindException {
         User user = userService.createUserFromRegisterForm(registerForm);
@@ -83,5 +84,10 @@ public class UserController {
         response.setHeader("Content-Disposition", "attachment; filename=avatar-" + userName);
         response.flushBuffer();
         return IOUtils.toByteArray(user.getAvatar().getFile().getBinaryStream());
+    }
+
+    @PostMapping("user/avatar")
+    public void setAvatar(@RequestParam("avatar") MultipartFile multipartFile) throws IOException, SQLException {
+        userService.setUserAvatar(multipartFile);
     }
 }

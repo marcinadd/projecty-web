@@ -23,6 +23,9 @@ public class Project {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
+    @Transient
+    private List<String> usernames;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -76,6 +79,14 @@ public class Project {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    public List<String> getUsernames() {
+        return usernames;
+    }
+
+    public void setUsernames(List<String> usernames) {
+        this.usernames = usernames;
     }
 
     @Override

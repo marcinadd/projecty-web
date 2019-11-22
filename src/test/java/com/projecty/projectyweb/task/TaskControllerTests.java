@@ -1,5 +1,7 @@
 package com.projecty.projectyweb.task;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -26,8 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -125,7 +127,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnMyProject_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/project/task/taskList?projectId=1"))
+        mockMvc.perform(get("/tasks/project/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.toDoTasks").isArray())
                 .andExpect(jsonPath("$.inProgressTasks").isArray())
@@ -137,36 +139,23 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteTask_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
+        mockMvc.perform(delete("/tasks/1"))
                 .andExpect(status().isOk());
     }
 
-    @Test
-    @WithMockUser
-    public void givenRequestOnAddTask_shouldReturnProject() throws Exception {
-        mockMvc.perform(get("/project/task/addTask?projectId=1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(project.getName()));
-    }
+
 
     @Test
     @WithMockUser(username = "user1")
     public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(post("/project/task/deleteTask?projectId=1&taskId=1"))
+        mockMvc.perform(delete("/tasks/1"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser
-    public void givenRequestOnChangeStatus_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/task/changeStatus?projectId=1&taskId=1&status=DONE"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser
     public void givenRequestOnManageTask_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/project/task/manageTask?taskId=1"))
+        mockMvc.perform(get("/tasks/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.task.name").value(task.getName()))
                 .andExpect(jsonPath("$.projectId").value(task.getProject().getId()))
@@ -182,22 +171,29 @@ public class TaskControllerTests {
         task.setStartDate(new Date(System.currentTimeMillis()));
         task.setEndDate(new Date(System.currentTimeMillis()));
         task.setStatus(TaskStatus.TO_DO);
-        mockMvc.perform(post("/project/task/editTaskDetails")
-                .flashAttr("task", task))
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+
+        mockMvc.perform(patch("/tasks/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(gson.toJson(task)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnAssignUser_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/task/assignUser?taskId=1&username=user1"))
+        mockMvc.perform(post("/tasks/1/assign")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"user1\"}"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnRemoveAssignment_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/project/task/removeAssignment?taskId=1&username=user1"))
+        mockMvc.perform(delete("/tasks/1/assign")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"user1\"}"))
                 .andExpect(status().isOk());
     }
 }

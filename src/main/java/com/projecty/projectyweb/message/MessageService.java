@@ -1,6 +1,5 @@
 package com.projecty.projectyweb.message;
 
-import com.projecty.projectyweb.message.association.AssociationRepository;
 import com.projecty.projectyweb.message.association.AssociationService;
 import com.projecty.projectyweb.message.attachment.AttachmentService;
 import com.projecty.projectyweb.user.User;
@@ -10,6 +9,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +19,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -64,31 +63,36 @@ public class MessageService {
             Message message,
             BindingResult bindingResult,
             List<MultipartFile> multipartFiles
-    ) {
+    ) throws BindException {
         Optional<User> recipient = userRepository.findByUsername(recipientUsername);
         User sender = userService.getCurrentUser();
+
+        //TODO Create MessageValidator
         if (!recipient.isPresent()) {
             ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.invalid", null, LocaleContextHolder.getLocale()));
             bindingResult.addError(objectError);
         } else if (sender == recipient.get()) {
             ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.yourself", null, LocaleContextHolder.getLocale()));
             bindingResult.addError(objectError);
-        } else {
-            message.setSender(sender);
-            message.setRecipient(recipient.get());
-            if (multipartFiles != null) {
-                attachmentService.addFilesToMessage(multipartFiles, message);
-            }
-            messageRepository.save(message);
-            associationService.recordMessage(message);
         }
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
+
+        message.setSender(sender);
+        message.setRecipient(recipient.get());
+        if (multipartFiles != null) {
+            attachmentService.addFilesToMessage(multipartFiles, message);
+        }
+        messageRepository.save(message);
+        associationService.recordMessage(message);
     }
 
 
     public void reply(Long replyToMessageId,
                       Message message,
                       BindingResult bindingResult,
-                      List<MultipartFile> multipartFiles) {
+                      List<MultipartFile> multipartFiles) throws BindException {
         Optional<Message> replyToMessage = messageRepository.findById(replyToMessageId);
         if (replyToMessage.isPresent()) {
             message.setReplyToMessage(replyToMessage.get());
