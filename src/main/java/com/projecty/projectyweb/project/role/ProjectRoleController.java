@@ -46,7 +46,8 @@ public class ProjectRoleController {
     ) {
         String newRoleName = fields.get("name");
         Optional<ProjectRole> optionalRole = projectRoleRepository.findById(roleId);
-        if (optionalRole.isPresent()) {
+        User current = userService.getCurrentUser();
+        if (optionalRole.isPresent() && !optionalRole.get().getUser().equals(current)) {
             ProjectRole projectRole = optionalRole.get();
             projectRole.setName(ProjectRoles.valueOf(newRoleName));
             projectRoleRepository.save(projectRole);

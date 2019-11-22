@@ -187,7 +187,7 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnChangeRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(patch("/projectRoles/1")
+        mockMvc.perform(patch("/projectRoles/2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"" + ProjectRoles.ADMIN + "\"}"))
                 .andExpect(status().isOk());

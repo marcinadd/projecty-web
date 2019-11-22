@@ -16,6 +16,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,7 +58,9 @@ public class TeamServiceTests {
     public void whenChangeName_shouldReturnTeamWithNewName() {
         Team team = new Team();
         team.setName("Old name");
-        teamService.changeTeamName(team, "test");
+        Map<String, String> fields = new HashMap<>();
+        fields.put("name", "test");
+        teamService.editTeam(team, fields);
         Optional<Team> team1 = teamRepository.findById(team.getId());
         if (team1.isPresent()) {
             assertThat(team1.get().getName(), is("test"));

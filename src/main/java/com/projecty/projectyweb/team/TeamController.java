@@ -40,7 +40,6 @@ public class TeamController {
     @PostMapping("")
     public void addTeamPost(
             @RequestBody Team team,
-            @RequestParam(required = false) List<String> usernames,
             BindingResult bindingResult
     ) throws BindException {
         teamValidator.validate(team, bindingResult);
@@ -48,7 +47,7 @@ public class TeamController {
             throw new BindException(bindingResult);
         }
         List<RedirectMessage> redirectMessages = new ArrayList<>();
-        teamService.createTeamAndSave(team, usernames, redirectMessages);
+        teamService.createTeamAndSave(team, team.getUsernames(), redirectMessages);
     }
 
     @GetMapping("")
@@ -56,8 +55,8 @@ public class TeamController {
         return userService.getCurrentUser().getTeamRoles();
     }
 
-    @GetMapping("addProjectToTeam")
-    public List<TeamRole> addProjectToTeam() {
+    @GetMapping(value = "", params = "manager")
+    public List<TeamRole> getTeamRolesWhereManager() {
         return teamRoleService.getTeamRolesWhereManager(userService.getCurrentUser());
     }
 
@@ -70,7 +69,7 @@ public class TeamController {
         return optionalTeam.get().getName();
     }
 
-    @PostMapping("/{teamId}/project")
+    @PostMapping("/{teamId}/projects")
     public void addProjectToTeamPost(
             @Valid @RequestBody Project project,
             @PathVariable Long teamId,
@@ -90,25 +89,29 @@ public class TeamController {
 
     @GetMapping(value = "/{teamId}", params = "roles")
     @EditPermission
-    public Map<String, Object> manageTeam(
+    public Map<String, Object> getTeamWithRoles(
             @PathVariable Long teamId
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         Map<String, Object> map = new HashMap<>();
-        map.put("team", optionalTeam.get());
+        Team team = optionalTeam.get();
+        team.setProjects(null);
+        map.put("team", team);
         map.put("currentUser", userService.getCurrentUser());
-        map.put("teamRoles", optionalTeam.get().getTeamRoles());
+        List<TeamRole> teamRoles = team.getTeamRoles();
+        teamRoles.forEach(teamRole -> teamRole.setTeam(null));
+        map.put("teamRoles", teamRoles);
         return map;
     }
 
     @PatchMapping("/{teamId}")
     @EditPermission
-    public void changeNamePost(
+    public void changeNamePatch(
             @PathVariable Long teamId,
             @RequestBody Map<String, String> fields
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        teamService.changeTeamName(optionalTeam.get(), fields.get("name"));
+        teamService.editTeam(optionalTeam.get(), fields);
     }
 
     @PostMapping("/{teamId}/roles")

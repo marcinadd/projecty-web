@@ -89,7 +89,7 @@ public class TeamControllerTests {
         teamRole.setTeam(team);
 
         TeamRole teamRole2 = new TeamRole();
-        teamRole2.setId(4L);
+        teamRole2.setId(5L);
         teamRole2.setUser(user1);
         teamRole2.setName(TeamRoles.MANAGER);
         teamRole2.setTeam(team);
@@ -142,8 +142,11 @@ public class TeamControllerTests {
         Mockito.when(teamRoleRepository.findById(teamRole.getId()))
                 .thenReturn(java.util.Optional.of(teamRole));
 
-        Mockito.when(teamRoleRepository.findByTeamAndAndUser(team, user))
-                .thenReturn(java.util.Optional.of(teamRole));
+        Mockito.when(teamRoleRepository.findByTeamAndAndUser(team, user1))
+                .thenReturn(java.util.Optional.of(teamRole2));
+
+        Mockito.when(teamRoleRepository.findById(teamRole2.getId()))
+                .thenReturn(java.util.Optional.of(teamRole2));
     }
 
     @Test
@@ -167,7 +170,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenGetRequestOnAddTeamProject_shouldReturnTeamRoles() throws Exception {
-        mockMvc.perform(get("/teams/addProjectToTeam"))
+        mockMvc.perform(get("/teams"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
     }
@@ -183,7 +186,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenPostRequestOnAddTeamProject_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/teams/1/project")
+        mockMvc.perform(post("/teams/1/projects")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(newProject)))
                 .andExpect(status().isOk());
@@ -247,7 +250,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnChangeTeamRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(patch("/teamRoles/4")
+        mockMvc.perform(patch("/teamRoles/5")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"" + TeamRoles.MEMBER + "\"}"))
                 .andExpect(status().isOk());
