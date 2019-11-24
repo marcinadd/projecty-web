@@ -47,7 +47,7 @@ public class TeamController {
             throw new BindException(bindingResult);
         }
         List<RedirectMessage> redirectMessages = new ArrayList<>();
-        teamService.createTeamAndSave(team, team.getUsernames(), redirectMessages);
+        teamService.createTeamAndSave(team, team.getUsernames());
     }
 
     @GetMapping("")
@@ -116,13 +116,12 @@ public class TeamController {
 
     @PostMapping("/{teamId}/roles")
     @EditPermission
-    public void addUsersPost(
+    public List<TeamRole> addUsersPost(
             @PathVariable Long teamId,
             @RequestBody List<String> usernames
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        teamRoleService.addTeamMembersByUsernames(optionalTeam.get(), usernames, null);
-        teamService.save(optionalTeam.get());
+        return teamRoleService.addTeamMembersByUsernames(optionalTeam.get(), usernames);
     }
 
     @GetMapping("/{teamId}/projects")

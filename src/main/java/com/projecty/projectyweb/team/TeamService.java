@@ -1,13 +1,13 @@
 package com.projecty.projectyweb.team;
 
 
-import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +27,10 @@ public class TeamService {
         this.projectRepository = projectRepository;
     }
 
-    public Team createTeamAndSave(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
+    @Transactional
+    public Team createTeamAndSave(Team team, List<String> usernames) {
         teamRoleService.addCurrentUserAsTeamManager(team);
-        teamRoleService.addTeamMembersByUsernames(team, usernames, redirectMessages);
+        teamRoleService.addTeamMembersByUsernames(team, usernames);
         return teamRepository.save(team);
     }
 

@@ -63,6 +63,7 @@ public class TeamRoleServiceTests {
     }
 
     @Test
+    @Transactional
     public void whenAddTeamRolesByUsernames_shouldReturnTeamWithTeamRoles() {
         Team team = new Team();
         team.setName("Sample team");
@@ -72,7 +73,7 @@ public class TeamRoleServiceTests {
         usernames.add(user.getUsername());
         usernames.add(user1.getUsername());
         usernames.add(user1.getUsername());
-        teamRoleService.addTeamMembersByUsernames(team, usernames, null);
+        teamRoleService.addTeamMembersByUsernames(team, usernames);
 
         Optional<Team> optionalTeam = teamRepository.findById(team.getId());
         if (optionalTeam.isPresent()) {

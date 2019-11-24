@@ -1,18 +1,13 @@
 package com.projecty.projectyweb.team.role;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-
-import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.*;
 
 @Service
 public class TeamRoleService {
@@ -26,18 +21,24 @@ public class TeamRoleService {
         this.teamRepository = teamRepository;
     }
 
-    public void addTeamMembersByUsernames(Team team, List<String> usernames, List<RedirectMessage> redirectMessages) {
-        List<TeamRole> teamRoles = new ArrayList<>();
+    @Transactional
+    public List<TeamRole> addTeamMembersByUsernames(Team team, List<String> usernames) {
+        List<TeamRole> newTeamRoles = new ArrayList<>();
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
             removeExistingUsersInTeamFromSet(users, team);
-            users.forEach(user -> teamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
+            users.forEach(user -> newTeamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
         }
+        List<TeamRole> savedTeamRoles = new ArrayList<>();
+        newTeamRoles.forEach(teamRole -> savedTeamRoles.add(teamRoleRepository.save(teamRole)));
         if (team.getTeamRoles() == null) {
-            team.setTeamRoles(teamRoles);
-        } else if (teamRoles.size() > 0) {
-            team.getTeamRoles().addAll(teamRoles);
+            team.setTeamRoles(savedTeamRoles);
+        } else if (team.getTeamRoles().size() > 0) {
+            team.getTeamRoles().addAll(savedTeamRoles);
         }
+        newTeamRoles.forEach(teamRole -> teamRole.setTeam(null));
+        teamRepository.save(team);
+        return savedTeamRoles;
     }
 
     public void addCurrentUserAsTeamManager(Team team) {
@@ -112,11 +113,9 @@ public class TeamRoleService {
                     throw new NoManagersInTeamException();
                 }
                 teamRepository.save(team);
-            }
-            else {
+            } else {
             	throw new NoManagersInTeamException();
             }
-        
     }
 
 	public Optional<TeamRole> findById(Long teamRoleId) {
@@ -126,5 +125,4 @@ public class TeamRoleService {
 	public void delete(TeamRole teamRole) {
 		teamRoleRepository.delete(teamRole);
 	}
-    
 }

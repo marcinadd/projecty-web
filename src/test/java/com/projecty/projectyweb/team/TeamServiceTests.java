@@ -73,7 +73,7 @@ public class TeamServiceTests {
     public void whenCreateNewTeamWithoutOtherRoles_shouldReturnTeamWithOnlyOneRole() {
         Team team1 = new Team();
         team1.setName("My team name");
-        team1 = teamService.createTeamAndSave(team1, null, null);
+        team1 = teamService.createTeamAndSave(team1, null);
         assertThat(team1, is(notNullValue()));
         assertThat(teamRoleRepository.findByTeamAndAndUser(team1, user), is(notNullValue()));
     }
@@ -87,6 +87,4 @@ public class TeamServiceTests {
         team1 = teamRepository.findById(1L);
         team1.ifPresent(team -> assertThat(team.getProjects(), is(notNullValue())));
     }
-
-
 }
