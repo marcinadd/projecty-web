@@ -33,7 +33,7 @@ public class TaskController {
     }
 
     @PostMapping("/project/{projectId}")
-    public void addTaskPost(
+    public Task addTaskPost(
             @PathVariable Long projectId,
             @RequestBody Task task,
             BindingResult bindingResult
@@ -48,7 +48,7 @@ public class TaskController {
             task.setProject(project.get());
             List<Task> tasks = project.get().getTasks();
             tasks.add(task);
-            taskRepository.save(task);
+            return taskRepository.save(task);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

@@ -72,9 +72,11 @@ public class TeamRole {
 
     @Override
     public String toString() {
-        return "Role{" +
+        return "TeamRole{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", user=" + user;
+                ", name=" + name +
+                ", user=" + user +
+                ", team=" + team +
+                '}';
     }
 }

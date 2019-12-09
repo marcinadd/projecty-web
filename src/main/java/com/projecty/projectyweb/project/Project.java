@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
+import com.projecty.projectyweb.task.TaskStatus;
 import com.projecty.projectyweb.team.Team;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class Project {
@@ -40,6 +42,9 @@ public class Project {
             property = "id"
     )
     private Team team;
+
+    @Transient
+    private Map<TaskStatus, Long> taskSummary;
 
     public Long getId() {
         return id;
@@ -87,6 +92,14 @@ public class Project {
 
     public void setUsernames(List<String> usernames) {
         this.usernames = usernames;
+    }
+
+    public Map<TaskStatus, Long> getTaskSummary() {
+        return taskSummary;
+    }
+
+    public void setTaskSummary(Map<TaskStatus, Long> taskSummary) {
+        this.taskSummary = taskSummary;
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -21,7 +20,6 @@ public class TeamRoleService {
         this.teamRepository = teamRepository;
     }
 
-    @Transactional
     public List<TeamRole> addTeamMembersByUsernames(Team team, List<String> usernames) {
         List<TeamRole> newTeamRoles = new ArrayList<>();
         if (usernames != null) {
@@ -36,8 +34,8 @@ public class TeamRoleService {
         } else if (team.getTeamRoles().size() > 0) {
             team.getTeamRoles().addAll(savedTeamRoles);
         }
-        newTeamRoles.forEach(teamRole -> teamRole.setTeam(null));
         teamRepository.save(team);
+        newTeamRoles.forEach(teamRole -> teamRole.setTeam(null));
         return savedTeamRoles;
     }
 

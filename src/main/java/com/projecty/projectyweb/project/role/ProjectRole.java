@@ -40,7 +40,6 @@ public class ProjectRole {
     @JoinColumn(name = "projectId")
     private Project project;
 
-
     public Long getId() {
         return id;
     }

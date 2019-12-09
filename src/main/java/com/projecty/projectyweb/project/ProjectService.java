@@ -5,6 +5,8 @@ import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.task.TaskRepository;
+import com.projecty.projectyweb.task.TaskStatus;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoles;
@@ -12,7 +14,9 @@ import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -22,13 +26,15 @@ public class ProjectService {
     private final ProjectRoleRepository projectRoleRepository;
     private final ProjectRoleService projectRoleService;
     private final TeamRoleRepository teamRoleRepository;
+    private final TaskRepository taskRepository;
 
-    public ProjectService(ProjectRepository projectRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectRoleService projectRoleService, TeamRoleRepository teamRoleRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectRoleService projectRoleService, TeamRoleRepository teamRoleRepository, TaskRepository taskRepository) {
         this.projectRepository = projectRepository;
         this.userService = userService;
         this.projectRoleRepository = projectRoleRepository;
         this.projectRoleService = projectRoleService;
         this.teamRoleRepository = teamRoleRepository;
+        this.taskRepository = taskRepository;
     }
 
     public void save(Project project) {
@@ -66,5 +72,13 @@ public class ProjectService {
     void changeName(Project existingProject, String newName) {
         existingProject.setName(newName);
         projectRepository.save(existingProject);
+    }
+
+    void addSummaryToProject(Project project) {
+        Map<TaskStatus, Long> map = new LinkedHashMap<>();
+        map.put(TaskStatus.TO_DO, taskRepository.countByProjectAndStatus(project, TaskStatus.TO_DO));
+        map.put(TaskStatus.IN_PROGRESS, taskRepository.countByProjectAndStatus(project, TaskStatus.IN_PROGRESS));
+        map.put(TaskStatus.DONE, taskRepository.countByProjectAndStatus(project, TaskStatus.DONE));
+        project.setTaskSummary(map);
     }
 }

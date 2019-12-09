@@ -3,6 +3,7 @@ package com.projecty.projectyweb.project;
 import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.misc.RedirectMessage;
+import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
@@ -41,7 +42,9 @@ public class ProjectController {
     public Map<String, Object> myProjects() {
         User current = userService.getCurrentUser();
         Map<String, Object> map = new HashMap<>();
-        map.put("projectRoles", current.getProjectRoles());
+        List<ProjectRole> roles = current.getProjectRoles();
+        roles.forEach(role -> projectService.addSummaryToProject(role.getProject()));
+        map.put("projectRoles", roles);
         map.put("teamRoles", current.getTeamRoles());
         return map;
     }
