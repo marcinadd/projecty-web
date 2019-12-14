@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -70,6 +71,7 @@ public class TeamServiceTests {
     }
 
     @Test
+    @Transactional
     public void whenCreateNewTeamWithoutOtherRoles_shouldReturnTeamWithOnlyOneRole() {
         Team team1 = new Team();
         team1.setName("My team name");

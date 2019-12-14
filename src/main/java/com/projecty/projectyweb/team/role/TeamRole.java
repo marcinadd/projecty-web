@@ -30,7 +30,7 @@ public class TeamRole {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "team_id")
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,

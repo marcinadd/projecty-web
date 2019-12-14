@@ -2,9 +2,9 @@ package com.projecty.projectyweb.team;
 
 import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
-import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
+import com.projecty.projectyweb.team.misc.TeamSummaryService;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.User;
@@ -38,7 +38,7 @@ public class TeamController {
     }
 
     @PostMapping("")
-    public void addTeamPost(
+    public Team addTeam(
             @RequestBody Team team,
             BindingResult bindingResult
     ) throws BindException {
@@ -46,13 +46,14 @@ public class TeamController {
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
-        List<RedirectMessage> redirectMessages = new ArrayList<>();
-        teamService.createTeamAndSave(team, team.getUsernames());
+        return teamService.createTeamAndSave(team, team.getUsernames());
     }
 
     @GetMapping("")
     public List<TeamRole> myTeams() {
-        return userService.getCurrentUser().getTeamRoles();
+        List<TeamRole> teamRoles = userService.getCurrentUser().getTeamRoles();
+        teamRoles.forEach(t -> TeamSummaryService.generateTeamSummary(t.getTeam()));
+        return teamRoles;
     }
 
     @GetMapping(value = "", params = "manager")
@@ -121,7 +122,9 @@ public class TeamController {
             @RequestBody List<String> usernames
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        return teamRoleService.addTeamMembersByUsernames(optionalTeam.get(), usernames);
+        Team team = optionalTeam.get();
+        List<TeamRole> roles = teamRoleService.addTeamMembersByUsernames(team, usernames);
+        return roles;
     }
 
     @GetMapping("/{teamId}/projects")

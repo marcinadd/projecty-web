@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +62,7 @@ public class ProjectRoleServiceTests {
     }
 
     @Test
+    @Transactional
     public void whenAddTeamRolesByUsernames_shouldReturnTeamWithTeamRoles() {
         Project project = new Project();
         project.setName("Sample project");

@@ -12,7 +12,6 @@ import java.util.Optional;
 public interface ProjectRoleRepository extends JpaRepository<ProjectRole, Long> {
     Optional<ProjectRole> findRoleByUserAndProject(User user, Project project);
 
-    List<ProjectRole> findByProject(Project project);
-
+    List<ProjectRole> findByProjectOrderByIdAsc(Project project);
     int countByProjectAndName(Project project, ProjectRoles name);
 }

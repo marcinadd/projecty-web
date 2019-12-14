@@ -27,15 +27,16 @@ public class TeamRoleService {
             removeExistingUsersInTeamFromSet(users, team);
             users.forEach(user -> newTeamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
         }
+
         List<TeamRole> savedTeamRoles = new ArrayList<>();
         newTeamRoles.forEach(teamRole -> savedTeamRoles.add(teamRoleRepository.save(teamRole)));
+
         if (team.getTeamRoles() == null) {
             team.setTeamRoles(savedTeamRoles);
         } else if (team.getTeamRoles().size() > 0) {
             team.getTeamRoles().addAll(savedTeamRoles);
         }
         teamRepository.save(team);
-        newTeamRoles.forEach(teamRole -> teamRole.setTeam(null));
         return savedTeamRoles;
     }
 

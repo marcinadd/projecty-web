@@ -30,7 +30,7 @@ public class ProjectRoleService {
         projectRoleRepository.save(projectRole);
     }
 
-    public void addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
+    public List<ProjectRole> addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
         List<ProjectRole> projectRoles = new ArrayList<>();
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
@@ -49,11 +49,15 @@ public class ProjectRoleService {
                     messages.add(message);
             }
         }
+        List<ProjectRole> savedProjectRoles = new ArrayList<>();
+        projectRoles.forEach(projectRole -> savedProjectRoles.add(projectRoleRepository.save(projectRole)));
         if (project.getProjectRoles() == null) {
-            project.setProjectRoles(projectRoles);
+            project.setProjectRoles(savedProjectRoles);
         } else if (projectRoles.size() > 0) {
-            project.getProjectRoles().addAll(projectRoles);
+            project.getProjectRoles().addAll(savedProjectRoles);
         }
+        projectRepository.save(project);
+        return savedProjectRoles;
     }
 
     private void removeExistingUsersInProjectFromSet(Set<User> users, Project project) {
@@ -64,7 +68,7 @@ public class ProjectRoleService {
     }
 
     public Set<User> getProjectRoleUsers(Project project) {
-        List<ProjectRole> projectRoles = projectRoleRepository.findByProject(project);
+        List<ProjectRole> projectRoles = projectRoleRepository.findByProjectOrderByIdAsc(project);
         Set<User> users = new HashSet<>();
         projectRoles.forEach(projectRole -> users.add(projectRole.getUser()));
         return users;

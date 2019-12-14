@@ -72,14 +72,13 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/roles")
     @EditPermission
-    public void addUsersToExistingProjectPost(
+    public List<ProjectRole> addUsersToExistingProjectPost(
             @PathVariable Long projectId,
             @RequestBody List<String> usernames) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Project project = optionalProject.get();
         List<RedirectMessage> redirectMessages = new ArrayList<>();
-        projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
-        projectRepository.save(project);
+        return projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
     }
 
     @GetMapping(value = "/{projectId}", params = "roles")
@@ -89,8 +88,10 @@ public class ProjectController {
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Map<String, Object> map = new HashMap<>();
+        List<ProjectRole> projectRoles = optionalProject.get().getProjectRoles();
+        projectRoles.sort(Comparator.comparing(ProjectRole::getId));
         map.put("project", optionalProject.get());
-        map.put("projectRoles", optionalProject.get().getProjectRoles());
+        map.put("projectRoles", projectRoles);
         map.put("currentUser", userService.getCurrentUser());
         return map;
     }

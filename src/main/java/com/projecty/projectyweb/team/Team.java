@@ -3,6 +3,7 @@ package com.projecty.projectyweb.team;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.team.misc.TeamSummary;
 import com.projecty.projectyweb.team.role.TeamRole;
 
 import javax.persistence.*;
@@ -32,6 +33,9 @@ public class Team {
 
     @Transient
     private List<String> usernames;
+
+    @Transient
+    private TeamSummary teamSummary;
 
     public Long getId() {
         return id;
@@ -71,6 +75,14 @@ public class Team {
 
     public void setUsernames(List<String> usernames) {
         this.usernames = usernames;
+    }
+
+    public TeamSummary getTeamSummary() {
+        return teamSummary;
+    }
+
+    public void setTeamSummary(TeamSummary teamSummary) {
+        this.teamSummary = teamSummary;
     }
 
     @Override
