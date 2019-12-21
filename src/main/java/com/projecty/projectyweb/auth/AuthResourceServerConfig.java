@@ -13,8 +13,10 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 public class AuthResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests()
-                .antMatchers("/register*").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll().anyRequest().authenticated();
+        http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/secured/room/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/oauth/token").permitAll()
+                .anyRequest().authenticated();
     }
 }
