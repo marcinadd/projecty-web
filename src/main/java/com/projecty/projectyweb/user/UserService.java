@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -126,5 +127,9 @@ public class UserService {
             current.setAvatar(avatar);
             userRepository.save(current);
         }
+    }
+
+    public Optional<User> findByByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }

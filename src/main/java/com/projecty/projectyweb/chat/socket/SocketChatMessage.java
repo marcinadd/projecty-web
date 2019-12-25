@@ -1,6 +1,6 @@
-package com.projecty.projectyweb.socket;
+package com.projecty.projectyweb.chat.socket;
 
-public class Message {
+public class SocketChatMessage {
     private String from;
     private String to;
     private String text;
@@ -9,7 +9,7 @@ public class Message {
         return from;
     }
 
-    public void setFrom(String from) {
+    void setFrom(String from) {
         this.from = from;
     }
 

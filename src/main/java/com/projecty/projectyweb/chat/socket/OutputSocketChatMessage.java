@@ -1,9 +1,9 @@
-package com.projecty.projectyweb.socket;
+package com.projecty.projectyweb.chat.socket;
 
-public class OutputMessage extends Message {
+public class OutputSocketChatMessage extends SocketChatMessage {
     private String time;
 
-    public OutputMessage(final String from, final String text, final String time) {
+    OutputSocketChatMessage(final String from, final String text, final String time) {
         setFrom(from);
         setText(text);
         this.time = time;
