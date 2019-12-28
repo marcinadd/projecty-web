@@ -8,8 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
@@ -37,9 +37,34 @@ public class ChatService {
         return chatMessageRepository.save(chatMessage);
     }
 
-    Page<ChatMessage> findFirstByRecipientOrSenderOrderBySendDate(User recipient, int offset, int limit) {
+    Page<ChatMessage> findByRecipientOrSenderOrderById(User recipient, int offset, int limit) {
         Pageable pageable = new OffsetBasedPageRequest(offset, limit);
-        return chatMessageRepository.findFirstByRecipientOrSenderOrderBySendDate(recipient, pageable);
+        return chatMessageRepository.findByRecipientOrSenderOrderById(recipient, pageable);
     }
 
+    List<ChatMessage> getLastMessagesForDistinctUsers() {
+        User currentUser = userService.getCurrentUser();
+        List<UsernameLastChatMessageIdDTO> maxSenderIds = chatMessageRepository.findMaxMessageIdGroupBySenderUsername(currentUser);
+        List<UsernameLastChatMessageIdDTO> maxRecipientIds = chatMessageRepository.findMaxMessageIdGroupByRecipientUsername(currentUser);
+        Set<Long> idSet = getLastMessageIdForEachChatParticipant(maxSenderIds, maxRecipientIds);
+        return chatMessageRepository.findByIdInIds(idSet);
+    }
+
+    private Set<Long> getLastMessageIdForEachChatParticipant(List<UsernameLastChatMessageIdDTO> a,
+                                                             List<UsernameLastChatMessageIdDTO> b) {
+        Map<String, Long> map =
+                a.stream().collect(Collectors.toMap(UsernameLastChatMessageIdDTO::getUsername, UsernameLastChatMessageIdDTO::getLastChatMessageId));
+        for (UsernameLastChatMessageIdDTO o : b
+        ) {
+            String username = o.getUsername();
+            Long lastMessageId = o.getLastChatMessageId();
+            Long lastMessageIdFromA = map.get(username);
+            if (lastMessageIdFromA != null) {
+                lastMessageId = Math.max(lastMessageId, lastMessageIdFromA);
+            }
+            map.put(username, lastMessageId);
+        }
+        map.remove(userService.getCurrentUser().getUsername());
+        return new HashSet<>(map.values());
+    }
 }

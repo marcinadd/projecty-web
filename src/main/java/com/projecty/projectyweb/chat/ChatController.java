@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -27,10 +28,13 @@ public class ChatController {
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
         Optional<User> optionalRecipient = userService.findByByUsername(username);
         if (optionalRecipient.isPresent()) {
-            Page<ChatMessage> firstByRecipientOrSenderOrderBySendDate = chatService.findFirstByRecipientOrSenderOrderBySendDate(optionalRecipient.get(), offset, limit);
-            System.out.println(firstByRecipientOrSenderOrderBySendDate);
-            return firstByRecipientOrSenderOrderBySendDate;
+            return chatService.findByRecipientOrSenderOrderById(optionalRecipient.get(), offset, limit);
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("")
+    public List<ChatMessage> getLastMessagesForDistinctUsers() {
+        return chatService.getLastMessagesForDistinctUsers();
     }
 }

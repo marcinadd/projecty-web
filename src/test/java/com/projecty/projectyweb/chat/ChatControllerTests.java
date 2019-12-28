@@ -35,8 +35,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ChatControllerTests {
     @MockBean
     UserRepository userRepository;
+
     @MockBean
     ChatMessageRepository chatMessageRepository;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -62,7 +64,7 @@ public class ChatControllerTests {
         Pageable pageable = PageRequest.of(0, 10);
         Page<ChatMessage> page = new PageImpl<>(list, pageable, list.size());
         Mockito.when(chatMessageRepository
-                .findFirstByRecipientOrSenderOrderBySendDate(any(User.class), any(Pageable.class)))
+                .findByRecipientOrSenderOrderById(any(User.class), any(Pageable.class)))
                 .thenReturn(page);
     }
 

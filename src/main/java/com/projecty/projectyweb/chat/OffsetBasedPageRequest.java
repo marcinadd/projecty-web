@@ -49,7 +49,6 @@ public class OffsetBasedPageRequest implements Pageable, Serializable {
         return hasPrevious() ? new OffsetBasedPageRequest(getOffset() - getPageSize(), getPageSize(), getSort()) : this;
     }
 
-
     @Override
     public Pageable previousOrFirst() {
         return hasPrevious() ? previous() : first();

@@ -1,19 +1,21 @@
 package com.projecty.projectyweb.chat.socket;
 
-public class OutputSocketChatMessage extends SocketChatMessage {
-    private String time;
+import java.util.Date;
 
-    OutputSocketChatMessage(final String from, final String text, final String time) {
+public class OutputSocketChatMessage extends SocketChatMessage {
+    private Date sendDate;
+
+    public OutputSocketChatMessage(final String from, final String text, final Date sendDate) {
         setFrom(from);
         setText(text);
-        this.time = time;
+        this.sendDate = sendDate;
     }
 
-    public String getTime() {
-        return time;
+    public Date getSendDate() {
+        return sendDate;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setSendDate(Date sendDate) {
+        this.sendDate = sendDate;
     }
 }

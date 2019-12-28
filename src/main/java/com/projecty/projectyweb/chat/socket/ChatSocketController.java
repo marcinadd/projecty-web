@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.security.Principal;
-import java.text.SimpleDateFormat;
 
 @Controller
 @CrossOrigin("*")
@@ -36,7 +35,7 @@ public class ChatSocketController {
             OutputSocketChatMessage out = new OutputSocketChatMessage(
                     chatMessage.getSender().getUsername(),
                     chatMessage.getText(),
-                    new SimpleDateFormat("HH:mm:ss").format(chatMessage.getSendDate()));
+                    chatMessage.getSendDate());
             simpMessagingTemplate.convertAndSendToUser(
                     msg.getTo(), "/secured/user/queue/specific-user", out);
         } catch (UserNotFoundException ignored) {
