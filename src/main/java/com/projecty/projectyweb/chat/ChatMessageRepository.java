@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-    @Query("select m from ChatMessage m where m.sender=?1 or m.recipient=?1 order by m.id desc")
-    Page<ChatMessage> findByRecipientOrSenderOrderById(User user, Pageable pageable);
+    @Query("select m from ChatMessage m where (m.sender=?1 and m.recipient=?2) or (m.recipient=?1 and m.sender=?2) order by m.id desc")
+    Page<ChatMessage> findByRecipientAndSenderOrderById(User user1, User user2, Pageable pageable);
 
     @Query(value = "SELECT new com.projecty.projectyweb.chat.UsernameLastChatMessageIdDTO(m.sender.username, max (id)) " +
             "FROM ChatMessage m WHERE m.recipient=?1 group by m.sender.username")
@@ -24,4 +24,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
     @Query("SELECT m FROM ChatMessage m WHERE m.id in :Ids")
     List<ChatMessage> findByIdInIds(@Param("Ids") Set<Long> Ids);
+
+    @Query("select m from ChatMessage m where m.sender=?1 and m.recipient=?2 and m.seenDate is null ")
+    List<ChatMessage> findBySenderAndCurrentUserWhereSeenDateIsNull(User sender, User currentUser);
 }

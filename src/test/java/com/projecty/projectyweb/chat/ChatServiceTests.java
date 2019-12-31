@@ -21,6 +21,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -28,6 +29,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ChatServiceTests {
     @Autowired
     ChatService chatService;
+
+    @Autowired
+    ChatMessageRepository chatMessageRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -43,17 +47,22 @@ public class ChatServiceTests {
 
     @Before
     public void init() {
-        user = new User();
-        user.setUsername("user");
-        user = userRepository.save(user);
-
-        admin = new User();
-        admin.setUsername("admin");
-        admin = userRepository.save(admin);
-
-        root = new User();
-        root.setUsername("root");
-        root = userRepository.save(root);
+        if (userRepository.findByUsername("user").isPresent()) {
+            user = userRepository.findByUsername("user").get();
+            admin = userRepository.findByUsername("user").get();
+            root = userRepository.findByUsername("user").get();
+        } else {
+            user = new User();
+            user.setUsername("user");
+            user = userRepository.save(user);
+            admin = new User();
+            admin.setUsername("admin");
+            admin = userRepository.save(admin);
+            root = new User();
+            root.setUsername("root");
+            root = userRepository.save(root);
+        }
+        generateMessages();
     }
 
     public void generateMessages() {
@@ -69,7 +78,10 @@ public class ChatServiceTests {
         ChatMessage chatMessage3 = new ChatMessage(admin, user, "ABC$", new Date());
         chatMessage3 = chatService.save(chatMessage3);
 
-        lastMessageWithRoot = chatMessage;
+        ChatMessage chatMessage4 = new ChatMessage(root, user, "ABC%", new Date());
+        chatService.save(chatMessage4);
+
+        lastMessageWithRoot = chatMessage4;
         lastMessageWithAdmin = chatMessage3;
     }
 
@@ -77,7 +89,7 @@ public class ChatServiceTests {
     @WithMockUser
     public void whenSaveSocketMessage_shouldReturnSavedMessage() {
         String text = "ABC";
-        String recipientUsername = "admin";
+        String recipientUsername = admin.getUsername();
         SocketChatMessage message = new SocketChatMessage();
         message.setTo(recipientUsername);
         message.setText(text);
@@ -91,10 +103,20 @@ public class ChatServiceTests {
     @Transactional
     @WithMockUser
     public void whenGetMessageHistory_shouldReturnMessageHistory() {
-        generateMessages();
         List<ChatMessage> messages = chatService.getLastMessagesForDistinctUsers();
         assertThat(messages.contains(lastMessageWithAdmin), is(true));
         assertThat(messages.contains(lastMessageWithRoot), is(true));
         assertThat(messages.size(), is(2));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser
+    public void whenSetAllRead_shouldAllMessagesWithSpecifiedUserHaveSeenDateSet() {
+        chatService.setAllReadForChat(admin);
+        List<ChatMessage> list = chatMessageRepository.findBySenderAndCurrentUserWhereSeenDateIsNull(admin, user);
+        List<ChatMessage> list2 = chatMessageRepository.findBySenderAndCurrentUserWhereSeenDateIsNull(root, user);
+        assertThat(list.size(), is(0));
+        assertThat(list2.size(), is(greaterThan(0)));
     }
 }

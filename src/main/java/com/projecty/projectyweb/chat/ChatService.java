@@ -37,9 +37,10 @@ public class ChatService {
         return chatMessageRepository.save(chatMessage);
     }
 
-    Page<ChatMessage> findByRecipientOrSenderOrderById(User recipient, int offset, int limit) {
+    Page<ChatMessage> findByRecipientAndSenderOrderById(User recipient, int offset, int limit) {
+        User currentUser = userService.getCurrentUser();
         Pageable pageable = new OffsetBasedPageRequest(offset, limit);
-        return chatMessageRepository.findByRecipientOrSenderOrderById(recipient, pageable);
+        return chatMessageRepository.findByRecipientAndSenderOrderById(recipient, currentUser, pageable);
     }
 
     List<ChatMessage> getLastMessagesForDistinctUsers() {
@@ -47,7 +48,8 @@ public class ChatService {
         List<UsernameLastChatMessageIdDTO> maxSenderIds = chatMessageRepository.findMaxMessageIdGroupBySenderUsername(currentUser);
         List<UsernameLastChatMessageIdDTO> maxRecipientIds = chatMessageRepository.findMaxMessageIdGroupByRecipientUsername(currentUser);
         Set<Long> idSet = getLastMessageIdForEachChatParticipant(maxSenderIds, maxRecipientIds);
-        return chatMessageRepository.findByIdInIds(idSet);
+        List<ChatMessage> abc = chatMessageRepository.findByIdInIds(idSet);
+        return abc;
     }
 
     private Set<Long> getLastMessageIdForEachChatParticipant(List<UsernameLastChatMessageIdDTO> a,
@@ -66,5 +68,15 @@ public class ChatService {
         }
         map.remove(userService.getCurrentUser().getUsername());
         return new HashSet<>(map.values());
+    }
+
+    void setAllReadForChat(User user) {
+        User currentUser = userService.getCurrentUser();
+        Date seenDate = new Date();
+        List<ChatMessage> messages = chatMessageRepository.findBySenderAndCurrentUserWhereSeenDateIsNull(user, currentUser);
+        for (ChatMessage message : messages) {
+            message.setSeenDate(seenDate);
+            save(message);
+        }
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -64,11 +65,12 @@ public class ChatControllerTests {
         Pageable pageable = PageRequest.of(0, 10);
         Page<ChatMessage> page = new PageImpl<>(list, pageable, list.size());
         Mockito.when(chatMessageRepository
-                .findByRecipientOrSenderOrderById(any(User.class), any(Pageable.class)))
+                .findByRecipientAndSenderOrderById(any(User.class), any(User.class), any(Pageable.class)))
                 .thenReturn(page);
     }
 
     @Test
+    @WithMockUser
     public void onGetChatMessages_shouldReturnChatMessages() throws Exception {
         mockMvc.perform(get("/chat/admin"))
                 .andExpect(status().isOk())
@@ -77,8 +79,24 @@ public class ChatControllerTests {
     }
 
     @Test
+    @WithMockUser
     public void onGetChatMessagesToNotExistingUSer_shouldReturnBadRequest() throws Exception {
         mockMvc.perform(get("/chat/not-existing-username"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @WithMockUser
+    public void onSetAllRead_shouldReturnOk() throws Exception {
+        mockMvc.perform(get("/chat/user/set/read"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser
+    public void onSetAllReadToNotExistingUsername_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/chat/not-existing-username/set/read"))
+                .andExpect(status().isBadRequest());
+    }
+
 }
