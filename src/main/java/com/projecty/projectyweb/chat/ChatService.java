@@ -43,13 +43,14 @@ public class ChatService {
         return chatMessageRepository.findByRecipientAndSenderOrderById(recipient, currentUser, pageable);
     }
 
-    List<ChatMessage> getLastMessagesForDistinctUsers() {
+    List<ChatMessageProjection> getChatHistory() {
         User currentUser = userService.getCurrentUser();
         List<UsernameLastChatMessageIdDTO> maxSenderIds = chatMessageRepository.findMaxMessageIdGroupBySenderUsername(currentUser);
         List<UsernameLastChatMessageIdDTO> maxRecipientIds = chatMessageRepository.findMaxMessageIdGroupByRecipientUsername(currentUser);
         Set<Long> idSet = getLastMessageIdForEachChatParticipant(maxSenderIds, maxRecipientIds);
-        List<ChatMessage> abc = chatMessageRepository.findByIdInIds(idSet);
-        return abc;
+        List<ChatMessage> chatMessages = chatMessageRepository.findByIdInIds(idSet);
+        Map<Long, Long> messageCountMap = getUnreadMessageCountForSpecifiedUserGroupById(currentUser);
+        return createChatMessageHistoryList(chatMessages, messageCountMap);
     }
 
     private Set<Long> getLastMessageIdForEachChatParticipant(List<UsernameLastChatMessageIdDTO> a,
@@ -78,5 +79,31 @@ public class ChatService {
             message.setSeenDate(seenDate);
             save(message);
         }
+    }
+
+    public Map<Long, Long> getUnreadMessageCountForSpecifiedUserGroupById(User user) {
+        List<UserIdChatMessageCountDTO> list = chatMessageRepository.countMessagesBySenderWhereSeenDateIsNullGroupBySender(user);
+        return list.stream().collect(Collectors.toMap(UserIdChatMessageCountDTO::getUserId, UserIdChatMessageCountDTO::getUnreadMessageCount));
+    }
+
+    private List<ChatMessageProjection> createChatMessageHistoryList(List<ChatMessage> chatMessages, Map<Long, Long> unreadMessageCountMap) {
+        List<ChatMessageProjection> projectionList = new ArrayList<>();
+        for (ChatMessage m : chatMessages
+        ) {
+            User other = getNotCurrentUserFromChatMessage(m);
+            Long unreadMessageCount = unreadMessageCountMap.get(other.getId());
+            projectionList.add(new ChatMessageProjection(m, unreadMessageCount != null ? unreadMessageCount : 0));
+        }
+        return projectionList;
+    }
+
+    private User getNotCurrentUserFromChatMessage(ChatMessage chatMessage) {
+        User currentUser = userService.getCurrentUser();
+        if (chatMessage.getSender().equals(currentUser)) {
+            return chatMessage.getRecipient();
+        } else if (chatMessage.getRecipient().equals(currentUser)) {
+            return chatMessage.getSender();
+        }
+        throw new UserNotFoundException();
     }
 }

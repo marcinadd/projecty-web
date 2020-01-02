@@ -23,8 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,8 +60,11 @@ public class ChatControllerTests {
 
         List<ChatMessage> list = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
-            ChatMessage chatMessage = new ChatMessage(user, admin, "text" + i, new Date());
+            ChatMessage chatMessage = new ChatMessage(admin, user, "text" + i, new Date());
+            chatMessage.setId((long) i);
             list.add(chatMessage);
+            Mockito.when(chatMessageRepository.findById((long) i))
+                    .thenReturn(Optional.of(chatMessage));
         }
 
         Pageable pageable = PageRequest.of(0, 10);
@@ -67,6 +72,18 @@ public class ChatControllerTests {
         Mockito.when(chatMessageRepository
                 .findByRecipientAndSenderOrderById(any(User.class), any(User.class), any(Pageable.class)))
                 .thenReturn(page);
+
+        List<ChatMessage> lastChatMessages = new ArrayList<>();
+        ChatMessage lastMessage = new ChatMessage(admin, user, "text", new Date());
+        lastMessage.setId(100L);
+        lastChatMessages.add(lastMessage);
+        Mockito.when(chatMessageRepository.findByIdInIds(anySet()))
+                .thenReturn(lastChatMessages);
+
+        List<UserIdChatMessageCountDTO> userIdList = new ArrayList<>();
+        userIdList.add(new UserIdChatMessageCountDTO(1L, 50L));
+        Mockito.when(chatMessageRepository.countMessagesBySenderWhereSeenDateIsNullGroupBySender(user))
+                .thenReturn(userIdList);
     }
 
     @Test
@@ -97,6 +114,15 @@ public class ChatControllerTests {
     public void onSetAllReadToNotExistingUsername_shouldReturnBadRequest() throws Exception {
         mockMvc.perform(get("/chat/not-existing-username/set/read"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    public void onGetChatHistory_shouldReturnChatHistory() throws Exception {
+        mockMvc.perform(get("/chat/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].unreadMessageCount").value(50))
+                .andExpect(jsonPath("$[0].lastMessage.id").value(100L));
     }
 
 }

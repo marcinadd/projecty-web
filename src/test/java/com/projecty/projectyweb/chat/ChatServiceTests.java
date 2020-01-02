@@ -17,11 +17,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
@@ -47,10 +50,12 @@ public class ChatServiceTests {
 
     @Before
     public void init() {
-        if (userRepository.findByUsername("user").isPresent()) {
+        if (userRepository.findByUsername("user").isPresent()
+                && userRepository.findByUsername("admin").isPresent()
+                && userRepository.findByUsername("root").isPresent()) {
             user = userRepository.findByUsername("user").get();
-            admin = userRepository.findByUsername("user").get();
-            root = userRepository.findByUsername("user").get();
+            admin = userRepository.findByUsername("admin").get();
+            root = userRepository.findByUsername("root").get();
         } else {
             user = new User();
             user.setUsername("user");
@@ -103,9 +108,11 @@ public class ChatServiceTests {
     @Transactional
     @WithMockUser
     public void whenGetMessageHistory_shouldReturnMessageHistory() {
-        List<ChatMessage> messages = chatService.getLastMessagesForDistinctUsers();
-        assertThat(messages.contains(lastMessageWithAdmin), is(true));
-        assertThat(messages.contains(lastMessageWithRoot), is(true));
+        List<ChatMessageProjection> messages = chatService.getChatHistory();
+        Map<ChatMessage, Long> map = messages.stream().collect(Collectors.toMap(ChatMessageProjection::getLastMessage, ChatMessageProjection::getUnreadMessageCount));
+        assertThat(map.containsKey(lastMessageWithAdmin), is(true));
+        assertThat(map.containsKey(lastMessageWithRoot), is(true));
+        assertThat(map.get(lastMessageWithRoot), greaterThanOrEqualTo(1L));
         assertThat(messages.size(), is(2));
     }
 
@@ -118,5 +125,27 @@ public class ChatServiceTests {
         List<ChatMessage> list2 = chatMessageRepository.findBySenderAndCurrentUserWhereSeenDateIsNull(root, user);
         assertThat(list.size(), is(0));
         assertThat(list2.size(), is(greaterThan(0)));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser
+    public void whenGetMessageCountGroupedById_shouldReturnIdsWithMessageCount() {
+        chatService.setAllReadForChat(admin);
+        chatService.setAllReadForChat(root);
+
+        // This ChatMessage should not be counted since sender is user
+        ChatMessage unreadMessage = new ChatMessage(user, root, "Unread", new Date());
+        chatMessageRepository.save(unreadMessage);
+
+        ChatMessage unreadMessage2 = new ChatMessage(root, user, "Unread", new Date());
+        chatMessageRepository.save(unreadMessage2);
+
+        ChatMessage unreadMessage3 = new ChatMessage(admin, user, "Unread", new Date());
+        chatMessageRepository.save(unreadMessage3);
+
+        Map<Long, Long> map = chatService.getUnreadMessageCountForSpecifiedUserGroupById(user);
+
+        assertThat(map.size(), is(2));
     }
 }

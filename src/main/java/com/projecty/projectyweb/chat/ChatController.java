@@ -34,8 +34,8 @@ public class ChatController {
     }
 
     @GetMapping("")
-    public List<ChatMessage> getLastMessagesForDistinctUsers() {
-        return chatService.getLastMessagesForDistinctUsers();
+    public List<ChatMessageProjection> getChatHistory() {
+        return chatService.getChatHistory();
     }
 
     @GetMapping("/{username}/set/read")
