@@ -106,4 +106,8 @@ public class ChatService {
         }
         throw new UserNotFoundException();
     }
+
+    public int getUnreadChatMessageCount() {
+        return chatMessageRepository.countByRecipientAndSeenDateIsNull(userService.getCurrentUser());
+    }
 }

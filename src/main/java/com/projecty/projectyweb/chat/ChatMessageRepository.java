@@ -31,4 +31,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Query(value = "select new com.projecty.projectyweb.chat.UserIdChatMessageCountDTO(m.sender.id, count (id)) " +
             "from ChatMessage m where m.recipient=?1 and m.seenDate is null group by m.sender.id")
     List<UserIdChatMessageCountDTO> countMessagesBySenderWhereSeenDateIsNullGroupBySender(User currentUser);
+
+    int countByRecipientAndSeenDateIsNull(User user);
 }

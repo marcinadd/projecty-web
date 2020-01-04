@@ -135,17 +135,20 @@ public class ChatServiceTests {
         chatService.setAllReadForChat(root);
 
         // This ChatMessage should not be counted since sender is user
-        ChatMessage unreadMessage = new ChatMessage(user, root, "Unread", new Date());
-        chatMessageRepository.save(unreadMessage);
-
-        ChatMessage unreadMessage2 = new ChatMessage(root, user, "Unread", new Date());
-        chatMessageRepository.save(unreadMessage2);
-
-        ChatMessage unreadMessage3 = new ChatMessage(admin, user, "Unread", new Date());
-        chatMessageRepository.save(unreadMessage3);
+        chatMessageRepository.save(new ChatMessage(user, root, "Unread", new Date()));
+        chatMessageRepository.save(new ChatMessage(root, user, "Unread", new Date()));
+        chatMessageRepository.save(new ChatMessage(admin, user, "Unread", new Date()));
 
         Map<Long, Long> map = chatService.getUnreadMessageCountForSpecifiedUserGroupById(user);
-
         assertThat(map.size(), is(2));
+    }
+
+    @Test
+    @WithMockUser
+    public void whenGetUnreadChatMessageCount_shouldReturnUnreadChatMessageCount() {
+        chatMessageRepository.save(new ChatMessage(root, user, "Unread", new Date()));
+        chatMessageRepository.save(new ChatMessage(root, user, "Unread", new Date()));
+
+        assertThat(chatService.getUnreadChatMessageCount(), greaterThan(1));
     }
 }

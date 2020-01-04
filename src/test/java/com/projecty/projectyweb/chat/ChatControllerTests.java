@@ -125,4 +125,11 @@ public class ChatControllerTests {
                 .andExpect(jsonPath("$[0].lastMessage.id").value(100L));
     }
 
+    @Test
+    @WithMockUser
+    public void onGetUnreadChatMessageCount_shouldReturnUnreadChatMessageCount() throws Exception {
+        mockMvc.perform(get("/chat/unreadChatMessageCount"))
+                .andExpect(status().isOk());
+    }
+
 }

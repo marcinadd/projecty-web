@@ -47,4 +47,9 @@ public class ChatController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("unreadChatMessageCount")
+    public int getUnreadMessageCount() {
+        return chatService.getUnreadChatMessageCount();
+    }
 }
