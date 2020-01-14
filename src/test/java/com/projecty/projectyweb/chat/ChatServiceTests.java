@@ -96,7 +96,7 @@ public class ChatServiceTests {
         String text = "ABC";
         String recipientUsername = admin.getUsername();
         SocketChatMessage message = new SocketChatMessage();
-        message.setTo(recipientUsername);
+        message.setRecipient(recipientUsername);
         message.setText(text);
         ChatMessage chatMessage = chatService.saveInDatabase(message);
         assertThat(chatMessage.getRecipient().getUsername(), is(recipientUsername));

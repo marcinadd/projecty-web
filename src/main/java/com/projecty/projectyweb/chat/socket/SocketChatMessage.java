@@ -1,24 +1,24 @@
 package com.projecty.projectyweb.chat.socket;
 
 public class SocketChatMessage {
-    private String from;
-    private String to;
+    private String sender;
+    private String recipient;
     private String text;
 
-    public String getFrom() {
-        return from;
+    public String getSender() {
+        return sender;
     }
 
-    void setFrom(String from) {
-        this.from = from;
+    void setSender(String sender) {
+        this.sender = sender;
     }
 
-    public String getTo() {
-        return to;
+    public String getRecipient() {
+        return recipient;
     }
 
-    public void setTo(String to) {
-        this.to = to;
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 
     public String getText() {
@@ -32,8 +32,8 @@ public class SocketChatMessage {
     @Override
     public String toString() {
         return "Message{" +
-                "from='" + from + '\'' +
-                ", to='" + to + '\'' +
+                "from='" + sender + '\'' +
+                ", to='" + recipient + '\'' +
                 ", text='" + text + '\'' +
                 '}';
     }

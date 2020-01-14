@@ -24,7 +24,7 @@ public class ChatService {
 
     public ChatMessage saveInDatabase(SocketChatMessage message) {
         User currentUser = userService.getCurrentUser();
-        Optional<User> recipient = userService.findByByUsername(message.getTo());
+        Optional<User> recipient = userService.findByByUsername(message.getRecipient());
         if (recipient.isPresent() && recipient.get() != currentUser) {
             ChatMessage chatMessage =
                     new ChatMessage(currentUser, recipient.get(), message.getText(), new Date());

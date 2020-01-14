@@ -34,10 +34,11 @@ public class ChatSocketController {
             ChatMessage chatMessage = chatService.saveInDatabase(msg);
             OutputSocketChatMessage out = new OutputSocketChatMessage(
                     chatMessage.getSender().getUsername(),
+                    chatMessage.getRecipient().getUsername(),
                     chatMessage.getText(),
                     chatMessage.getSendDate());
             simpMessagingTemplate.convertAndSendToUser(
-                    msg.getTo(), "/secured/user/queue/specific-user", out);
+                    msg.getRecipient(), "/secured/user/queue/specific-user", out);
         } catch (UserNotFoundException ignored) {
         }
     }

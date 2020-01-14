@@ -49,7 +49,7 @@ public class ChatController {
     }
 
     @GetMapping("unreadChatMessageCount")
-    public int getUnreadMessageCount() {
+    public int getUnreadChatMessageCount() {
         return chatService.getUnreadChatMessageCount();
     }
 }
