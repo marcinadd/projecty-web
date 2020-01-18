@@ -189,8 +189,6 @@ public class User implements Serializable {
                 ", registrationDate=" + registrationDate +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", passwordRepeat='" + passwordRepeat + '\'' +
                 '}';
     }
 }
