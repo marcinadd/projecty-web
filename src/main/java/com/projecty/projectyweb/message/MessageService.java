@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Validated
 @Service
 public class MessageService {
     private final UserService userService;
@@ -30,14 +28,16 @@ public class MessageService {
     private final UserRepository userRepository;
     private final MessageSource messageSource;
     private final AttachmentService attachmentService;
+    private final MessageValidator messageValidator;
 
-    public MessageService(UserService userService, MessageRepository messageRepository, UserRepository userRepository, MessageSource messageSource, AttachmentService attachmentService,AssociationService associationService) {
+    public MessageService(UserService userService, MessageRepository messageRepository, UserRepository userRepository, MessageSource messageSource, AttachmentService attachmentService, AssociationService associationService, MessageValidator messageValidator) {
         this.userService = userService;
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.messageSource = messageSource;
         this.attachmentService = attachmentService;
         this.associationService = associationService;
+        this.messageValidator = messageValidator;
     }
 
     public int getUnreadMessageCountForCurrentUser() {
@@ -48,7 +48,7 @@ public class MessageService {
     }
 
     public boolean checkIfCurrentUserHasPermissionToView(Message message) {
-        return this.associationService.isVisibleForUser(message,userService.getCurrentUser());
+        return this.associationService.isVisibleForUser(message, userService.getCurrentUser());
     }
 
     public void updateSeenDate(Message message) {
@@ -61,26 +61,22 @@ public class MessageService {
 
     public void sendMessage(
             String recipientUsername,
-            @ValidMessage Message message,
+            Message message,
             BindingResult bindingResult,
             List<MultipartFile> multipartFiles
     ) throws BindException {
-        Optional<User> recipient = userRepository.findByUsername(recipientUsername);
-        User sender = userService.getCurrentUser();
 
-        if (!recipient.isPresent()) {
-            ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.invalid", null, LocaleContextHolder.getLocale()));
-            bindingResult.addError(objectError);
-        } else if (sender == recipient.get()) {
-            ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.yourself", null, LocaleContextHolder.getLocale()));
-            bindingResult.addError(objectError);
-        }
+        messageValidator.validate(message, bindingResult);
+
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
 
+        User recipient = userRepository.findByUsername(recipientUsername).get();
+        User sender = userService.getCurrentUser();
+
         message.setSender(sender);
-        message.setRecipient(recipient.get());
+        message.setRecipient(recipient);
         if (multipartFiles != null) {
             attachmentService.addFilesToMessage(multipartFiles, message);
         }
@@ -106,11 +102,11 @@ public class MessageService {
         }
     }
 
-    public void deleteMessage(Message message){
+    public void deleteMessage(Message message) {
         User currentUser = userService.getCurrentUser();
-        associationService.deleteMessageForUser(message,currentUser);
-        if(Objects.isNull(message.getSender())&& Objects.isNull(message.getRecipient())){
-           messageRepository.delete(message);
+        associationService.deleteMessageForUser(message, currentUser);
+        if (Objects.isNull(message.getSender()) && Objects.isNull(message.getRecipient())) {
+            messageRepository.delete(message);
         }
     }
 }

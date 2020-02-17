@@ -2,62 +2,44 @@ package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.BindingResultUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.*;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
 
-public class MessageValidator implements ConstraintValidator<ValidMessage, Message> {
+@Component
+public class MessageValidator implements Validator {
 
-    private final UserRepository userRepository;
-    private final MessageSource messageSource;
+    private final UserService userService;
 
-    public MessageValidator(UserRepository userRepository, MessageSource messageSource) {
-        this.userRepository = userRepository;
-        this.messageSource = messageSource;
+    public MessageValidator(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
-    public void initialize(ValidMessage constraintAnnotation) {
-
+    public boolean supports(Class<?> clazz) {
+        return Message.class.equals(clazz);
     }
 
     @Override
-    public boolean isValid(Message value, ConstraintValidatorContext context) {
-        context.disableDefaultConstraintViolation();
-        boolean isValid = true;
-        if (value.getText() == null || StringUtils.isEmpty(value.getText())) {
-            context
-                    .buildConstraintViolationWithTemplate(messageSource.getMessage("message.title.empty", null, LocaleContextHolder.getLocale()))
-                    .addPropertyNode("title")
-                    .addConstraintViolation();
-            isValid = false;
-        }
-        if (value.getTitle() == null || StringUtils.isEmpty(value.getTitle())) {
-            context
-                    .buildConstraintViolationWithTemplate(messageSource.getMessage("message.text.empty", null, LocaleContextHolder.getLocale()))
-                    .addPropertyNode("text")
-                    .addConstraintViolation();
-            isValid = false;
-        }
+    public void validate(Object target, Errors errors) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "text", "message.text.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "title", "message.title.empty");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "recipientUsername", "message.recipient.invalid");
 
-        Optional<User> recipient = userRepository.findByUsername(value.getRecipientUsername());
+        Message message = (Message) target;
+
+        Optional<User> recipient = userService.findByByUsername(message.getRecipientUsername());
 
         if (!recipient.isPresent()) {
-            context
-                    .buildConstraintViolationWithTemplate(messageSource.getMessage("message.recipient.invalid", null, LocaleContextHolder.getLocale()))
-                    .addPropertyNode("recipient")
-                    .addConstraintViolation();
-            isValid = false;
+            errors.rejectValue("recipientUsername", "message.recipient.invalid");
+        } else {
+            User sender = userService.getCurrentUser();
+            if (sender == recipient.get()) {
+                errors.rejectValue("recipientUsername", "message.recipient.yourself");
+           }
         }
-
-        return isValid;
     }
 }
