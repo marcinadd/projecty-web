@@ -126,6 +126,34 @@ public class MessageControllerTests {
     }
 
     @Test
+    @WithMockUser("user2")
+    public void givenRequestOnSendMessageWithEmptyTitle_shouldReturnBadRequest() throws Exception {
+        Message message = new Message();
+        message.setId(2L);
+        message.setText("This is sample message");
+        message.setRecipientUsername("user1");
+        mockMvc.perform(post("/messages/sendMessage")
+                .flashAttr("message", message)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new Gson().toJson(message)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser("user2")
+    public void givenRequestOnSendMessageWithEmptyText_shouldReturnBadRequest() throws Exception {
+        Message message = new Message();
+        message.setId(2L);
+        message.setTitle("This is sample title");
+        message.setRecipientUsername("user1");
+        mockMvc.perform(post("/messages/sendMessage")
+                .flashAttr("message", message)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new Gson().toJson(message)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @WithMockUser
     public void givenRequestOnSendMessageToUserWhichNotExists_shouldReturnBadRequest() throws Exception {
         Message message = new Message();
@@ -258,6 +286,7 @@ public class MessageControllerTests {
         replyMessage.setId(11L);
         replyMessage.setText("This is sample reply message");
         replyMessage.setTitle("sample reply title");
+        replyMessage.setRecipientUsername("user2");
         mockMvc.perform(post("/messages/1/reply")
                 .flashAttr("message", replyMessage))
                 .andExpect(status().isOk());
