@@ -12,15 +12,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-
+@Validated
 @Service
 public class MessageService {
     private final UserService userService;
@@ -60,7 +62,7 @@ public class MessageService {
 
     public void sendMessage(
             String recipientUsername,
-            Message message,
+            @ValidMessage Message message,
             BindingResult bindingResult,
             List<MultipartFile> multipartFiles
     ) throws BindException {
