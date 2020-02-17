@@ -69,7 +69,6 @@ public class MessageService {
         Optional<User> recipient = userRepository.findByUsername(recipientUsername);
         User sender = userService.getCurrentUser();
 
-        //TODO Create MessageValidator
         if (!recipient.isPresent()) {
             ObjectError objectError = new ObjectError("recipient", messageSource.getMessage("message.recipient.invalid", null, LocaleContextHolder.getLocale()));
             bindingResult.addError(objectError);
