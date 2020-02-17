@@ -51,14 +51,12 @@ public class MessageValidator implements ConstraintValidator<ValidMessage, Messa
         Optional<User> recipient = userRepository.findByUsername(value.getRecipientUsername());
 
         if (!recipient.isPresent()) {
-
             context
                     .buildConstraintViolationWithTemplate(messageSource.getMessage("message.recipient.invalid", null, LocaleContextHolder.getLocale()))
                     .addPropertyNode("recipient")
                     .addConstraintViolation();
             isValid = false;
         }
-
 
         return isValid;
     }
