@@ -1,9 +1,8 @@
 package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.user.User;
-import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
-import org.springframework.context.MessageSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.*;
 
@@ -12,11 +11,8 @@ import java.util.Optional;
 @Component
 public class MessageValidator implements Validator {
 
-    private final UserService userService;
-
-    public MessageValidator(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
 
     @Override
     public boolean supports(Class<?> clazz) {
