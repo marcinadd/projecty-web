@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
@@ -33,14 +34,17 @@ public class MessageValidatorTests {
     @Before
     public void init() {
         User user = new User();
+        user.setId(1L);
         user.setEmail("test@test.com");
         user.setUsername("testUser");
 
         User user1 = new User();
+        user.setId(2L);
         user1.setEmail("test1@test.com");
         user1.setUsername("testUser1");
 
         User currentUser = new User();
+        currentUser.setId(3L);
         currentUser.setEmail("currentUser@test.com");
         currentUser.setUsername("currentUser");
         Mockito.when(userService.getCurrentUser()).thenReturn(currentUser);
@@ -49,6 +53,7 @@ public class MessageValidatorTests {
     }
 
     @Test
+    @WithMockUser("currentUser")
     public void messageValidationOk() {
         Message message = new Message();
         message.setTitle("Test title");
@@ -61,6 +66,7 @@ public class MessageValidatorTests {
     }
 
     @Test
+    @WithMockUser("currentUser")
     public void messageValidationWithEmptyOrNullText() {
         Message message = new Message();
         message.setTitle("Test title");
@@ -79,6 +85,7 @@ public class MessageValidatorTests {
     }
 
     @Test
+    @WithMockUser("currentUser")
     public void messageValidationWithEmptyOrNullTitle() {
         Message message = new Message();
         message.setText("Test text");
@@ -97,6 +104,7 @@ public class MessageValidatorTests {
     }
 
     @Test
+    @WithMockUser("currentUser")
     public void messageValidationForSendOwnSelf() {
         Message message = new Message();
         message.setText("Test text");
