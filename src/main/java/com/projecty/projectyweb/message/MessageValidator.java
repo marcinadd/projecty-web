@@ -33,7 +33,7 @@ public class MessageValidator implements Validator {
             errors.rejectValue("recipientUsername", "message.recipient.invalid");
         } else {
             User sender = userService.getCurrentUser();
-            if (sender == recipient.get()) {
+            if (sender.equals(recipient.get())) {
                 errors.rejectValue("recipientUsername", "message.recipient.yourself");
            }
         }
