@@ -191,4 +191,14 @@ public class User implements Serializable {
                 ", email='" + email + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        User anotherUser = (User) obj;
+        if(anotherUser == null) return false;
+        if(this.getId() == null && anotherUser.getId() == null) return true;
+        if(this.getId() == null || anotherUser.getId() == null) return false;
+
+        return this.getId().equals(anotherUser.id);
+    }
 }
