@@ -16,7 +16,7 @@ You can find front-end based on Vue at [projecty-web-front-end](https://github.c
 1. After changes run `./build_image.sh` in a project root directory to build application image.
 1. Run`docker-compose up` in a project root directory.
 
-Data is stored in a volume `db-data`. During first run of database container the scripts from `/sql-scripts` directory will be  are executed.
+Data is stored in a volume `db-data`. During first run of database container the scripts from `/sql-scripts` directory will be executed.
 
 ### Setup project manually
 1. Clone repository
