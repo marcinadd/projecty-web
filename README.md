@@ -2,7 +2,7 @@
 Projecty is a project management app based on spring.
 
 ## Motivation
-My main assumption is to create a free and open-source focused on privacy project management application for everyone.
+My main objective is to create a free and open-source privacy project management application for everyone.
 I know that project data are really sensitive so you feel better when you are the owner of them.
 And for those who do not have a server, 
 Projecty will be available on the hosted server completely for free (in the future).
