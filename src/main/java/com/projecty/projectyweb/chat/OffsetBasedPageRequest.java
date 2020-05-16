@@ -17,7 +17,8 @@ public class OffsetBasedPageRequest implements Pageable, Serializable {
     }
 
     public OffsetBasedPageRequest(long offset, long limit) {
-        this(offset, limit, new Sort(Sort.Direction.ASC, "id"));
+        //FIXME /*new Sort(Sort.Direction.ASC, "id") instead of null*/
+        this(offset, limit, null);
     }
 
     @Override

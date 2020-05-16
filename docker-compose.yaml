@@ -20,7 +20,7 @@ services:
     - MYSQL_ROOT_PASSWORD=password
     - MYSQL_DATABASE=projecty
    ports:
-     - 3306:33060
+     - 3306:3306
    volumes:
      - db-data:/var/lib/mysql
 
