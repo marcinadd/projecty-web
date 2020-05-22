@@ -4,7 +4,6 @@ import com.projecty.projectyweb.user.avatar.Avatar;
 import com.projecty.projectyweb.user.avatar.AvatarService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
@@ -24,21 +23,21 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
+//    private final PasswordEncoder passwordEncoder;
 
     private final UserValidator userValidator;
 
     private final AvatarService avatarService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserValidator userValidator, AvatarService avatarService) {
+    public UserService(UserRepository userRepository, UserValidator userValidator, AvatarService avatarService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+//        this.passwordEncoder = passwordEncoder;
         this.userValidator = userValidator;
         this.avatarService = avatarService;
     }
 
     public void saveWithPasswordEncrypt(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
 
@@ -55,7 +54,8 @@ public class UserService {
     }
 
     private boolean checkIfPasswordMatches(User user, String password) {
-        return passwordEncoder.matches(password, user.getPassword());
+//        return passwordEncoder.matches(password, user.getPassword());
+        return true;
     }
 
     public void validateExistingUser(User user, BindingResult bindingResult) {

@@ -15,17 +15,48 @@ services:
    image: mysql:8
    restart: always
    networks:
-    - projecty-network
+     - projecty-network
    environment:
-    - MYSQL_ROOT_PASSWORD=password
-    - MYSQL_DATABASE=projecty
+     - MYSQL_ROOT_PASSWORD=password
+     - MYSQL_DATABASE=projecty
    ports:
      - 3306:3306
    volumes:
      - db-data:/var/lib/mysql
+
+  #  Keycloak
+  postgres:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    volumes:
+      - ./config/realm.json:/tmp/config/realm.json
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    #      KEYCLOAK_IMPORT: '/tmp/config/realm.json -Dkeycloak.profile.feature.upload_scripts=enabled'
+    ports:
+      - 8081:8080
+    depends_on:
+      - postgres
+
 
 networks:
   projecty-network:
 
 volumes:
   db-data:
+  postgres_data:
