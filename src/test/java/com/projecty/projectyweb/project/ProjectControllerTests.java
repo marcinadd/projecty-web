@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -131,7 +132,7 @@ public class ProjectControllerTests {
     public void givenRequestOnPostFormWithoutOtherUsers_shouldReturnOk() throws Exception {
         Project project1 = project;
         project1.setProjectRoles(null);
-        mockMvc.perform(post("/projects")
+        mockMvc.perform(post("/projects").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(project1)))
                 .andExpect(status().isOk());
@@ -150,14 +151,14 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(delete("/projectRoles/2"))
+        mockMvc.perform(delete("/projectRoles/2").with(csrf()))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnAddUsers_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/projects/1/roles")
+        mockMvc.perform(post("/projects/1/roles").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(Collections.singletonList("user2"))))
                 .andExpect(status().isOk());
@@ -170,7 +171,7 @@ public class ProjectControllerTests {
         Project editedProject = new Project();
         editedProject.setId(1L);
         editedProject.setName("New sample project");
-        mockMvc.perform(patch("/projects/1")
+        mockMvc.perform(patch("/projects/1").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(editedProject)))
                 .andExpect(status().isOk());
@@ -187,7 +188,7 @@ public class ProjectControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnChangeRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(patch("/projectRoles/2")
+        mockMvc.perform(patch("/projectRoles/2").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"" + ProjectRoles.ADMIN + "\"}"))
                 .andExpect(status().isOk());

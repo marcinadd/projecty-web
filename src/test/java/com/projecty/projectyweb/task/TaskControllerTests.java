@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -139,7 +140,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteTask_shouldReturnOk() throws Exception {
-        mockMvc.perform(delete("/tasks/1"))
+        mockMvc.perform(delete("/tasks/1").with(csrf()))
                 .andExpect(status().isOk());
     }
 
@@ -148,7 +149,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser(username = "user1")
     public void givenRequestOnDeleteTaskOnUserWithoutPermissions_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(delete("/tasks/1"))
+        mockMvc.perform(delete("/tasks/1").with(csrf()))
                 .andExpect(status().isNotFound());
     }
 
@@ -173,7 +174,7 @@ public class TaskControllerTests {
         task.setStatus(TaskStatus.TO_DO);
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
-        mockMvc.perform(patch("/tasks/1")
+        mockMvc.perform(patch("/tasks/1").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(gson.toJson(task)))
                 .andExpect(status().isOk());
@@ -182,7 +183,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnAssignUser_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/tasks/1/assign")
+        mockMvc.perform(post("/tasks/1/assign").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"user1\"}"))
                 .andExpect(status().isOk());
@@ -191,7 +192,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnRemoveAssignment_shouldReturnOk() throws Exception {
-        mockMvc.perform(delete("/tasks/1/assign")
+        mockMvc.perform(delete("/tasks/1/assign").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"user1\"}"))
                 .andExpect(status().isOk());

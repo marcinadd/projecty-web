@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -161,7 +162,7 @@ public class TeamControllerTests {
     @WithMockUser
     public void givenPostRequestOnAddTeam_shouldReturnOk() throws Exception {
         team.setTeamRoles(null);
-        mockMvc.perform(post("/teams")
+        mockMvc.perform(post("/teams").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(team)))
                 .andExpect(status().isOk());
@@ -186,7 +187,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenPostRequestOnAddTeamProject_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/teams/1/projects")
+        mockMvc.perform(post("/teams/1/projects").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(newProject)))
                 .andExpect(status().isOk());
@@ -205,7 +206,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenPostRequestOnChangeName_shouldReturnOk() throws Exception {
-        mockMvc.perform(patch("/teams/1/")
+        mockMvc.perform(patch("/teams/1/").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"New name\"}"))
                 .andExpect(status().isOk());
@@ -215,7 +216,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenPostRequestOnAddUsersToTeam_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/teams/1/roles")
+        mockMvc.perform(post("/teams/1/roles").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(Collections.singletonList("user1"))))
                 .andExpect(status().isOk());
@@ -235,7 +236,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnLeaveTeamPost_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/teams/1/leave"))
+        mockMvc.perform(post("/teams/1/leave").with(csrf()))
                 .andExpect(status().isOk());
     }
 
@@ -243,14 +244,14 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteTeamRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(delete("/teamRoles/4"))
+        mockMvc.perform(delete("/teamRoles/4").with(csrf()))
                 .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnChangeTeamRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(patch("/teamRoles/5")
+        mockMvc.perform(patch("/teamRoles/5").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"" + TeamRoles.MEMBER + "\"}"))
                 .andExpect(status().isOk());

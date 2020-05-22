@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -132,7 +133,7 @@ public class MessageControllerTests {
         message.setId(2L);
         message.setText("This is sample message");
         message.setRecipientUsername("user1");
-        mockMvc.perform(post("/messages/sendMessage")
+        mockMvc.perform(post("/messages/sendMessage").with(csrf())
                 .flashAttr("message", message)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(message)))
@@ -146,7 +147,7 @@ public class MessageControllerTests {
         message.setId(2L);
         message.setTitle("This is sample title");
         message.setRecipientUsername("user1");
-        mockMvc.perform(post("/messages/sendMessage")
+        mockMvc.perform(post("/messages/sendMessage").with(csrf())
                 .flashAttr("message", message)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(message)))
@@ -164,7 +165,7 @@ public class MessageControllerTests {
         User user1 = new User();
         message.setRecipient(user);
         message.setSender(user1);
-        mockMvc.perform(post("/messages/sendMessage")
+        mockMvc.perform(post("/messages/sendMessage").with(csrf())
                 .flashAttr("message", message)
                 .param("recipientUsername", "notExistsUsername"))
                 .andExpect(status().isBadRequest());
@@ -181,7 +182,7 @@ public class MessageControllerTests {
         User user1 = new User();
         message.setRecipient(user);
         message.setSender(user1);
-        mockMvc.perform(post("/messages/sendMessage")
+        mockMvc.perform(post("/messages/sendMessage").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(message)))
                 .andExpect(status().isBadRequest());
@@ -190,7 +191,7 @@ public class MessageControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnSendMessage_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/messages/sendMessage")
+        mockMvc.perform(post("/messages/sendMessage").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(message)))
                 .andExpect(status().isOk());
@@ -262,7 +263,7 @@ public class MessageControllerTests {
         replyMessage.setId(11L);
         replyMessage.setText("This is sample reply message");
         replyMessage.setTitle("sample reply title");
-        mockMvc.perform(post("/messages/12/reply")
+        mockMvc.perform(post("/messages/12/reply").with(csrf())
                 .flashAttr("message", replyMessage))
                 .andExpect(status().isNotFound());
     }
@@ -274,7 +275,7 @@ public class MessageControllerTests {
         replyMessage.setId(11L);
         replyMessage.setText("This is sample reply message");
         replyMessage.setTitle("sample reply title");
-        mockMvc.perform(post("/messages/1/reply")
+        mockMvc.perform(post("/messages/1/reply").with(csrf())
                 .flashAttr("message", replyMessage))
                 .andExpect(status().isBadRequest());
     }
@@ -287,7 +288,7 @@ public class MessageControllerTests {
         replyMessage.setText("This is sample reply message");
         replyMessage.setTitle("sample reply title");
         replyMessage.setRecipientUsername("user2");
-        mockMvc.perform(post("/messages/1/reply")
+        mockMvc.perform(post("/messages/1/reply").with(csrf())
                 .flashAttr("message", replyMessage))
                 .andExpect(status().isOk());
     }
