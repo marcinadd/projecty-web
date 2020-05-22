@@ -3,14 +3,11 @@ package com.projecty.projectyweb.user;
 import com.projecty.projectyweb.configurations.AnyPermission;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -27,46 +24,15 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("register")
-    public void registerPost(
-            @Valid RegisterForm registerForm,
-            BindingResult bindingResult
-    ) throws BindException {
-        User user = userService.createUserFromRegisterForm(registerForm);
-        userService.validateNewUser(user, bindingResult);
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
-        userService.saveWithPasswordEncrypt(user);
-    }
-
     @GetMapping("settings")
     public User settings() {
         return userService.getCurrentUser();
-    }
-
-    @PostMapping("changePassword")
-    public void changePasswordPost(
-            @RequestParam(required = false) String currentPassword,
-            @RequestParam(required = false) String newPassword,
-            @RequestParam(required = false) String repeatPassword
-
-    ) throws BindException {
-        User user = userService.getCurrentUser();
-        BindingResult bindingResult = userService.authUserAndValidatePassword(user, currentPassword, newPassword, repeatPassword);
-        if (bindingResult == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        } else if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
-        userService.saveWithPasswordEncrypt(user);
     }
 
     @GetMapping("auth")
     public User getUser() {
         return userService.getCurrentUser();
     }
-
 
     @GetMapping("user/{userName}/avatar")
     @AnyPermission

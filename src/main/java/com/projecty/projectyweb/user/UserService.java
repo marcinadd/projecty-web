@@ -2,11 +2,10 @@ package com.projecty.projectyweb.user;
 
 import com.projecty.projectyweb.user.avatar.Avatar;
 import com.projecty.projectyweb.user.avatar.AvatarService;
+import org.keycloak.KeycloakPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.DataBinder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.rowset.serial.SerialBlob;
@@ -22,68 +21,27 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-
-//    private final PasswordEncoder passwordEncoder;
-
-    private final UserValidator userValidator;
-
     private final AvatarService avatarService;
 
-    public UserService(UserRepository userRepository, UserValidator userValidator, AvatarService avatarService) {
+    public UserService(UserRepository userRepository, AvatarService avatarService) {
         this.userRepository = userRepository;
-//        this.passwordEncoder = passwordEncoder;
-        this.userValidator = userValidator;
         this.avatarService = avatarService;
     }
 
-    public void saveWithPasswordEncrypt(User user) {
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-    }
-
     public User getCurrentUser() {
-        Object currentUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String currentUsername = null;
-        if (currentUser instanceof UserDetails) {
-            currentUsername = ((UserDetails) currentUser).getUsername();
+        Object principal = SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        if (principal instanceof KeycloakPrincipal) {
+            currentUsername = ((KeycloakPrincipal) principal).getName();
+        } else if (principal instanceof UserDetails) {
+            // Legacy code for testing
+            //TODO Move this part of code to test package
+            currentUsername = ((UserDetails) principal).getUsername();
         }
-        if (userRepository.findByUsername(currentUsername).isPresent()) {
-            return userRepository.findByUsername(currentUsername).get();
-        }
-        return null;
-    }
-
-    private boolean checkIfPasswordMatches(User user, String password) {
-//        return passwordEncoder.matches(password, user.getPassword());
-        return true;
-    }
-
-    public void validateExistingUser(User user, BindingResult bindingResult) {
-        userValidator.validate(user, bindingResult);
-    }
-
-    public void validateNewUser(User user, BindingResult bindingResult) {
-        userValidator.validate(user, bindingResult);
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            bindingResult.rejectValue("username", "exists.user.username");
-        }
-    }
-
-    public BindingResult authUserAndValidatePassword(
-            User user,
-            String currentPassword,
-            String newPassword,
-            String repeatPassword
-    ) {
-        if (checkIfPasswordMatches(user, currentPassword)) {
-            user.setPassword(newPassword);
-            user.setPasswordRepeat(repeatPassword);
-            DataBinder dataBinder = new DataBinder(user);
-            dataBinder.setValidator(userValidator);
-            dataBinder.validate();
-            return dataBinder.getBindingResult();
-        }
-        return null;
+        Optional<User> user = userRepository.findByUsername(currentUsername);
+        String finalCurrentUsername = currentUsername;
+        return user.orElseGet(() -> userRepository.save(new UserBuilder().username(finalCurrentUsername).build()));
     }
 
     public Set<User> getUserSetByUsernames(List<String> usernames) {
@@ -101,16 +59,6 @@ public class UserService {
         List<String> usernames = new ArrayList<>();
         users.forEach(user -> usernames.add(user.getUsername()));
         return usernames;
-    }
-
-    User createUserFromRegisterForm(RegisterForm registerForm) {
-        return new UserBuilder()
-                .username(registerForm.getUsername())
-                .email(registerForm.getEmail())
-                .password(registerForm.getPassword())
-                .passwordRepeat(registerForm.getPasswordRepeat())
-                .avatar(registerForm.getAvatar())
-                .build();
     }
 
     public void setUserAvatar(MultipartFile multipartFile) throws IOException, SQLException {

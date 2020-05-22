@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 @Entity
 @JsonSerialize(using = UserSerializer.class)
-//@EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
     /**
      *
