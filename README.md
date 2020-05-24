@@ -7,9 +7,16 @@ I know that project data are really sensitive so you feel better when you are th
 And for those who do not have a server, 
 Projecty will be available on the hosted server completely for free (in the future).
 
+## Warning v2.0
+This version uses an authentication system which becomes deprecated now. It is compatible with Vue.js and Android version, however 
+differences in user authentication made it **incompatible with Angular version**.
+Only version v2.0 will be updated. You can find it at the branch [rest-2.0](https://github.com/marcinadd/projecty-web/tree/rest-2.0).
+It uses Keycloak for identify management.
+
 ## Note
 The app has been divided into two separate projects. 
 You can find front-end based on Vue at [projecty-web-front-end](https://github.com/marcinadd/projecty-web-front-end).
+You can find Android version at [projecty-android](https://github.com/marcinadd/projecty-android).
 
 ## Getting Started
 ### Via Docker
