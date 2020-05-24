@@ -48,4 +48,6 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.2.6.RELEASE'
     compile group: 'org.keycloak.bom', name: 'keycloak-adapter-bom', version: '10.0.0', ext: 'pom'
     compile group: 'org.keycloak', name: 'keycloak-core', version: '10.0.0'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 }

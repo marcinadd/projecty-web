@@ -63,15 +63,16 @@ public class ProjectService {
         return projectRoleRepository.findRoleByUserAndProject(user, project).isPresent();
     }
 
-    void createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {
+    Project createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {
         projectRoleService.addCurrentUserToProjectAsAdmin(project);
         projectRoleService.addRolesToProjectByUsernames(project, usernames, messages);
-        projectRepository.save(project);
+        return projectRepository.save(project);
     }
 
-    void changeName(Project existingProject, String newName) {
-        existingProject.setName(newName);
-        projectRepository.save(existingProject);
+    Project patchProject(Project existingProject, Project patchedProject) {
+        if (!patchedProject.getName().isEmpty())
+            existingProject.setName(patchedProject.getName());
+        return projectRepository.save(existingProject);
     }
 
     void addSummaryToProject(Project project) {

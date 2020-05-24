@@ -50,17 +50,16 @@ public class ProjectController {
     }
 
     @PostMapping("")
-    public void addProjectPost(
+    public Project addProjectPost(
             @Valid @RequestBody Project project,
             BindingResult bindingResult
     ) throws BindException {
         projectValidator.validate(project, bindingResult);
         if (bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getAllErrors());
             throw new BindException(bindingResult);
         }
         List<RedirectMessage> redirectMessages = new ArrayList<>();
-        projectService.createNewProjectAndSave(project, project.getUsernames(), redirectMessages);
+        return projectService.createNewProjectAndSave(project, project.getUsernames(), redirectMessages);
     }
 
     @DeleteMapping("/{projectId}")
@@ -105,14 +104,13 @@ public class ProjectController {
     }
 
     @PatchMapping("/{projectId}")
-    public void changeNamePost(
+    public Project patchProject(
             @PathVariable("projectId") Long projectId,
-            @RequestBody Map<String, String> fields
+            @RequestBody Project patchedProject
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        String name = fields.get("name");
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()) && !name.isEmpty()) {
-            projectService.changeName(optionalProject.get(), name.trim());
+        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+            return projectService.patchProject(optionalProject.get(), patchedProject);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

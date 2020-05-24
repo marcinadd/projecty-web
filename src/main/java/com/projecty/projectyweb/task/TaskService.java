@@ -128,5 +128,19 @@ public class TaskService {
         }
         return null;
     }
+
+    public ProjectTasksData getProjectTasksData(Project project) {
+        List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
+        List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
+        List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
+        boolean hasPermissionToEdit = projectService.hasCurrentUserPermissionToEdit(project);
+        return ProjectTasksData.builder()
+                .toDoTasks(toDoTasks)
+                .inProgressTasks(inProgressTasks)
+                .doneTasks(doneTasks)
+                .hasPermissionToEdit(hasPermissionToEdit)
+                .project(project)
+                .build();
+    }
 }
 

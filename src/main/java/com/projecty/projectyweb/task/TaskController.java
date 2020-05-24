@@ -12,7 +12,10 @@ import org.springframework.validation.DataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin()
 @RestController
@@ -55,21 +58,12 @@ public class TaskController {
     }
 
     @GetMapping("/project/{projectId}")
-    public Map<String, Object> taskList(
+    public ProjectTasksData getProjectTaskData(
             @PathVariable Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Project project = optionalProject.get();
-        List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
-        List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
-        List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
-        Map<String, Object> map = new HashMap<>();
-        map.put("toDoTasks", toDoTasks);
-        map.put("inProgressTasks", inProgressTasks);
-        map.put("doneTasks", doneTasks);
-        map.put("project", optionalProject.get());
-        map.put("hasPermissionToEdit", projectService.hasCurrentUserPermissionToEdit(project));
-        return map;
+        return taskService.getProjectTasksData(project);
     }
 
     @DeleteMapping("/{taskId}")
@@ -97,7 +91,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}")
-    public void editTaskDetailsPost(
+    public Task editTaskDetailsPatch(
             @PathVariable Long taskId,
             @RequestBody Task task
     ) throws BindException {
@@ -111,7 +105,7 @@ public class TaskController {
             if (result.hasErrors()) {
                 throw new BindException(result);
             }
-            taskRepository.save(newTaskCandidate);
+            return taskRepository.save(newTaskCandidate);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
