@@ -2,10 +2,14 @@ package com.projecty.projectyweb.message.association;
 
 import com.projecty.projectyweb.message.Message;
 import com.projecty.projectyweb.user.User;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
+@Getter
+@Setter
 public class Association {
     @Id
     @GeneratedValue
@@ -26,29 +30,5 @@ public class Association {
         }else {
             message.setRecipient(null);
         }
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Message getMessage() {
-        return message;
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
     }
 }

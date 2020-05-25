@@ -6,43 +6,23 @@ import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.user.avatar.Avatar;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Entity
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonSerialize(using = UserSerializer.class)
 public class User implements Serializable {
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-
-    public User(String username,
-                String email,
-                String password,
-                String passwordRepeat,
-                List<ProjectRole> projectRoles,
-                List<TeamRole> teamRoles,
-                List<Message> messagesFrom,
-                List<Message> messagesTo,
-                List<Task> assignedTasks) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.passwordRepeat = passwordRepeat;
-        this.projectRoles = projectRoles;
-        this.teamRoles = teamRoles;
-        this.messagesFrom = messagesFrom;
-        this.messagesTo = messagesTo;
-        this.assignedTasks = assignedTasks;
-    }
-
-    public User() {
-    }
-
     @Id
     @GeneratedValue
     private Long id;
@@ -52,12 +32,8 @@ public class User implements Serializable {
 
     private String username;
 
+    // Currently not used
     private String email;
-
-    private String password;
-
-    @Transient
-    private String passwordRepeat;
 
     @OneToMany(
             mappedBy = "user",
@@ -99,87 +75,6 @@ public class User implements Serializable {
             orphanRemoval = true
     )
     private Avatar avatar;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getRegistrationDate() {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(LocalDateTime registrationDate) {
-        this.registrationDate = registrationDate;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPasswordRepeat() {
-        return passwordRepeat;
-    }
-
-    public void setPasswordRepeat(String passwordRepeat) {
-        this.passwordRepeat = passwordRepeat;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public List<ProjectRole> getProjectRoles() {
-        return projectRoles;
-    }
-
-    public void setProjectRoles(List<ProjectRole> projectRoles) {
-        this.projectRoles = projectRoles;
-    }
-
-
-    public List<TeamRole> getTeamRoles() {
-        return teamRoles;
-    }
-
-    public void setTeamRoles(List<TeamRole> teamRoles) {
-        this.teamRoles = teamRoles;
-    }
-
-    public List<Task> getAssignedTasks() {
-        return assignedTasks;
-    }
-
-    public void setAssignedTasks(List<Task> assignedTasks) {
-        this.assignedTasks = assignedTasks;
-    }
-
-    public Avatar getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(Avatar avatar) {
-        this.avatar = avatar;
-    }
 
     @Override
     public String toString() {

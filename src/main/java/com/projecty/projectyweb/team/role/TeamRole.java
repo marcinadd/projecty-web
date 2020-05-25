@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.user.User;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "teamrole")
+@Getter
+@Setter
 public class TeamRole {
 
     public TeamRole(TeamRoles name, User user, Team team) {
@@ -37,38 +41,6 @@ public class TeamRole {
             property = "id"
     )
     private Team team;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public TeamRoles getName() {
-        return name;
-    }
-
-    public void setName(TeamRoles name) {
-        this.name = name;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
 
     @Override
     public String toString() {

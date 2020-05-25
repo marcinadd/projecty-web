@@ -60,21 +60,18 @@ public class UserControllerTests {
         registerFormExistingUser.setPassword("password123");
         registerFormExistingUser.setPasswordRepeat("password123");
 
-        user = new User();
-        user = new UserBuilder()
+        user = User.builder()
                 .username("user")
                 .email("admin@example.com")
-                .password("abc")
                 .build();
         user.setId(1L);
         Mockito.when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(java.util.Optional.ofNullable(user));
 
         userWithAvatar = new User();
-        userWithAvatar = new UserBuilder()
+        userWithAvatar = User.builder()
                 .username("userWithAvatar")
                 .email("adminWithAvatar@example.com")
-                .password("abc")
                 .build();
         userWithAvatar.setId(12L);
         Avatar avatar = new Avatar();

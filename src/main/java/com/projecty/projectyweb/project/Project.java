@@ -7,6 +7,8 @@ import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.task.TaskStatus;
 import com.projecty.projectyweb.team.Team;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
+@Getter
+@Setter
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,62 +49,6 @@ public class Project {
 
     @Transient
     private Map<TaskStatus, Long> taskSummary;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Task> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
-    }
-
-    public List<ProjectRole> getProjectRoles() {
-        return projectRoles;
-    }
-
-    public void setProjectRoles(List<ProjectRole> projectRoles) {
-        this.projectRoles = projectRoles;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
-    public List<String> getUsernames() {
-        return usernames;
-    }
-
-    public void setUsernames(List<String> usernames) {
-        this.usernames = usernames;
-    }
-
-    public Map<TaskStatus, Long> getTaskSummary() {
-        return taskSummary;
-    }
-
-    public void setTaskSummary(Map<TaskStatus, Long> taskSummary) {
-        this.taskSummary = taskSummary;
-    }
 
     @Override
     public String toString() {

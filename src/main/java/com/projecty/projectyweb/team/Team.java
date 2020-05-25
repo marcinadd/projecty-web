@@ -5,11 +5,15 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.team.misc.TeamSummary;
 import com.projecty.projectyweb.team.role.TeamRole;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 public class Team {
     @Id
     @GeneratedValue
@@ -36,54 +40,6 @@ public class Team {
 
     @Transient
     private TeamSummary teamSummary;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<TeamRole> getTeamRoles() {
-        return teamRoles;
-    }
-
-    public void setTeamRoles(List<TeamRole> teamRoles) {
-        this.teamRoles = teamRoles;
-    }
-
-    public List<Project> getProjects() {
-        return projects;
-    }
-
-    public void setProjects(List<Project> projects) {
-        this.projects = projects;
-    }
-
-    public List<String> getUsernames() {
-        return usernames;
-    }
-
-    public void setUsernames(List<String> usernames) {
-        this.usernames = usernames;
-    }
-
-    public TeamSummary getTeamSummary() {
-        return teamSummary;
-    }
-
-    public void setTeamSummary(TeamSummary teamSummary) {
-        this.teamSummary = teamSummary;
-    }
 
     @Override
     public String toString() {

@@ -41,7 +41,7 @@ public class UserService {
         }
         Optional<User> user = userRepository.findByUsername(currentUsername);
         String finalCurrentUsername = currentUsername;
-        return user.orElseGet(() -> userRepository.save(new UserBuilder().username(finalCurrentUsername).build()));
+        return user.orElseGet(() -> userRepository.save(User.builder().username(finalCurrentUsername).build()));
     }
 
     public Set<User> getUserSetByUsernames(List<String> usernames) {
