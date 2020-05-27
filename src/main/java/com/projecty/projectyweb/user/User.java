@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.message.Message;
 import com.projecty.projectyweb.project.role.ProjectRole;
@@ -40,6 +41,7 @@ public class User implements Serializable {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonIgnore
     private List<ProjectRole> projectRoles;
 
     @OneToMany(
@@ -47,6 +49,7 @@ public class User implements Serializable {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonIgnore
     private List<TeamRole> teamRoles;
 
     @OneToMany(

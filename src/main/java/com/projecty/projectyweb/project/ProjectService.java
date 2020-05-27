@@ -1,10 +1,7 @@
 package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.misc.RedirectMessage;
-import com.projecty.projectyweb.project.role.ProjectRole;
-import com.projecty.projectyweb.project.role.ProjectRoleRepository;
-import com.projecty.projectyweb.project.role.ProjectRoleService;
-import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.project.role.*;
 import com.projecty.projectyweb.task.TaskRepository;
 import com.projecty.projectyweb.task.TaskStatus;
 import com.projecty.projectyweb.team.role.TeamRole;
@@ -14,10 +11,7 @@ import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ProjectService {
@@ -73,6 +67,16 @@ public class ProjectService {
         if (!patchedProject.getName().isEmpty())
             existingProject.setName(patchedProject.getName());
         return projectRepository.save(existingProject);
+    }
+
+    public ProjectsDataDTO getProjectsForCurrentUser() {
+        User user = userService.getCurrentUser();
+        List<ProjectRoleDataDTO> projectRoles = new ArrayList<>();
+        user.getProjectRoles().forEach(projectRole -> projectRoles.add(new ProjectRoleDataDTO(projectRole)));
+
+        List<TeamRole> teamRoles = user.getTeamRoles();
+        teamRoles.forEach(teamRole -> teamRole.setUser(null));
+        return new ProjectsDataDTO(projectRoles, teamRoles);
     }
 
     void addSummaryToProject(Project project) {

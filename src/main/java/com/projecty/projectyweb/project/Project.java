@@ -1,8 +1,6 @@
 package com.projecty.projectyweb.project;
 
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.task.TaskStatus;
@@ -33,18 +31,9 @@ public class Project {
     private List<String> usernames;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIdentityInfo(
-            generator = ObjectIdGenerators.PropertyGenerator.class,
-            property = "id"
-    )
     private List<ProjectRole> projectRoles;
 
     @ManyToOne
-    @JoinColumn(name = "team_id")
-    @JsonIdentityInfo(
-            generator = ObjectIdGenerators.PropertyGenerator.class,
-            property = "id"
-    )
     private Team team;
 
     @Transient

@@ -39,14 +39,8 @@ public class ProjectController {
     }
 
     @GetMapping("")
-    public Map<String, Object> myProjects() {
-        User current = userService.getCurrentUser();
-        Map<String, Object> map = new HashMap<>();
-        List<ProjectRole> roles = current.getProjectRoles();
-        roles.forEach(role -> projectService.addSummaryToProject(role.getProject()));
-        map.put("projectRoles", roles);
-        map.put("teamRoles", current.getTeamRoles());
-        return map;
+    public ProjectsDataDTO myProjects() {
+        return projectService.getProjectsForCurrentUser();
     }
 
     @PostMapping("")
@@ -77,7 +71,8 @@ public class ProjectController {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Project project = optionalProject.get();
         List<RedirectMessage> redirectMessages = new ArrayList<>();
-        return projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
+        projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
+        return projectRepository.save(project).getProjectRoles();
     }
 
     @GetMapping(value = "/{projectId}", params = "roles")

@@ -30,7 +30,7 @@ public class ProjectRoleService {
         projectRoleRepository.save(projectRole);
     }
 
-    public List<ProjectRole> addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
+    public void addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
         List<ProjectRole> projectRoles = new ArrayList<>();
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
@@ -39,8 +39,8 @@ public class ProjectRoleService {
             ) {
                 ProjectRole projectRole = new ProjectRole(ProjectRoles.USER, user, project);
                 projectRoles.add(projectRole);
-                    RedirectMessage message = new RedirectMessage();
-                    message.setType(RedirectMessageTypes.SUCCESS);
+                RedirectMessage message = new RedirectMessage();
+                message.setType(RedirectMessageTypes.SUCCESS);
                     String text = messageSource.getMessage(
                             "projectRole.add.success",
                             new Object[]{user.getUsername(), project.getName()},
@@ -49,15 +49,11 @@ public class ProjectRoleService {
                     messages.add(message);
             }
         }
-        List<ProjectRole> savedProjectRoles = new ArrayList<>();
-        projectRoles.forEach(projectRole -> savedProjectRoles.add(projectRoleRepository.save(projectRole)));
         if (project.getProjectRoles() == null) {
-            project.setProjectRoles(savedProjectRoles);
+            project.setProjectRoles(projectRoles);
         } else if (projectRoles.size() > 0) {
-            project.getProjectRoles().addAll(savedProjectRoles);
+            project.getProjectRoles().addAll(projectRoles);
         }
-        projectRepository.save(project);
-        return savedProjectRoles;
     }
 
     private void removeExistingUsersInProjectFromSet(Set<User> users, Project project) {
