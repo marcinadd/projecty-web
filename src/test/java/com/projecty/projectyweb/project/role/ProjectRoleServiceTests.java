@@ -72,7 +72,8 @@ public class ProjectRoleServiceTests {
         usernames.add(user.getUsername());
         usernames.add(user1.getUsername());
         usernames.add(user1.getUsername());
-        projectRoleService.addRolesToProjectByUsernames(project, usernames, null);
+        List<ProjectRole> unsavedProjectRoles = projectRoleService.addRolesToProjectByUsernames(project, usernames);
+        projectRoleService.saveProjectRoles(unsavedProjectRoles);
 
         Optional<Project> optionalProject = projectRepository.findById(project.getId());
         if (optionalProject.isPresent()) {

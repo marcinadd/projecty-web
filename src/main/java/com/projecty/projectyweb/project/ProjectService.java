@@ -1,6 +1,5 @@
 package com.projecty.projectyweb.project;
 
-import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.role.*;
 import com.projecty.projectyweb.task.TaskRepository;
 import com.projecty.projectyweb.task.TaskStatus;
@@ -57,9 +56,9 @@ public class ProjectService {
         return projectRoleRepository.findRoleByUserAndProject(user, project).isPresent();
     }
 
-    Project createNewProjectAndSave(Project project, List<String> usernames, List<RedirectMessage> messages) {
+    Project createNewProjectAndSave(Project project, List<String> usernames) {
         projectRoleService.addCurrentUserToProjectAsAdmin(project);
-        projectRoleService.addRolesToProjectByUsernames(project, usernames, messages);
+        projectRoleService.addRolesToProjectByUsernames(project, usernames);
         return projectRepository.save(project);
     }
 
@@ -67,6 +66,11 @@ public class ProjectService {
         if (!patchedProject.getName().isEmpty())
             existingProject.setName(patchedProject.getName());
         return projectRepository.save(existingProject);
+    }
+
+    public List<ProjectRole> addProjectRolesByUsernames(Project project, List<String> usernames) {
+        List<ProjectRole> unsavedProjectRoles = projectRoleService.addRolesToProjectByUsernames(project, usernames);
+        return projectRoleService.saveProjectRoles(unsavedProjectRoles);
     }
 
     public ProjectsDataDTO getProjectsForCurrentUser() {

@@ -1,13 +1,9 @@
 package com.projecty.projectyweb.project.role;
 
-import com.projecty.projectyweb.misc.RedirectMessage;
-import com.projecty.projectyweb.misc.RedirectMessageTypes;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,20 +13,25 @@ public class ProjectRoleService {
     private final ProjectRoleRepository projectRoleRepository;
     private final UserService userService;
     private final ProjectRepository projectRepository;
-    private final MessageSource messageSource;
 
-    public ProjectRoleService(ProjectRoleRepository projectRoleRepository, UserService userService, ProjectRepository projectRepository, MessageSource messageSource) {
+    public ProjectRoleService(ProjectRoleRepository projectRoleRepository, UserService userService, ProjectRepository projectRepository) {
         this.projectRoleRepository = projectRoleRepository;
         this.userService = userService;
         this.projectRepository = projectRepository;
-        this.messageSource = messageSource;
     }
 
     public void save(ProjectRole projectRole) {
         projectRoleRepository.save(projectRole);
     }
 
-    public void addRolesToProjectByUsernames(Project project, List<String> usernames, List<RedirectMessage> messages) {
+    private void removeExistingUsersInProjectFromSet(Set<User> users, Project project) {
+        if (project.getId() != null) {
+            Set<User> existingUsers = getProjectRoleUsers(project);
+            users.removeAll(existingUsers);
+        }
+    }
+
+    public List<ProjectRole> addRolesToProjectByUsernames(Project project, List<String> usernames) {
         List<ProjectRole> projectRoles = new ArrayList<>();
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
@@ -39,14 +40,6 @@ public class ProjectRoleService {
             ) {
                 ProjectRole projectRole = new ProjectRole(ProjectRoles.USER, user, project);
                 projectRoles.add(projectRole);
-                RedirectMessage message = new RedirectMessage();
-                message.setType(RedirectMessageTypes.SUCCESS);
-                    String text = messageSource.getMessage(
-                            "projectRole.add.success",
-                            new Object[]{user.getUsername(), project.getName()},
-                            LocaleContextHolder.getLocale());
-                    message.setText(text);
-                    messages.add(message);
             }
         }
         if (project.getProjectRoles() == null) {
@@ -54,13 +47,13 @@ public class ProjectRoleService {
         } else if (projectRoles.size() > 0) {
             project.getProjectRoles().addAll(projectRoles);
         }
+        return projectRoles;
     }
 
-    private void removeExistingUsersInProjectFromSet(Set<User> users, Project project) {
-        if (project.getId() != null) {
-            Set<User> existingUsers = getProjectRoleUsers(project);
-            users.removeAll(existingUsers);
-        }
+    public List<ProjectRole> saveProjectRoles(List<ProjectRole> projectRoles) {
+        List<ProjectRole> savedProjectRoles = new ArrayList<>();
+        projectRoles.forEach(projectRole -> savedProjectRoles.add(projectRoleRepository.save(projectRole)));
+        return savedProjectRoles;
     }
 
     public Set<User> getProjectRoleUsers(Project project) {

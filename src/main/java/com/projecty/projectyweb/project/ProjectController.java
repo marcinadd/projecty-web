@@ -2,7 +2,6 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
-import com.projecty.projectyweb.misc.RedirectMessage;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.user.User;
@@ -16,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.*;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @CrossOrigin()
 @RestController
 @RequestMapping("projects")
@@ -52,8 +52,7 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
-        List<RedirectMessage> redirectMessages = new ArrayList<>();
-        return projectService.createNewProjectAndSave(project, project.getUsernames(), redirectMessages);
+        return projectService.createNewProjectAndSave(project, project.getUsernames());
     }
 
     @DeleteMapping("/{projectId}")
@@ -68,11 +67,8 @@ public class ProjectController {
     public List<ProjectRole> addUsersToExistingProjectPost(
             @PathVariable Long projectId,
             @RequestBody List<String> usernames) {
-        Optional<Project> optionalProject = projectRepository.findById(projectId);
-        Project project = optionalProject.get();
-        List<RedirectMessage> redirectMessages = new ArrayList<>();
-        projectRoleService.addRolesToProjectByUsernames(project, usernames, redirectMessages);
-        return projectRepository.save(project).getProjectRoles();
+        Project project = projectRepository.findById(projectId).get();
+        return projectService.addProjectRolesByUsernames(project, usernames);
     }
 
     @GetMapping(value = "/{projectId}", params = "roles")
