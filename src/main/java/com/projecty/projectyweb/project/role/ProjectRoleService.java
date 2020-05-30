@@ -96,4 +96,11 @@ public class ProjectRoleService {
             }
         }
     }
+
+    public ProjectRole patchProjectRole(ProjectRole projectRole, ProjectRole patchedData) {
+        if (!projectRole.getName().equals(patchedData.getName())) {
+            projectRole.setName(patchedData.getName());
+        }
+        return projectRoleRepository.save(projectRole);
+    }
 }

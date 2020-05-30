@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin()
@@ -40,17 +39,14 @@ public class ProjectRoleController {
 
     @PatchMapping("/{roleId}")
     @EditPermission
-    public void changeRolePost(
+    public ProjectRole changeRolePatch(
             @PathVariable Long roleId,
-            @RequestBody Map<String, String> fields
+            @RequestBody ProjectRole patchedProjectRole
     ) {
-        String newRoleName = fields.get("name");
         Optional<ProjectRole> optionalRole = projectRoleRepository.findById(roleId);
         User current = userService.getCurrentUser();
         if (optionalRole.isPresent() && !optionalRole.get().getUser().equals(current)) {
-            ProjectRole projectRole = optionalRole.get();
-            projectRole.setName(ProjectRoles.valueOf(newRoleName));
-            projectRoleRepository.save(projectRole);
+            return projectRoleService.patchProjectRole(optionalRole.get(), patchedProjectRole);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

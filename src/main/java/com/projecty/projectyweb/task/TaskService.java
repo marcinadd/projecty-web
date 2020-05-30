@@ -66,7 +66,7 @@ public class TaskService {
         taskRepository.save(existingTask);
     }
 
-    public void assignUserByUsername(Task task, String username) {
+    public User assignUserByUsername(Task task, String username) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isPresent() && hasUserAccessToTask(task, optionalUser.get())) {
             User user = optionalUser.get();
@@ -79,7 +79,9 @@ public class TaskService {
                 task.getAssignedUsers().add(user);
                 taskRepository.save(task);
             }
+            return user;
         }
+        return null;
     }
 
     public List<String> getNotAssignedUsernameListForTask(Task task) {
@@ -141,6 +143,12 @@ public class TaskService {
                 .hasPermissionToEdit(hasPermissionToEdit)
                 .project(project)
                 .build();
+    }
+
+    public void deleteTask(Task task) {
+        Project project = task.getProject();
+        project.getTasks().remove(task);
+        projectService.save(project);
     }
 }
 

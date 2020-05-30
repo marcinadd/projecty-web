@@ -192,9 +192,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnRemoveAssignment_shouldReturnOk() throws Exception {
-        mockMvc.perform(delete("/tasks/1/assign").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"username\":\"user1\"}"))
+        mockMvc.perform(delete("/tasks/1/assign/user1").with(csrf()))
                 .andExpect(status().isOk());
     }
 }

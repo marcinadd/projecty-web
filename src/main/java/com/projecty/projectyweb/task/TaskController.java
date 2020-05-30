@@ -4,6 +4,7 @@ import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.ProjectService;
+import com.projecty.projectyweb.user.User;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -68,12 +69,11 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     @EditPermission
-    public void deleteTaskPost(
+    public void deleteTask(
             @PathVariable Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        Task task = optionalTask.get();
-        taskRepository.delete(task);
+        taskService.deleteTask(optionalTask.get());
     }
 
     @GetMapping("/{taskId}")
@@ -113,23 +113,22 @@ public class TaskController {
 
     @PostMapping("/{taskId}/assign")
     @EditPermission
-    public void assignUserPost(
+    public User assignUserPost(
             @PathVariable Long taskId,
-            @RequestBody Map<String, String> fields
+            @RequestBody String username
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
-        taskService.assignUserByUsername(task, fields.get("username"));
+        return taskService.assignUserByUsername(task, username);
     }
 
-    @DeleteMapping("/{taskId}/assign")
+    @DeleteMapping("/{taskId}/assign/{username}")
     @EditPermission
     public void removeAssignment(
             @PathVariable Long taskId,
-            @RequestBody Map<String, String> fields
+            @PathVariable String username
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        Task task = optionalTask.get();
-        taskService.removeAssignmentByUsername(task, fields.get("username"));
+        taskService.removeAssignmentByUsername(optionalTask.get(), username);
     }
 }
