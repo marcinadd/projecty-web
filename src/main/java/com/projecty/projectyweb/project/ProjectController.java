@@ -2,9 +2,10 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
+import com.projecty.projectyweb.project.dto.ProjectData;
+import com.projecty.projectyweb.project.dto.ProjectsData;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
-import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
 @CrossOrigin()
@@ -39,7 +41,7 @@ public class ProjectController {
     }
 
     @GetMapping("")
-    public ProjectsDataDTO myProjects() {
+    public ProjectsData myProjects() {
         return projectService.getProjectsForCurrentUser();
     }
 
@@ -73,25 +75,18 @@ public class ProjectController {
 
     @GetMapping(value = "/{projectId}", params = "roles")
     @EditPermission
-    public Map<String, Object> manageProject(
+    public ProjectData getProjectWithProjectRoles(
             @PathVariable Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        Map<String, Object> map = new HashMap<>();
-        List<ProjectRole> projectRoles = optionalProject.get().getProjectRoles();
-        projectRoles.sort(Comparator.comparing(ProjectRole::getId));
-        map.put("project", optionalProject.get());
-        map.put("projectRoles", projectRoles);
-        map.put("currentUser", userService.getCurrentUser());
-        return map;
+        return projectService.getProjectData(optionalProject.get());
     }
 
     @PostMapping("/{projectId}/leave")
     @AnyPermission
     public void leaveProject(@PathVariable Long projectId) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        User current = userService.getCurrentUser();
-        projectRoleService.leaveProject(optionalProject.get(), current);
+        projectRoleService.leaveProject(optionalProject.get());
     }
 
     @PatchMapping("/{projectId}")

@@ -4,8 +4,9 @@ import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.ProjectService;
+import com.projecty.projectyweb.task.dto.ProjectTasksData;
+import com.projecty.projectyweb.task.dto.TaskData;
 import com.projecty.projectyweb.user.User;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -13,11 +14,9 @@ import org.springframework.validation.DataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @CrossOrigin()
 @RestController
 @RequestMapping("tasks")
@@ -28,7 +27,7 @@ public class TaskController {
     private final TaskRepository taskRepository;
     private final TaskService taskService;
 
-    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, TaskService taskService, MessageSource messageSource) {
+    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, TaskService taskService) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.taskValidator = taskValidator;
@@ -44,15 +43,11 @@ public class TaskController {
     ) {
         task.setId(null);
         taskValidator.validate(task, bindingResult);
-        Optional<Project> project = projectRepository.findById(projectId);
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } else if (project.isPresent() && projectService.hasCurrentUserPermissionToEdit(project.get())) {
-            task.setStatus(TaskStatus.TO_DO);
-            task.setProject(project.get());
-            List<Task> tasks = project.get().getTasks();
-            tasks.add(task);
-            return taskRepository.save(task);
+        } else if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+            return taskService.addTaskToProject(task, optionalProject.get());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -78,16 +73,11 @@ public class TaskController {
 
     @GetMapping("/{taskId}")
     @EditPermission
-    public Map<String, Object> getTask(
+    public TaskData getTask(
             @PathVariable Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        Task task = optionalTask.get();
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("task", task);
-        map.put("projectId", task.getProject().getId());
-        map.put("notAssignedUsernames", taskService.getNotAssignedUsernameListForTask(task));
-        return map;
+        return taskService.getTaskData(optionalTask.get());
     }
 
     @PatchMapping("/{taskId}")

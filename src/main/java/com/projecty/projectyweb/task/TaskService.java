@@ -4,6 +4,8 @@ package com.projecty.projectyweb.task;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectService;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
+import com.projecty.projectyweb.task.dto.ProjectTasksData;
+import com.projecty.projectyweb.task.dto.TaskData;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
@@ -149,6 +151,20 @@ public class TaskService {
         Project project = task.getProject();
         project.getTasks().remove(task);
         projectService.save(project);
+    }
+
+    public TaskData getTaskData(Task task) {
+        TaskData taskData = new TaskData();
+        taskData.setTask(task);
+        taskData.setProjectId(task.getProject().getId());
+        taskData.setNotAssignedUsernames(getNotAssignedUsernameListForTask(task));
+        return taskData;
+    }
+
+    public Task addTaskToProject(Task task, Project project) {
+        task.setStatus(TaskStatus.TO_DO);
+        task.setProject(project);
+        return taskRepository.save(task);
     }
 }
 

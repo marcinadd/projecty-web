@@ -1,6 +1,7 @@
-package com.projecty.projectyweb.task;
+package com.projecty.projectyweb.task.dto;
 
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.task.Task;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

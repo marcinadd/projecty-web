@@ -1,5 +1,7 @@
 package com.projecty.projectyweb.project;
 
+import com.projecty.projectyweb.project.dto.ProjectData;
+import com.projecty.projectyweb.project.dto.ProjectsData;
 import com.projecty.projectyweb.project.role.*;
 import com.projecty.projectyweb.task.TaskRepository;
 import com.projecty.projectyweb.task.TaskStatus;
@@ -73,14 +75,24 @@ public class ProjectService {
         return projectRoleService.saveProjectRoles(unsavedProjectRoles);
     }
 
-    public ProjectsDataDTO getProjectsForCurrentUser() {
+    public ProjectsData getProjectsForCurrentUser() {
         User user = userService.getCurrentUser();
         List<ProjectRoleDataDTO> projectRoles = new ArrayList<>();
         user.getProjectRoles().forEach(projectRole -> projectRoles.add(new ProjectRoleDataDTO(projectRole)));
 
         List<TeamRole> teamRoles = user.getTeamRoles();
         teamRoles.forEach(teamRole -> teamRole.setUser(null));
-        return new ProjectsDataDTO(projectRoles, teamRoles);
+        return new ProjectsData(projectRoles, teamRoles);
+    }
+
+    public ProjectData getProjectData(Project project) {
+        List<ProjectRole> projectRoles = project.getProjectRoles();
+        projectRoles.sort(Comparator.comparing(ProjectRole::getId));
+        return ProjectData.builder()
+                .project(project)
+                .projectRoles(projectRoles)
+                .currentUser(userService.getCurrentUser())
+                .build();
     }
 
     void addSummaryToProject(Project project) {

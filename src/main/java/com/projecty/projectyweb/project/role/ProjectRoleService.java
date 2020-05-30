@@ -83,7 +83,8 @@ public class ProjectRoleService {
         projectRepository.save(project);
     }
 
-    public void leaveProject(Project project, User user) throws NoAdminsInProjectException {
+    public void leaveProject(Project project) throws NoAdminsInProjectException {
+        User user = userService.getCurrentUser();
         Optional<ProjectRole> optionalProjectRole = projectRoleRepository.findRoleByUserAndProject(user, project);
         if (optionalProjectRole.isPresent()) {
             ProjectRole projectRole = optionalProjectRole.get();
