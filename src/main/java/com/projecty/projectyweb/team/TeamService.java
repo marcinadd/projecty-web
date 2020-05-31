@@ -6,6 +6,7 @@ import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.team.misc.TeamSummaryService;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleService;
+import com.projecty.projectyweb.team.role.dto.TeamRoleData;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,9 +71,11 @@ public class TeamService {
         teamRepository.delete(team);
     }
 
-    public List<TeamRole> getTeams() {
+    public List<TeamRoleData> getTeams() {
         List<TeamRole> teamRoles = userService.getCurrentUser().getTeamRoles();
         teamRoles.forEach(t -> TeamSummaryService.generateTeamSummary(t.getTeam()));
-        return teamRoles;
+        List<TeamRoleData> teamRoleData = new ArrayList<>();
+        teamRoles.forEach(t -> teamRoleData.add(new TeamRoleData(t)));
+        return teamRoleData;
     }
 }

@@ -2,7 +2,9 @@ package com.projecty.projectyweb.team;
 
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
+import com.projecty.projectyweb.team.role.dto.TeamRoleData;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -17,9 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -45,12 +45,22 @@ public class TeamServiceTests {
     private UserService userService;
 
     private User user;
+    private Team team;
 
     @Before
     public void init() {
         user = new User();
         user.setUsername("user");
-        userRepository.save(user);
+        user = userRepository.save(user);
+
+        team = teamRepository.save(new Team());
+
+        TeamRole teamRole = new TeamRole();
+        teamRole.setUser(user);
+        teamRole.setTeam(team);
+        teamRoleRepository.save(teamRole);
+
+        user.setTeamRoles(Collections.singletonList(teamRole));
         Mockito.when(userService.getCurrentUser())
                 .thenReturn(user);
     }
@@ -89,4 +99,13 @@ public class TeamServiceTests {
         team1 = teamRepository.findById(1L);
         team1.ifPresent(team -> assertThat(team.getProjects(), is(notNullValue())));
     }
+
+    @Test
+    @Transactional
+    public void whenGetTeams_shouldReturnListOfTeamRoleData() {
+        List<TeamRoleData> teamRoles = teamService.getTeams();
+        assertThat(teamRoles.size(), is(1));
+        assertThat(teamRoles.get(0).getTeam(), is(teamRepository.findById(team.getId()).get()));
+    }
+
 }

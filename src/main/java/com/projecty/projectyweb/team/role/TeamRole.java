@@ -32,7 +32,7 @@ public class TeamRole {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JsonIgnore
     private Team team;
 

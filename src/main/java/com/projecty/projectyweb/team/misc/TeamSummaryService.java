@@ -8,9 +8,12 @@ import java.util.List;
 public class TeamSummaryService {
     public static void generateTeamSummary(Team team) {
         TeamSummary summary = new TeamSummary();
-        summary.setUserCount(team.getTeamRoles().size());
-        summary.setProjectCount(team.getProjects().size());
-        summary.setTaskCount(countTasks(team.getProjects()));
+        if (team.getTeamRoles() != null)
+            summary.setUserCount(team.getTeamRoles().size());
+        if (team.getProjects() != null)
+            summary.setProjectCount(team.getProjects().size());
+        if (team.getProjects() != null)
+            summary.setTaskCount(countTasks(team.getProjects()));
         team.setTeamSummary(summary);
     }
 

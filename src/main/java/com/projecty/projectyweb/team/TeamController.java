@@ -6,6 +6,7 @@ import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleService;
+import com.projecty.projectyweb.team.role.dto.TeamRoleData;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,7 @@ public class TeamController {
     }
 
     @GetMapping("")
-    public List<TeamRole> myTeams() {
+    public List<TeamRoleData> myTeams() {
         return teamService.getTeams();
     }
 
