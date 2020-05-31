@@ -4,7 +4,6 @@ import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
-import com.projecty.projectyweb.team.misc.TeamSummaryService;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.user.User;
@@ -51,9 +50,7 @@ public class TeamController {
 
     @GetMapping("")
     public List<TeamRole> myTeams() {
-        List<TeamRole> teamRoles = userService.getCurrentUser().getTeamRoles();
-        teamRoles.forEach(t -> TeamSummaryService.generateTeamSummary(t.getTeam()));
-        return teamRoles;
+        return teamService.getTeams();
     }
 
     @GetMapping(value = "", params = "manager")
@@ -124,6 +121,7 @@ public class TeamController {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         Team team = optionalTeam.get();
         List<TeamRole> roles = teamRoleService.addTeamMembersByUsernames(team, usernames);
+//        FiXME Saving to db
         return roles;
     }
 

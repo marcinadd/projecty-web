@@ -3,7 +3,10 @@ package com.projecty.projectyweb.team;
 
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
+import com.projecty.projectyweb.team.misc.TeamSummaryService;
+import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleService;
+import com.projecty.projectyweb.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +21,18 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamRoleService teamRoleService;
     private final ProjectRepository projectRepository;
+    private final UserService userService;
 
     @Autowired
-    public TeamService(TeamRepository teamRepository, TeamRoleService teamRoleService, ProjectRepository projectRepository) {
+    public TeamService(TeamRepository teamRepository, TeamRoleService teamRoleService, ProjectRepository projectRepository, UserService userService) {
         this.teamRepository = teamRepository;
         this.teamRoleService = teamRoleService;
         this.projectRepository = projectRepository;
+        this.userService = userService;
     }
 
     public Team createTeamAndSave(Team team, List<String> usernames) {
         teamRoleService.addCurrentUserAsTeamManager(team);
-        team = teamRepository.save(team);
         teamRoleService.addTeamMembersByUsernames(team, usernames);
         return teamRepository.save(team);
     }
@@ -55,14 +59,20 @@ public class TeamService {
     }
 
 	public Optional<Team> findById(Long teamId) {
-		return teamRepository.findById(teamId);
-	}
+        return teamRepository.findById(teamId);
+    }
 
-	public Team save(Team team) {
-		return teamRepository.save(team);
-	}
+    public Team save(Team team) {
+        return teamRepository.save(team);
+    }
 
-	public void delete(Team team) {
-		teamRepository.delete(team);
-	}
+    public void delete(Team team) {
+        teamRepository.delete(team);
+    }
+
+    public List<TeamRole> getTeams() {
+        List<TeamRole> teamRoles = userService.getCurrentUser().getTeamRoles();
+        teamRoles.forEach(t -> TeamSummaryService.generateTeamSummary(t.getTeam()));
+        return teamRoles;
+    }
 }

@@ -21,23 +21,19 @@ public class TeamRoleService {
     }
 
     public List<TeamRole> addTeamMembersByUsernames(Team team, List<String> usernames) {
-        List<TeamRole> newTeamRoles = new ArrayList<>();
+        List<TeamRole> teamRoles = new ArrayList<>();
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
             removeExistingUsersInTeamFromSet(users, team);
-            users.forEach(user -> newTeamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
+            users.forEach(user -> teamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
         }
-
-        List<TeamRole> savedTeamRoles = new ArrayList<>();
-        newTeamRoles.forEach(teamRole -> savedTeamRoles.add(teamRoleRepository.save(teamRole)));
 
         if (team.getTeamRoles() == null) {
-            team.setTeamRoles(savedTeamRoles);
+            team.setTeamRoles(teamRoles);
         } else if (team.getTeamRoles().size() > 0) {
-            team.getTeamRoles().addAll(savedTeamRoles);
+            team.getTeamRoles().addAll(teamRoles);
         }
-        teamRepository.save(team);
-        return savedTeamRoles;
+        return teamRoles;
     }
 
     public void addCurrentUserAsTeamManager(Team team) {
