@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 @CrossOrigin()
@@ -59,9 +62,10 @@ public class TeamController {
         return teamRoleService.getTeamRolesWhereManager(userService.getCurrentUser());
     }
 
-    @GetMapping("/{teamId}")
+    @GetMapping("/{teamId}/name")
     @EditPermission
-    public String addProjectToSpecifiedTeamPost(
+//    TODO Check where this method is used
+    public String getTeamName(
             @PathVariable Long teamId
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
@@ -86,31 +90,22 @@ public class TeamController {
         }
     }
 
-    @GetMapping(value = "/{teamId}", params = "roles")
+    @GetMapping(value = "/{teamId}")
     @EditPermission
-    public Map<String, Object> getTeamWithRoles(
+    public Team findTeamById(
             @PathVariable Long teamId
     ) {
-        Optional<Team> optionalTeam = teamService.findById(teamId);
-        Map<String, Object> map = new HashMap<>();
-        Team team = optionalTeam.get();
-        team.setProjects(null);
-        map.put("team", team);
-        map.put("currentUser", userService.getCurrentUser());
-        List<TeamRole> teamRoles = team.getTeamRoles();
-        teamRoles.forEach(teamRole -> teamRole.setTeam(null));
-        map.put("teamRoles", teamRoles);
-        return map;
+        return teamService.findById(teamId).get();
     }
 
     @PatchMapping("/{teamId}")
     @EditPermission
-    public void changeNamePatch(
+    public Team patchTeam(
             @PathVariable Long teamId,
-            @RequestBody Map<String, String> fields
+            @RequestBody Team team
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        teamService.editTeam(optionalTeam.get(), fields);
+        return teamService.editTeam(optionalTeam.get(), team);
     }
 
     @PostMapping("/{teamId}/roles")

@@ -73,9 +73,10 @@ public class TeamRoleService {
         }
     }
 
-    public void changeTeamRole(TeamRole teamRole, String newRoleName) throws IllegalArgumentException {
-        teamRole.setName(TeamRoles.valueOf(newRoleName));
-        teamRoleRepository.save(teamRole);
+    public TeamRole changeTeamRole(TeamRole teamRole, TeamRole patchedValues) throws IllegalArgumentException {
+        if (patchedValues.getName() != null)
+            teamRole.setName(patchedValues.getName());
+        return teamRoleRepository.save(teamRole);
     }
 
     private int getTeamManagersCount(Team team) {

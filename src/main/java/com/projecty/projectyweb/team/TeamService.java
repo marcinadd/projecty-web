@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -51,15 +50,14 @@ public class TeamService {
         teamRepository.save(team);
     }
 
-    public void editTeam(Team team, Map<String, String> fields) {
-        String name = fields.get("name");
-        if (!name.isEmpty()) {
-            team.setName(name);
-            teamRepository.save(team);
+    public Team editTeam(Team team, Team patchedTeam) {
+        if (!patchedTeam.getName().isEmpty()) {
+            team.setName(patchedTeam.getName());
         }
+        return teamRepository.save(team);
     }
 
-	public Optional<Team> findById(Long teamId) {
+    public Optional<Team> findById(Long teamId) {
         return teamRepository.findById(teamId);
     }
 
