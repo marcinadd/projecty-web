@@ -70,8 +70,9 @@ public class TeamServiceTests {
         Team team = new Team();
         team.setName("Old name");
         Map<String, String> fields = new HashMap<>();
-        fields.put("name", "test");
-        teamService.editTeam(team, fields);
+        Team patched = new Team();
+        patched.setName("test");
+        teamService.editTeam(team, patched);
         Optional<Team> team1 = teamRepository.findById(team.getId());
         if (team1.isPresent()) {
             assertThat(team1.get().getName(), is("test"));

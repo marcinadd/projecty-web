@@ -116,9 +116,7 @@ public class TeamController {
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         Team team = optionalTeam.get();
-        List<TeamRole> roles = teamRoleService.addTeamMembersByUsernames(team, usernames);
-//        FiXME Saving to db
-        return roles;
+        return teamRoleService.addTeamRolesByUsernames(team, usernames);
     }
 
     @GetMapping("/{teamId}/projects")

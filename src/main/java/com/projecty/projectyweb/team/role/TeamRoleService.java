@@ -36,6 +36,18 @@ public class TeamRoleService {
         return teamRoles;
     }
 
+    private List<TeamRole> saveTeamRoles(List<TeamRole> unsavedTeamRoles) {
+        List<TeamRole> savedTeamRoles = new ArrayList<>();
+        unsavedTeamRoles.forEach(t -> savedTeamRoles.add(teamRoleRepository.save(t)));
+        return savedTeamRoles;
+    }
+
+    public List<TeamRole> addTeamRolesByUsernames(Team team, List<String> usernames) {
+        List<TeamRole> unsavedTeamRoles = addTeamMembersByUsernames(team, usernames);
+        return saveTeamRoles(unsavedTeamRoles);
+    }
+
+
     public void addCurrentUserAsTeamManager(Team team) {
         User current = userService.getCurrentUser();
         TeamRole teamRole = new TeamRole(TeamRoles.MANAGER, current, team);
@@ -119,6 +131,8 @@ public class TeamRoleService {
 	}
 
 	public void delete(TeamRole teamRole) {
-		teamRoleRepository.delete(teamRole);
-	}
+        Team team = teamRole.getTeam();
+        team.getTeamRoles().remove(teamRole);
+        teamRepository.save(team);
+    }
 }
