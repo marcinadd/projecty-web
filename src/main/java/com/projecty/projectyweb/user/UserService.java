@@ -41,7 +41,13 @@ public class UserService {
         }
         Optional<User> user = userRepository.findByUsername(currentUsername);
         String finalCurrentUsername = currentUsername;
-        return user.orElseGet(() -> userRepository.save(User.builder().username(finalCurrentUsername).build()));
+        return user.orElseGet(() -> createUserAndGet(finalCurrentUsername));
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public User createUserAndGet(String username) {
+        User user = userRepository.save(User.builder().username(username).build());
+        return userRepository.findById(user.getId()).get();
     }
 
     public Set<User> getUserSetByUsernames(List<String> usernames) {
