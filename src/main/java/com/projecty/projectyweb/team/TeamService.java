@@ -6,6 +6,7 @@ import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.team.misc.TeamSummaryService;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleService;
+import com.projecty.projectyweb.team.role.dto.TeamProjectsData;
 import com.projecty.projectyweb.team.role.dto.TeamRoleData;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,17 +38,20 @@ public class TeamService {
         return teamRepository.save(team);
     }
 
-    public void createProjectForTeam(Team team, Project project) {
+    public Project createProjectForTeam(Team team, Project project) {
         project.setTeam(team);
-        projectRepository.save(project);
-        if (team.getProjects() == null) {
-            List<Project> projects = new ArrayList<>();
-            projects.add(project);
-            team.setProjects(projects);
-        } else {
-            team.getProjects().add(project);
-        }
+        project = projectRepository.save(project);
+        team.getProjects().add(project);
         teamRepository.save(team);
+        return project;
+    }
+
+    public TeamProjectsData getTeamProjects(Team team) {
+        return TeamProjectsData.builder()
+                .teamName(team.getName())
+                .projects(team.getProjects())
+                .isCurrentUserTeamManager(teamRoleService.isCurrentUserTeamManager(team))
+                .build();
     }
 
     public Team editTeam(Team team, Team patchedTeam) {

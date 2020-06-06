@@ -6,6 +6,7 @@ import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectValidator;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleService;
+import com.projecty.projectyweb.team.role.dto.TeamProjectsData;
 import com.projecty.projectyweb.team.role.dto.TeamRoleData;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
@@ -64,16 +65,17 @@ public class TeamController {
 
     @GetMapping("/{teamId}/name")
     @EditPermission
-//    TODO Check where this method is used
-    public String getTeamName(
+    public Map<String, String> getTeamName(
             @PathVariable Long teamId
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        return optionalTeam.get().getName();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("name", optionalTeam.get().getName());
+        return map;
     }
 
     @PostMapping("/{teamId}/projects")
-    public void addProjectToTeamPost(
+    public Project addProjectToTeamPost(
             @Valid @RequestBody Project project,
             @PathVariable Long teamId,
             BindingResult bindingResult
@@ -84,7 +86,7 @@ public class TeamController {
             throw new BindException(bindingResult);
         }
         if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            teamService.createProjectForTeam(optionalTeam.get(), project);
+            return teamService.createProjectForTeam(optionalTeam.get(), project);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -121,13 +123,9 @@ public class TeamController {
 
     @GetMapping("/{teamId}/projects")
     @AnyPermission
-    public Map<String, Object> projectList(@PathVariable Long teamId) {
+    public TeamProjectsData projectList(@PathVariable Long teamId) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("teamName", optionalTeam.get().getName());
-        map.put("projects", optionalTeam.get().getProjects());
-        map.put("isCurrentUserTeamManager", teamRoleService.isCurrentUserTeamManager(optionalTeam.get()));
-        return map;
+        return teamService.getTeamProjects(optionalTeam.get());
     }
 
     @DeleteMapping("/{teamId}")

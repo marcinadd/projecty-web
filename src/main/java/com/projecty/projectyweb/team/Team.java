@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.team;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.team.misc.TeamSummary;
 import com.projecty.projectyweb.team.role.TeamRole;
@@ -23,6 +24,7 @@ public class Team {
     private List<TeamRole> teamRoles;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Project> projects;
 
     @Transient
