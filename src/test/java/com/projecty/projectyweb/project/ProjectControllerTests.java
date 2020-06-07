@@ -124,7 +124,7 @@ public class ProjectControllerTests {
         mockMvc.perform(get("/projects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("projectRoles").exists())
-                .andExpect(jsonPath("teamRoles").exists());
+                .andExpect(jsonPath("teamProjects").exists());
     }
 
     @Test

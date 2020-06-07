@@ -2,6 +2,7 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.project.dto.ProjectData;
 import com.projecty.projectyweb.project.dto.ProjectsData;
+import com.projecty.projectyweb.project.dto.ProjectsTeamData;
 import com.projecty.projectyweb.project.role.*;
 import com.projecty.projectyweb.task.TaskRepository;
 import com.projecty.projectyweb.task.TaskStatus;
@@ -80,8 +81,8 @@ public class ProjectService {
         List<ProjectRoleDataDTO> projectRoles = new ArrayList<>();
         user.getProjectRoles().forEach(projectRole -> projectRoles.add(new ProjectRoleDataDTO(projectRole)));
 
-        List<TeamRole> teamRoles = user.getTeamRoles();
-        teamRoles.forEach(teamRole -> teamRole.setUser(null));
+        List<ProjectsTeamData> teamRoles = new ArrayList<>();
+        user.getTeamRoles().forEach(teamRole -> teamRoles.add(new ProjectsTeamData(teamRole)));
         return new ProjectsData(projectRoles, teamRoles);
     }
 
