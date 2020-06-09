@@ -181,7 +181,7 @@ public class TeamControllerTests {
     public void givenGetRequestOnAddTeamProjectForSpecifiedTeam_shouldRetunTeamName() throws Exception {
         mockMvc.perform(get("/teams/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isString());
+                .andExpect(jsonPath("$.id").value("1"));
     }
 
     @Test
@@ -191,16 +191,6 @@ public class TeamControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(newProject)))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser
-    public void givenGetRequestOnManageTeam_shouldReturnMap() throws Exception {
-        mockMvc.perform(get("/teams/1?roles=true"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.team").isNotEmpty())
-                .andExpect(jsonPath("$.currentUser").isNotEmpty())
-                .andExpect(jsonPath("$.teamRoles").isNotEmpty());
     }
 
     @Test
@@ -244,7 +234,7 @@ public class TeamControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnDeleteTeamRole_shouldReturnOk() throws Exception {
-        mockMvc.perform(delete("/teamRoles/4").with(csrf()))
+        mockMvc.perform(delete("/teamRoles/5").with(csrf()))
                 .andExpect(status().isOk());
     }
 

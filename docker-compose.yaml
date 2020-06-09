@@ -47,7 +47,7 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
-    #      KEYCLOAK_IMPORT: '/tmp/config/realm.json -Dkeycloak.profile.feature.upload_scripts=enabled'
+      KEYCLOAK_IMPORT: '/tmp/config/realm.json -Dkeycloak.profile.feature.upload_scripts=enabled'
     ports:
       - 8081:8080
     depends_on:

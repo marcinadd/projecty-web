@@ -21,24 +21,32 @@ public class TeamRoleService {
     }
 
     public List<TeamRole> addTeamMembersByUsernames(Team team, List<String> usernames) {
-        List<TeamRole> newTeamRoles = new ArrayList<>();
+        List<TeamRole> teamRoles = new ArrayList<>();
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
             removeExistingUsersInTeamFromSet(users, team);
-            users.forEach(user -> newTeamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
+            users.forEach(user -> teamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
         }
-
-        List<TeamRole> savedTeamRoles = new ArrayList<>();
-        newTeamRoles.forEach(teamRole -> savedTeamRoles.add(teamRoleRepository.save(teamRole)));
 
         if (team.getTeamRoles() == null) {
-            team.setTeamRoles(savedTeamRoles);
+            team.setTeamRoles(teamRoles);
         } else if (team.getTeamRoles().size() > 0) {
-            team.getTeamRoles().addAll(savedTeamRoles);
+            team.getTeamRoles().addAll(teamRoles);
         }
-        teamRepository.save(team);
+        return teamRoles;
+    }
+
+    private List<TeamRole> saveTeamRoles(List<TeamRole> unsavedTeamRoles) {
+        List<TeamRole> savedTeamRoles = new ArrayList<>();
+        unsavedTeamRoles.forEach(t -> savedTeamRoles.add(teamRoleRepository.save(t)));
         return savedTeamRoles;
     }
+
+    public List<TeamRole> addTeamRolesByUsernames(Team team, List<String> usernames) {
+        List<TeamRole> unsavedTeamRoles = addTeamMembersByUsernames(team, usernames);
+        return saveTeamRoles(unsavedTeamRoles);
+    }
+
 
     public void addCurrentUserAsTeamManager(Team team) {
         User current = userService.getCurrentUser();
@@ -77,9 +85,10 @@ public class TeamRoleService {
         }
     }
 
-    public void changeTeamRole(TeamRole teamRole, String newRoleName) throws IllegalArgumentException {
-        teamRole.setName(TeamRoles.valueOf(newRoleName));
-        teamRoleRepository.save(teamRole);
+    public TeamRole changeTeamRole(TeamRole teamRole, TeamRole patchedValues) throws IllegalArgumentException {
+        if (patchedValues.getName() != null)
+            teamRole.setName(patchedValues.getName());
+        return teamRoleRepository.save(teamRole);
     }
 
     private int getTeamManagersCount(Team team) {
@@ -122,6 +131,8 @@ public class TeamRoleService {
 	}
 
 	public void delete(TeamRole teamRole) {
-		teamRoleRepository.delete(teamRole);
-	}
+        Team team = teamRole.getTeam();
+        team.getTeamRoles().remove(teamRole);
+        teamRepository.save(team);
+    }
 }

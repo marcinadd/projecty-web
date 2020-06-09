@@ -133,15 +133,10 @@ public class TeamRoleServiceTests {
     public void whenChangeTeamRole_shouldReturnRoleWithNewName() {
         TeamRole teamRole = new TeamRole();
         teamRole.setName(TeamRoles.MANAGER);
-        teamRoleService.changeTeamRole(teamRole, String.valueOf(TeamRoles.MEMBER));
+        TeamRole patched = new TeamRole();
+        patched.setName(TeamRoles.MEMBER);
+        teamRoleService.changeTeamRole(teamRole, patched);
         assertThat(teamRole.getName(), is(TeamRoles.MEMBER));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void whenChangeTeamRoleOnNotExists_shouldThrowException() {
-        TeamRole teamRole = new TeamRole();
-        teamRole.setName(TeamRoles.MANAGER);
-        teamRoleService.changeTeamRole(teamRole, "NotExistsRoleName");
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.projecty.projectyweb.team.role;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.user.User;
 import lombok.Getter;
@@ -31,15 +30,10 @@ public class TeamRole {
     private TeamRoles name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "team_id")
-    @JsonIdentityInfo(
-            generator = ObjectIdGenerators.PropertyGenerator.class,
-            property = "id"
-    )
+    @ManyToOne
+    @JsonIgnore
     private Team team;
 
     @Override
