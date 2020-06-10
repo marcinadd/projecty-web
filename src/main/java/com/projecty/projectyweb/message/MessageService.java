@@ -6,12 +6,10 @@ import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -59,7 +57,7 @@ public class MessageService {
         }
     }
 
-    public void sendMessage(
+    public Message sendMessage(
             String recipientUsername,
             Message message,
             BindingResult bindingResult,
@@ -80,8 +78,9 @@ public class MessageService {
         if (multipartFiles != null) {
             attachmentService.addFilesToMessage(multipartFiles, message);
         }
-        messageRepository.save(message);
+        Message saved = messageRepository.save(message);
         associationService.recordMessage(message);
+        return saved;
     }
 
 

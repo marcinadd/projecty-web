@@ -54,14 +54,14 @@ public class MessageController {
         return messageRepository.findBySenderOrderBySendDateDesc(user);
     }
 
-    @PostMapping("sendMessage")
-    public void sendMessagePost(
+    @PostMapping
+    public Message sendMessagePost(
             @RequestBody Message message,
             BindingResult bindingResult,
             @RequestParam(required = false) List<MultipartFile> multipartFiles
 
     ) throws BindException {
-        messageService.sendMessage(message.getRecipientUsername(), message, bindingResult, multipartFiles);
+        return messageService.sendMessage(message.getRecipientUsername(), message, bindingResult, multipartFiles);
     }
 
     @GetMapping("/{messageId}/files/{fileId}")

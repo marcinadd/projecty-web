@@ -21,11 +21,13 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @JsonSerialize(using = UserSerializer.class)
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue
+    @EqualsAndHashCode.Include
     private Long id;
 
     @CreatedDate
@@ -87,15 +89,5 @@ public class User implements Serializable {
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        User anotherUser = (User) obj;
-        if(anotherUser == null) return false;
-        if(this.getId() == null && anotherUser.getId() == null) return true;
-        if(this.getId() == null || anotherUser.getId() == null) return false;
-
-        return this.getId().equals(anotherUser.id);
     }
 }

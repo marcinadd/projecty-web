@@ -133,7 +133,7 @@ public class MessageControllerTests {
         message.setId(2L);
         message.setText("This is sample message");
         message.setRecipientUsername("user1");
-        mockMvc.perform(post("/messages/sendMessage").with(csrf())
+        mockMvc.perform(post("/messages").with(csrf())
                 .flashAttr("message", message)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(message)))
@@ -147,7 +147,7 @@ public class MessageControllerTests {
         message.setId(2L);
         message.setTitle("This is sample title");
         message.setRecipientUsername("user1");
-        mockMvc.perform(post("/messages/sendMessage").with(csrf())
+        mockMvc.perform(post("/messages").with(csrf())
                 .flashAttr("message", message)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(message)))
@@ -165,7 +165,7 @@ public class MessageControllerTests {
         User user1 = new User();
         message.setRecipient(user);
         message.setSender(user1);
-        mockMvc.perform(post("/messages/sendMessage").with(csrf())
+        mockMvc.perform(post("/messages").with(csrf())
                 .flashAttr("message", message)
                 .param("recipientUsername", "notExistsUsername"))
                 .andExpect(status().isBadRequest());
@@ -182,7 +182,7 @@ public class MessageControllerTests {
         User user1 = new User();
         message.setRecipient(user);
         message.setSender(user1);
-        mockMvc.perform(post("/messages/sendMessage").with(csrf())
+        mockMvc.perform(post("/messages").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(message)))
                 .andExpect(status().isBadRequest());
@@ -191,7 +191,7 @@ public class MessageControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnSendMessage_shouldReturnOk() throws Exception {
-        mockMvc.perform(post("/messages/sendMessage").with(csrf())
+        mockMvc.perform(post("/messages").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(message)))
                 .andExpect(status().isOk());
