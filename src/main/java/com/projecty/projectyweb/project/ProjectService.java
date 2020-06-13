@@ -83,7 +83,7 @@ public class ProjectService {
 
         List<ProjectsTeamData> teamRoles = new ArrayList<>();
         user.getTeamRoles().forEach(teamRole -> teamRoles.add(new ProjectsTeamData(teamRole)));
-        return new ProjectsData(projectRoles, teamRoles);
+        return addSummaryToProjectsData(new ProjectsData(projectRoles, teamRoles));
     }
 
     public ProjectData getProjectData(Project project) {
@@ -94,6 +94,12 @@ public class ProjectService {
                 .projectRoles(projectRoles)
                 .currentUser(userService.getCurrentUser())
                 .build();
+    }
+
+    private ProjectsData addSummaryToProjectsData(ProjectsData projectsData) {
+        projectsData.getProjectRoles().forEach(projectRoleDataDTO -> addSummaryToProject(projectRoleDataDTO.getProject()));
+        projectsData.getTeamProjects().forEach(projectsTeamData -> projectsTeamData.getProjects().forEach(this::addSummaryToProject));
+        return projectsData;
     }
 
     void addSummaryToProject(Project project) {

@@ -7,9 +7,11 @@ import com.projecty.projectyweb.task.TaskStatus;
 import com.projecty.projectyweb.team.Team;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +37,10 @@ public class Project {
 
     @ManyToOne
     private Team team;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date modifyDate;
 
     @Transient
     private Map<TaskStatus, Long> taskSummary;

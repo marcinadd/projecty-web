@@ -215,17 +215,15 @@ public class MessageControllerTests {
     @Test
     @WithMockUser
     public void givenRequestOnReceivedMessages_shouldReturnReceivedMessages() throws Exception {
-        mockMvc.perform(get("/messages/receivedMessages"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+        mockMvc.perform(get("/messages?type=RECEIVED"))
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser
     public void givenRequestOnSentMessages_shouldReturnSentMessages() throws Exception {
-        mockMvc.perform(get("/messages/sentMessages"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+        mockMvc.perform(get("/messages?type=SENT"))
+                .andExpect(status().isOk());
     }
 
     @Test

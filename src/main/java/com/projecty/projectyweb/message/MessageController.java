@@ -4,8 +4,8 @@ import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.message.association.AssociationService;
 import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.message.attachment.AttachmentService;
-import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -34,7 +34,7 @@ public class MessageController {
 
     private final AttachmentService attachmentService;
 
-    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, AttachmentService attachmentService , AssociationService associationService) {
+    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, AttachmentService attachmentService, AssociationService associationService) {
         this.userService = userService;
         this.messageRepository = messageRepository;
         this.messageService = messageService;
@@ -42,16 +42,13 @@ public class MessageController {
         this.associationService = associationService;
     }
 
-    @GetMapping("receivedMessages")
-    public List<Message> receivedMessages() {
-        User user = userService.getCurrentUser();
-        return messageRepository.findByRecipientOrderBySendDateDesc(user);
-    }
-
-    @GetMapping("sentMessages")
-    public List<Message> sendMessages() {
-        User user = userService.getCurrentUser();
-        return messageRepository.findBySenderOrderBySendDateDesc(user);
+    @GetMapping
+    public Page<Message> getPageOfMessages(
+            @RequestParam(defaultValue = "RECEIVED") MessageType type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int itemsPerPage
+    ) {
+        return messageService.getPageOfMessagesForCurrentUser(type, page, itemsPerPage);
     }
 
     @PostMapping

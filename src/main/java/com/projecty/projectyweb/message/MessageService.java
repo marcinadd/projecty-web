@@ -6,6 +6,8 @@ import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
@@ -54,6 +56,17 @@ public class MessageService {
         if (message.getRecipient() == current && message.getSeenDate() == null) {
             message.setSeenDate(new Timestamp(System.currentTimeMillis()));
             messageRepository.save(message);
+        }
+    }
+
+    public Page<Message> getPageOfMessagesForCurrentUser(MessageType messageType, int page, int itemsPerPage) {
+        User user = userService.getCurrentUser();
+        switch (messageType) {
+            case SENT:
+                return messageRepository.findBySenderOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
+            case RECEIVED:
+            default:
+                return messageRepository.findByRecipientOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
         }
     }
 

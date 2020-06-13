@@ -78,6 +78,7 @@ public class ProjectControllerTests {
         projectRoles.add(projectRole1);
 
         Team team = new Team();
+        team.setProjects(new ArrayList<>());
         TeamRole teamRole = new TeamRole(TeamRoles.MANAGER, user, team);
 
         List<TeamRole> teamRoles = new ArrayList<>();
