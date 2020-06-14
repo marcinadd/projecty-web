@@ -122,5 +122,14 @@ public class UserControllerTests {
         mockMvc.perform(get("/user/userWithAvatar/avatar"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @WithMockUser
+    public void whenGetUsernamesStartWith_shouldReturnUsernamesStartWith() throws Exception {
+        mockMvc.perform(get("/users/usernames")
+                .param("usernameStartsWith", "user"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
 }
 

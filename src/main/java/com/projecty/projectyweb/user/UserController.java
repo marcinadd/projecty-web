@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @CrossOrigin()
@@ -55,5 +56,10 @@ public class UserController {
     @PostMapping("user/avatar")
     public void setAvatar(@RequestParam("avatar") MultipartFile multipartFile) throws IOException, SQLException {
         userService.setUserAvatar(multipartFile);
+    }
+
+    @GetMapping("users/usernames")
+    public List<String> getUsernamesStartWith(@RequestParam String usernameStartsWith) {
+        return userService.getUsernamesStartWith(usernameStartsWith);
     }
 }

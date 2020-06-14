@@ -86,4 +86,14 @@ public class UserService {
     public Optional<User> findByByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
+    public List<String> getUsernamesStartWith(String usernameStartsWith) {
+        User current = getCurrentUser();
+        List<String> usernames = new ArrayList<>();
+        if (usernameStartsWith.length() >= 4) {
+            userRepository.findByUsernameStartsWith(usernameStartsWith).forEach(user -> usernames.add(user.getUsername()));
+        }
+        usernames.remove(current.getUsername());
+        return usernames;
+    }
 }
