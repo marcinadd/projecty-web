@@ -25,7 +25,7 @@ public class ProjectRole {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
     // TODO Remove this redundancy

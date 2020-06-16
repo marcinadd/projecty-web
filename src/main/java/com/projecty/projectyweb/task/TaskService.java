@@ -147,10 +147,12 @@ public class TaskService {
                 .build();
     }
 
+    @Transactional
     public void deleteTask(Task task) {
         Project project = task.getProject();
         project.getTasks().remove(task);
         projectService.save(project);
+        taskRepository.delete(task);
     }
 
     public TaskData getTaskData(Task task) {
