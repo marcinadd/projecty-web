@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -71,19 +70,17 @@ public class MessageService {
     }
 
     public Message sendMessage(
-            String recipientUsername,
             Message message,
-            BindingResult bindingResult,
             List<MultipartFile> multipartFiles
     ) throws BindException {
-
-        messageValidator.validate(message, bindingResult);
-
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
+        BindException bindException = new BindException(message, "message");
+        messageValidator.validate(message, bindException);
+//
+        if (bindException.hasErrors()) {
+            throw bindException;
         }
 
-        User recipient = userRepository.findByUsername(recipientUsername).get();
+        User recipient = userRepository.findByUsername(message.getRecipientUsername()).get();
         User sender = userService.getCurrentUser();
 
         message.setSender(sender);
@@ -97,18 +94,19 @@ public class MessageService {
     }
 
 
-    public void reply(Long replyToMessageId,
-                      Message message,
-                      BindingResult bindingResult,
-                      List<MultipartFile> multipartFiles) throws BindException {
-        Optional<Message> replyToMessage = messageRepository.findById(replyToMessageId);
-        if (replyToMessage.isPresent()) {
-            message.setReplyToMessage(replyToMessage.get());
-            sendMessage(
-                    replyToMessage.get().getSender().getUsername(),
-                    message,
-                    bindingResult,
-                    multipartFiles);
+    public Message reply(Long replyToMessageId,
+                         Message message,
+                         List<MultipartFile> multipartFiles) throws BindException {
+        User user = userService.getCurrentUser();
+        Optional<Message> optionalReplyToMessage = messageRepository.findById(replyToMessageId);
+        if (optionalReplyToMessage.isPresent()) {
+            Message replyToMessage = optionalReplyToMessage.get();
+            if (replyToMessage.getSender().equals(user)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            }
+            message.setRecipientUsername(replyToMessage.getSender().getUsername());
+            message.setReplyToMessage(replyToMessage);
+            return sendMessage(message, multipartFiles);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

@@ -2,8 +2,7 @@ package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.message.attachment.Attachment;
 import com.projecty.projectyweb.user.User;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -14,6 +13,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Message {
     @Id
     @GeneratedValue

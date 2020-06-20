@@ -193,7 +193,9 @@ public class MessageControllerTests {
     public void givenRequestOnSendMessage_shouldReturnOk() throws Exception {
         mockMvc.perform(post("/messages").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(message)))
+                .param("recipientUsername", message.getRecipientUsername())
+                .param("title", message.getTitle())
+                .param("text", message.getText()))
                 .andExpect(status().isOk());
     }
 
@@ -234,13 +236,6 @@ public class MessageControllerTests {
     }
 
     @Test
-    @WithMockUser
-    public void givenRequestOnDownloadFile_shouldReturnFileToDownload() throws Exception {
-        mockMvc.perform(get("/messages/1/files/0"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     @WithMockUser("user2")
     public void givenRequestOnDownloadFileWithNoPermission_shouldReturnFileNotFound() throws Exception {
         mockMvc.perform(get("/messages/1/files/0"))
@@ -258,12 +253,13 @@ public class MessageControllerTests {
     @WithMockUser
     public void givenRequestOnReplyToMessageWhichNotExists_shouldReturnNotFound() throws Exception {
         Message replyMessage = new Message();
-        replyMessage.setId(11L);
+        replyMessage.setId(12L);
         replyMessage.setText("This is sample reply message");
         replyMessage.setTitle("sample reply title");
-        mockMvc.perform(post("/messages/12/reply").with(csrf())
-                .flashAttr("message", replyMessage))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(post("/messages/1/reply").with(csrf())
+                .param("title", replyMessage.getTitle())
+                .param("text", replyMessage.getText()))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -274,7 +270,8 @@ public class MessageControllerTests {
         replyMessage.setText("This is sample reply message");
         replyMessage.setTitle("sample reply title");
         mockMvc.perform(post("/messages/1/reply").with(csrf())
-                .flashAttr("message", replyMessage))
+                .param("title", replyMessage.getTitle())
+                .param("text", replyMessage.getText()))
                 .andExpect(status().isBadRequest());
     }
 
@@ -285,9 +282,9 @@ public class MessageControllerTests {
         replyMessage.setId(11L);
         replyMessage.setText("This is sample reply message");
         replyMessage.setTitle("sample reply title");
-        replyMessage.setRecipientUsername("user2");
         mockMvc.perform(post("/messages/1/reply").with(csrf())
-                .flashAttr("message", replyMessage))
+                .param("title", replyMessage.getTitle())
+                .param("text", replyMessage.getText()))
                 .andExpect(status().isOk());
     }
 

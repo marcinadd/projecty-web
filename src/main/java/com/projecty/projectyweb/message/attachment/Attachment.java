@@ -1,13 +1,19 @@
 package com.projecty.projectyweb.message.attachment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.sql.Blob;
+import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
 public class Attachment {
     public Attachment(String fileName, Blob file) {
         this.fileName = fileName;
@@ -17,36 +23,14 @@ public class Attachment {
     public Attachment() {
 
     }
+
     @Id
     @GeneratedValue
-    private long id;
+    @Type(type = "org.hibernate.type.UUIDCharType")
+    private UUID id;
 
     private String fileName;
 
     @JsonIgnore
     private Blob file;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public Blob getFile() {
-        return file;
-    }
-
-    public void setFile(Blob file) {
-        this.file = file;
-    }
 }

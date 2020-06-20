@@ -2,20 +2,16 @@ package com.projecty.projectyweb.message;
 
 import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.message.association.AssociationService;
-import com.projecty.projectyweb.message.attachment.Attachment;
+import com.projecty.projectyweb.message.attachment.AttachmentRepository;
 import com.projecty.projectyweb.message.attachment.AttachmentService;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,21 +21,19 @@ import java.util.Optional;
 @RequestMapping("messages")
 public class MessageController {
     private final UserService userService;
-
     private final MessageRepository messageRepository;
-
     private final MessageService messageService;
-
     private final AssociationService associationService;
-
     private final AttachmentService attachmentService;
+    private final AttachmentRepository attachmentRepository;
 
-    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, AttachmentService attachmentService, AssociationService associationService) {
+    public MessageController(UserService userService, MessageRepository messageRepository, MessageService messageService, AttachmentService attachmentService, AssociationService associationService, AttachmentRepository attachmentRepository) {
         this.userService = userService;
         this.messageRepository = messageRepository;
         this.messageService = messageService;
         this.attachmentService = attachmentService;
         this.associationService = associationService;
+        this.attachmentRepository = attachmentRepository;
     }
 
     @GetMapping
@@ -53,29 +47,19 @@ public class MessageController {
 
     @PostMapping
     public Message sendMessagePost(
-            @RequestBody Message message,
-            BindingResult bindingResult,
+            @RequestParam String recipientUsername,
+            @RequestParam String title,
+            @RequestParam String text,
             @RequestParam(required = false) List<MultipartFile> multipartFiles
 
     ) throws BindException {
-        return messageService.sendMessage(message.getRecipientUsername(), message, bindingResult, multipartFiles);
-    }
-
-    @GetMapping("/{messageId}/files/{fileId}")
-    @AnyPermission
-    public @ResponseBody
-    byte[] downloadFile(
-            @PathVariable Long messageId,
-            @PathVariable(required = false) Long fileId,
-            HttpServletResponse response
-    ) throws IOException, SQLException {
-        Optional<Message> optionalMessage = messageRepository.findById(messageId);
-        Message message = optionalMessage.get();
-        Attachment attachment = message.getAttachments().get(Math.toIntExact(fileId));
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=" + attachment.getFileName());
-        response.flushBuffer();
-        return attachmentService.getByteArrayFromAttachment(attachment);
+        Message message = Message.builder()
+                .recipientUsername(recipientUsername)
+                .title(title)
+                .text(text)
+                .recipientUsername(recipientUsername)
+                .build();
+        return messageService.sendMessage(message, multipartFiles);
     }
 
     @GetMapping("/{messageId}")
@@ -101,17 +85,18 @@ public class MessageController {
     }
 
     @PostMapping("{replyToMessageId}/reply")
-    public void reply(
-            @PathVariable(name = "replyToMessageId") Long replyToMessageId,
-            @ModelAttribute Message message,
-            BindingResult bindingResult,
+    public Message replyToAMessage(
+            @PathVariable Long replyToMessageId,
+            @RequestParam String title,
+            @RequestParam String text,
             @RequestParam(required = false) List<MultipartFile> multipartFiles
 
     ) throws BindException {
-        messageService.reply(replyToMessageId, message, bindingResult, multipartFiles);
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
+        Message message = Message.builder()
+                .title(title)
+                .text(text)
+                .build();
+        return messageService.reply(replyToMessageId, message, multipartFiles);
     }
 
     @DeleteMapping(value = "{id}")
