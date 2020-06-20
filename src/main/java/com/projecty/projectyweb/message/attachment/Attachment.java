@@ -1,6 +1,7 @@
 package com.projecty.projectyweb.message.attachment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.projecty.projectyweb.message.Message;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.Type;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.sql.Blob;
 import java.util.UUID;
 
@@ -15,10 +17,9 @@ import java.util.UUID;
 @Getter
 @Setter
 public class Attachment {
-    public Attachment(String fileName, Blob file) {
-        this.fileName = fileName;
-        this.file = file;
-    }
+    @ManyToOne
+    @JsonIgnore
+    private Message message;
 
     public Attachment() {
 
@@ -33,4 +34,10 @@ public class Attachment {
 
     @JsonIgnore
     private Blob file;
+
+    public Attachment(String fileName, Blob file, Message message) {
+        this.fileName = fileName;
+        this.file = file;
+        this.message = message;
+    }
 }

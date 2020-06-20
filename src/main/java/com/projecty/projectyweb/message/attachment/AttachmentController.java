@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.message.attachment;
 
+import com.projecty.projectyweb.configurations.AnyPermission;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -20,10 +21,8 @@ public class AttachmentController {
         this.attachmentService = attachmentService;
     }
 
-
-    //    TODO IMPORTANT!!! FIX SECURITY VULNERABILITY HERE
     @GetMapping("{attachmentId}")
-//    @AnyPermission
+    @AnyPermission
     public @ResponseBody
     byte[] downloadAttachment(
             @PathVariable UUID attachmentId,

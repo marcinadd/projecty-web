@@ -28,7 +28,8 @@ public class AttachmentService {
             try {
                 attachments.add(new Attachment(
                         multipartFile.getOriginalFilename(),
-                        new SerialBlob(multipartFile.getBytes())
+                        new SerialBlob(multipartFile.getBytes()),
+                        message
                 ));
             } catch (SQLException | IOException ignored) {
             }

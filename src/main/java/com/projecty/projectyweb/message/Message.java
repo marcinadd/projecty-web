@@ -42,7 +42,8 @@ public class Message {
 
     @OneToMany(
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            mappedBy = "message"
     )
     private List<Attachment> attachments;
 
