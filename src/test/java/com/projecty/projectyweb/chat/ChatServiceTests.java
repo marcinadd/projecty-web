@@ -7,6 +7,7 @@ import com.projecty.projectyweb.user.UserService;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,12 @@ public class ChatServiceTests {
         SocketChatMessage message = new SocketChatMessage();
         message.setRecipient(recipientUsername);
         message.setText(text);
-        ChatMessage chatMessage = chatService.saveInDatabase(message);
+        ChatMessage chatMessage = chatService.saveInDatabase(message, new Principal() {
+            @Override
+            public String getName() {
+                return "user";
+            }
+        });
         assertThat(chatMessage.getRecipient().getUsername(), is(recipientUsername));
         assertThat(chatMessage.getText(), is(text));
         assertThat(chatMessage.getId(), is(notNullValue()));

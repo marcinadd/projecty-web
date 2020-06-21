@@ -8,13 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Deprecated
 public class ChatService {
-
     private final UserService userService;
     private final ChatMessageRepository chatMessageRepository;
 
@@ -23,12 +22,12 @@ public class ChatService {
         this.chatMessageRepository = chatMessageRepository;
     }
 
-    public ChatMessage saveInDatabase(SocketChatMessage message) {
-        User currentUser = userService.getCurrentUser();
+    public ChatMessage saveInDatabase(SocketChatMessage message, Principal user) {
+        Optional<User> currentUser = userService.findByByUsername(user.getName());
         Optional<User> recipient = userService.findByByUsername(message.getRecipient());
-        if (recipient.isPresent() && recipient.get() != currentUser) {
+        if (currentUser.isPresent() && recipient.isPresent() && recipient.get() != currentUser.get()) {
             ChatMessage chatMessage =
-                    new ChatMessage(currentUser, recipient.get(), message.getText(), new Date());
+                    new ChatMessage(currentUser.get(), recipient.get(), message.getText(), new Date());
             return save(chatMessage);
         }
         throw new UserNotFoundException();
