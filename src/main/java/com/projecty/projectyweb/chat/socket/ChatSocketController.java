@@ -31,13 +31,8 @@ public class ChatSocketController {
             @Header("simpSessionId") String sessionId) throws Exception {
         try {
             ChatMessage chatMessage = chatService.saveInDatabase(msg, user);
-            OutputSocketChatMessage out = new OutputSocketChatMessage(
-                    chatMessage.getSender().getUsername(),
-                    chatMessage.getRecipient().getUsername(),
-                    chatMessage.getText(),
-                    chatMessage.getSendDate());
             simpMessagingTemplate.convertAndSendToUser(
-                    msg.getRecipient(), "/secured/user/queue/specific-user", out);
+                    msg.getRecipient(), "/secured/user/queue/specific-user", chatMessage);
         } catch (UserNotFoundException ignored) {
         }
     }

@@ -1,10 +1,12 @@
-package com.projecty.projectyweb.chat;
+package com.projecty.projectyweb.chat.dto;
 
-public class ChatMessageProjection {
-    private ChatMessage lastMessage;
-    private long unreadMessageCount;
+import com.projecty.projectyweb.chat.ChatMessage;
 
-    public ChatMessageProjection(ChatMessage lastMessage, long unreadMessageCount) {
+public class ChatHistoryData {
+    private final ChatMessage lastMessage;
+    private final long unreadMessageCount;
+
+    public ChatHistoryData(ChatMessage lastMessage, long unreadMessageCount) {
         this.lastMessage = lastMessage;
         this.unreadMessageCount = unreadMessageCount;
     }

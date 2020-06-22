@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.chat;
 
+import com.projecty.projectyweb.chat.dto.ChatHistoryData;
 import com.projecty.projectyweb.chat.socket.SocketChatMessage;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
@@ -93,8 +94,8 @@ public class ChatServiceTests {
 //    @Transactional
 //    @WithMockUser
     public void whenGetMessageHistory_shouldReturnMessageHistory() {
-        List<ChatMessageProjection> messages = chatService.getChatHistory();
-        Map<ChatMessage, Long> map = messages.stream().collect(Collectors.toMap(ChatMessageProjection::getLastMessage, ChatMessageProjection::getUnreadMessageCount));
+        List<ChatHistoryData> messages = chatService.getChatHistory();
+        Map<ChatMessage, Long> map = messages.stream().collect(Collectors.toMap(ChatHistoryData::getLastMessage, ChatHistoryData::getUnreadMessageCount));
         assertThat(map.containsKey(lastMessageWithAdmin), is(true));
         assertThat(map.containsKey(lastMessageWithRoot), is(true));
         assertThat(map.get(lastMessageWithRoot), greaterThanOrEqualTo(1L));

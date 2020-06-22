@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.chat;
 
+import com.projecty.projectyweb.chat.dto.ChatHistoryData;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.data.domain.Page;
@@ -34,7 +35,7 @@ public class ChatController {
     }
 
     @GetMapping("")
-    public List<ChatMessageProjection> getChatHistory() {
+    public List<ChatHistoryData> getChatHistory() {
         return chatService.getChatHistory();
     }
 

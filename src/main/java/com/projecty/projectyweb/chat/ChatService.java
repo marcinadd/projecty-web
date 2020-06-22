@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.chat;
 
+import com.projecty.projectyweb.chat.dto.ChatHistoryData;
 import com.projecty.projectyweb.chat.socket.SocketChatMessage;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserNotFoundException;
@@ -43,7 +44,7 @@ public class ChatService {
         return chatMessageRepository.findByRecipientAndSenderOrderById(recipient, currentUser, pageable);
     }
 
-    List<ChatMessageProjection> getChatHistory() {
+    List<ChatHistoryData> getChatHistory() {
         User currentUser = userService.getCurrentUser();
         List<UsernameLastChatMessageIdDTO> maxSenderIds = chatMessageRepository.findMaxMessageIdGroupBySenderUsername(currentUser);
         List<UsernameLastChatMessageIdDTO> maxRecipientIds = chatMessageRepository.findMaxMessageIdGroupByRecipientUsername(currentUser);
@@ -86,13 +87,13 @@ public class ChatService {
         return list.stream().collect(Collectors.toMap(UserIdChatMessageCountDTO::getUserId, UserIdChatMessageCountDTO::getUnreadMessageCount));
     }
 
-    private List<ChatMessageProjection> createChatMessageHistoryList(List<ChatMessage> chatMessages, Map<Long, Long> unreadMessageCountMap) {
-        List<ChatMessageProjection> projectionList = new ArrayList<>();
+    private List<ChatHistoryData> createChatMessageHistoryList(List<ChatMessage> chatMessages, Map<Long, Long> unreadMessageCountMap) {
+        List<ChatHistoryData> projectionList = new ArrayList<>();
         for (ChatMessage m : chatMessages
         ) {
             User other = getNotCurrentUserFromChatMessage(m);
             Long unreadMessageCount = unreadMessageCountMap.get(other.getId());
-            projectionList.add(new ChatMessageProjection(m, unreadMessageCount != null ? unreadMessageCount : 0));
+            projectionList.add(new ChatHistoryData(m, unreadMessageCount != null ? unreadMessageCount : 0));
         }
         return projectionList;
     }
