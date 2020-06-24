@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import java.security.Principal;
 
 @Controller
-@CrossOrigin("*")
+@CrossOrigin()
 public class ChatSocketController {
     private final ChatService chatService;
 
@@ -29,16 +29,10 @@ public class ChatSocketController {
             @Payload SocketChatMessage msg,
             Principal user,
             @Header("simpSessionId") String sessionId) throws Exception {
-
         try {
-            ChatMessage chatMessage = chatService.saveInDatabase(msg);
-            OutputSocketChatMessage out = new OutputSocketChatMessage(
-                    chatMessage.getSender().getUsername(),
-                    chatMessage.getRecipient().getUsername(),
-                    chatMessage.getText(),
-                    chatMessage.getSendDate());
+            ChatMessage chatMessage = chatService.saveInDatabase(msg, user);
             simpMessagingTemplate.convertAndSendToUser(
-                    msg.getRecipient(), "/secured/user/queue/specific-user", out);
+                    msg.getRecipient(), "/secured/user/queue/specific-user", chatMessage);
         } catch (UserNotFoundException ignored) {
         }
     }

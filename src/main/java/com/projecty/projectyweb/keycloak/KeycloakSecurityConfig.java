@@ -81,6 +81,8 @@ public class KeycloakSecurityConfig extends KeycloakWebSecurityConfigurerAdapter
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
+                .antMatchers("/secured/**/**", "/secured/**/**/**", "/secured/socket", "/secured/success")
+                .authenticated()
                 .antMatchers("/**").hasRole("ADMIN")
                 .anyRequest().permitAll();
     }

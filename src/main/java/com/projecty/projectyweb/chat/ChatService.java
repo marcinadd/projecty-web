@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.chat;
 
+import com.projecty.projectyweb.chat.dto.ChatHistoryData;
 import com.projecty.projectyweb.chat.socket.SocketChatMessage;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserNotFoundException;
@@ -8,13 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Deprecated
 public class ChatService {
-
     private final UserService userService;
     private final ChatMessageRepository chatMessageRepository;
 
@@ -23,12 +23,12 @@ public class ChatService {
         this.chatMessageRepository = chatMessageRepository;
     }
 
-    public ChatMessage saveInDatabase(SocketChatMessage message) {
-        User currentUser = userService.getCurrentUser();
+    public ChatMessage saveInDatabase(SocketChatMessage message, Principal user) {
+        Optional<User> currentUser = userService.findByByUsername(user.getName());
         Optional<User> recipient = userService.findByByUsername(message.getRecipient());
-        if (recipient.isPresent() && recipient.get() != currentUser) {
+        if (currentUser.isPresent() && recipient.isPresent() && recipient.get() != currentUser.get()) {
             ChatMessage chatMessage =
-                    new ChatMessage(currentUser, recipient.get(), message.getText(), new Date());
+                    new ChatMessage(currentUser.get(), recipient.get(), message.getText(), new Date());
             return save(chatMessage);
         }
         throw new UserNotFoundException();
@@ -44,7 +44,7 @@ public class ChatService {
         return chatMessageRepository.findByRecipientAndSenderOrderById(recipient, currentUser, pageable);
     }
 
-    List<ChatMessageProjection> getChatHistory() {
+    List<ChatHistoryData> getChatHistory() {
         User currentUser = userService.getCurrentUser();
         List<UsernameLastChatMessageIdDTO> maxSenderIds = chatMessageRepository.findMaxMessageIdGroupBySenderUsername(currentUser);
         List<UsernameLastChatMessageIdDTO> maxRecipientIds = chatMessageRepository.findMaxMessageIdGroupByRecipientUsername(currentUser);
@@ -87,13 +87,13 @@ public class ChatService {
         return list.stream().collect(Collectors.toMap(UserIdChatMessageCountDTO::getUserId, UserIdChatMessageCountDTO::getUnreadMessageCount));
     }
 
-    private List<ChatMessageProjection> createChatMessageHistoryList(List<ChatMessage> chatMessages, Map<Long, Long> unreadMessageCountMap) {
-        List<ChatMessageProjection> projectionList = new ArrayList<>();
+    private List<ChatHistoryData> createChatMessageHistoryList(List<ChatMessage> chatMessages, Map<Long, Long> unreadMessageCountMap) {
+        List<ChatHistoryData> projectionList = new ArrayList<>();
         for (ChatMessage m : chatMessages
         ) {
             User other = getNotCurrentUserFromChatMessage(m);
             Long unreadMessageCount = unreadMessageCountMap.get(other.getId());
-            projectionList.add(new ChatMessageProjection(m, unreadMessageCount != null ? unreadMessageCount : 0));
+            projectionList.add(new ChatHistoryData(m, unreadMessageCount != null ? unreadMessageCount : 0));
         }
         return projectionList;
     }

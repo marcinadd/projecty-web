@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.chat;
 
+import com.projecty.projectyweb.chat.dto.ChatHistoryData;
 import com.projecty.projectyweb.chat.socket.SocketChatMessage;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
@@ -7,6 +8,7 @@ import com.projecty.projectyweb.user.UserService;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +79,12 @@ public class ChatServiceTests {
         SocketChatMessage message = new SocketChatMessage();
         message.setRecipient(recipientUsername);
         message.setText(text);
-        ChatMessage chatMessage = chatService.saveInDatabase(message);
+        ChatMessage chatMessage = chatService.saveInDatabase(message, new Principal() {
+            @Override
+            public String getName() {
+                return "user";
+            }
+        });
         assertThat(chatMessage.getRecipient().getUsername(), is(recipientUsername));
         assertThat(chatMessage.getText(), is(text));
         assertThat(chatMessage.getId(), is(notNullValue()));
@@ -87,8 +94,8 @@ public class ChatServiceTests {
 //    @Transactional
 //    @WithMockUser
     public void whenGetMessageHistory_shouldReturnMessageHistory() {
-        List<ChatMessageProjection> messages = chatService.getChatHistory();
-        Map<ChatMessage, Long> map = messages.stream().collect(Collectors.toMap(ChatMessageProjection::getLastMessage, ChatMessageProjection::getUnreadMessageCount));
+        List<ChatHistoryData> messages = chatService.getChatHistory();
+        Map<ChatMessage, Long> map = messages.stream().collect(Collectors.toMap(ChatHistoryData::getLastMessage, ChatHistoryData::getUnreadMessageCount));
         assertThat(map.containsKey(lastMessageWithAdmin), is(true));
         assertThat(map.containsKey(lastMessageWithRoot), is(true));
         assertThat(map.get(lastMessageWithRoot), greaterThanOrEqualTo(1L));
