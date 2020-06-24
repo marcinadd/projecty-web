@@ -104,20 +104,6 @@ public class ChatControllerTests {
 
     @Test
     @WithMockUser
-    public void onSetAllRead_shouldReturnOk() throws Exception {
-        mockMvc.perform(get("/chat/user/set/read"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser
-    public void onSetAllReadToNotExistingUsername_shouldReturnBadRequest() throws Exception {
-        mockMvc.perform(get("/chat/not-existing-username/set/read"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser
     public void onGetChatHistory_shouldReturnChatHistory() throws Exception {
         mockMvc.perform(get("/chat/"))
                 .andExpect(status().isOk())

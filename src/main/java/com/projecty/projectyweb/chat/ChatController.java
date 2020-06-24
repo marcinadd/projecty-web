@@ -29,6 +29,7 @@ public class ChatController {
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
         Optional<User> optionalRecipient = userService.findByByUsername(username);
         if (optionalRecipient.isPresent()) {
+            chatService.setAllReadForChat(optionalRecipient.get());
             return chatService.findByRecipientAndSenderOrderById(optionalRecipient.get(), offset, limit);
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -37,16 +38,6 @@ public class ChatController {
     @GetMapping("")
     public List<ChatHistoryData> getChatHistory() {
         return chatService.getChatHistory();
-    }
-
-    @GetMapping("/{username}/set/read")
-    public void setAllReadForChatWithUser(@PathVariable("username") String username) {
-        Optional<User> user = userService.findByByUsername(username);
-        if (user.isPresent()) {
-            chatService.setAllReadForChat(user.get());
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
     }
 
     @GetMapping("unreadChatMessageCount")
