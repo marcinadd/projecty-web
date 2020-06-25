@@ -3,6 +3,7 @@ package com.projecty.projectyweb.user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.message.Message;
+import com.projecty.projectyweb.notifications.Notification;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.role.TeamRole;
@@ -68,11 +69,17 @@ public class User implements Serializable {
     )
     private List<Message> messagesTo;
 
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "user",
+            orphanRemoval = true)
+    private List<Notification> notifications;
+
     @ManyToMany(
             mappedBy = "assignedUsers",
             cascade = CascadeType.ALL
     )
     private List<Task> assignedTasks;
+
 
     @OneToOne(
             mappedBy = "user",

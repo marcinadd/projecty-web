@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -104,6 +105,8 @@ public class ProjectControllerTests {
         Mockito.when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.of(user1));
         Mockito.when(projectRepository.save(project))
+                .thenReturn(project);
+        Mockito.when(projectRepository.save(any(Project.class)))
                 .thenReturn(project);
         Mockito.when(projectRepository.findById(project.getId()))
                 .thenReturn(Optional.ofNullable(project));

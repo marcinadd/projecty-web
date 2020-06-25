@@ -1,0 +1,46 @@
+package com.projecty.projectyweb.project;
+
+import com.projecty.projectyweb.notifications.NotificationObjectType;
+import com.projecty.projectyweb.notifications.NotificationService;
+import com.projecty.projectyweb.notifications.NotificationType;
+import com.projecty.projectyweb.user.User;
+import com.projecty.projectyweb.user.UserRepository;
+import com.projecty.projectyweb.user.UserService;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@Aspect
+@Component
+public class ProjectNotificationAspect {
+    private final UserService userService;
+    private final NotificationService notificationService;
+
+    public ProjectNotificationAspect(UserService userService, UserRepository userRepository, NotificationService notificationService) {
+        this.userService = userService;
+        this.notificationService = notificationService;
+    }
+
+    @AfterReturning(value = "execution (* com.projecty.projectyweb.project.ProjectController.addProjectPost(..))", returning = "project")
+    public void afterNewProjectCreated(Project project) {
+        User currentUser = userService.getCurrentUser();
+        if (project.getProjectRoles() != null) {
+            project.getProjectRoles().forEach(projectRole -> {
+                User projectRoleUser = projectRole.getUser();
+                if (!projectRoleUser.equals(currentUser)) {
+                    createAddedToProjectNotification(currentUser, project, projectRoleUser);
+                }
+            });
+        }
+    }
+
+    public void createAddedToProjectNotification(User currentUser, Project project, User notifiedUser) {
+        Map<NotificationObjectType, Long> map = new LinkedHashMap<>();
+        map.put(NotificationObjectType.USER, currentUser.getId());
+        map.put(NotificationObjectType.PROJECT, project.getId());
+        notificationService.createNotificationAndSave(notifiedUser, NotificationType.ADDED_TO_PROJECT, map);
+    }
+}
