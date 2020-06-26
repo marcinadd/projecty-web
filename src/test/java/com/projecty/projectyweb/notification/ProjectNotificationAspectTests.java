@@ -18,7 +18,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -55,6 +57,21 @@ public class ProjectNotificationAspectTests {
         project.setProjectRoles(Collections.singletonList(projectRole));
         project = projectRepository.findById(project.getId()).get();
         projectNotificationAspect.afterNewProjectCreated(project);
+        assertThat(notificationRepository.findByUser(savedUser).size(), is(1));
+    }
+
+    @Test
+    @WithMockUser("aspectCurrentUser")
+    public void whenAddRolesToExistingProject_shouldSendNotifications() {
+        Project project = projectRepository.save(new Project());
+        User savedUser = userRepository.save(User.builder().username("otherProjectNotificationUser").build());
+        ProjectRole projectRole = new ProjectRole();
+        projectRole.setProject(project);
+        projectRole.setUser(savedUser);
+        projectRole = projectRoleRepository.save(projectRole);
+        List<ProjectRole> projectRoles = new ArrayList<>();
+        projectRoles.add(projectRole);
+        projectNotificationAspect.afterProjectRolesAdded(projectRoles);
         assertThat(notificationRepository.findByUser(savedUser).size(), is(1));
     }
 }
