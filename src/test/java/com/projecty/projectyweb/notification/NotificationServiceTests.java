@@ -2,10 +2,7 @@ package com.projecty.projectyweb.notification;
 
 
 import com.projecty.projectyweb.ProjectyWebApplication;
-import com.projecty.projectyweb.notifications.Notification;
-import com.projecty.projectyweb.notifications.NotificationObjectType;
-import com.projecty.projectyweb.notifications.NotificationService;
-import com.projecty.projectyweb.notifications.NotificationType;
+import com.projecty.projectyweb.notifications.*;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.user.User;
@@ -33,12 +30,15 @@ import static org.junit.Assert.assertTrue;
 public class NotificationServiceTests {
     private static final String PROJECT_NAME = "projectName";
     private static final String USERNAME_B = "notificationServiceUsernameB";
+    private static final String USERNAME_C = "notificationServiceUsernameC";
     @Autowired
     private NotificationService notificationService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Before
     public void init() {
@@ -61,7 +61,7 @@ public class NotificationServiceTests {
     @Test
     @WithMockUser(USERNAME_B)
     @Transactional
-    public void getAllNotifications() {
+    public void whenGetAllNotifications_shouldReturnAllNotifications() {
         User user = userRepository.save(User.builder().username(USERNAME_B).build());
         Project project = projectRepository.save(Project.builder().name(PROJECT_NAME).build());
         Map<NotificationObjectType, Long> ids = new LinkedHashMap<>();
@@ -69,5 +69,16 @@ public class NotificationServiceTests {
         ids.put(NotificationObjectType.PROJECT, project.getId());
         Notification notification = notificationService.createNotificationAndSave(user, NotificationType.ADDED_TO_PROJECT, ids);
         assertTrue(notificationService.getNotifications().contains(notification));
+    }
+
+    @Test
+    @WithMockUser(USERNAME_C)
+    public void whenGetUnseenNotificationCount_shouldReturnUnseenNotificationCount() {
+        User user = userRepository.save(User.builder().username(USERNAME_C).build());
+        notificationRepository.save(Notification.builder().user(user).seen(false).build());
+        notificationRepository.save(Notification.builder().user(user).seen(false).build());
+        notificationRepository.save(Notification.builder().user(user).seen(false).build());
+        assertThat(notificationService.getUnseenNotificationCount(), is(3L));
+
     }
 }

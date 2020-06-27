@@ -36,6 +36,7 @@ public class NotificationService {
                         .user(user)
                         .notificationType(notificationType)
                         .ids(map)
+                        .seen(false)
                         .build()
         );
     }
@@ -51,6 +52,7 @@ public class NotificationService {
                 validNotifications.add(notification);
             }
         });
+        setNotificationsAsSeen(validNotifications);
         return validNotifications;
     }
 
@@ -79,5 +81,16 @@ public class NotificationService {
 
     public String convertNotificationType(NotificationType notificationType) {
         return notificationType.toString().toLowerCase().replaceAll("_", ".");
+    }
+
+    public Long getUnseenNotificationCount() {
+        return notificationRepository.countByUserAndSeenFalse(userService.getCurrentUser());
+    }
+
+    public void setNotificationsAsSeen(List<Notification> notifications) {
+        notifications.forEach(notification -> {
+            notification.setSeen(true);
+            notificationRepository.save(notification);
+        });
     }
 }

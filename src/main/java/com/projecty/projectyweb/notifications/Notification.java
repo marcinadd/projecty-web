@@ -4,8 +4,10 @@ package com.projecty.projectyweb.notifications;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projecty.projectyweb.user.User;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Map;
 
 @Entity
@@ -32,4 +34,10 @@ public class Notification {
 
     @Transient
     private String stringValue;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date date;
+
+    private Boolean seen;
 }

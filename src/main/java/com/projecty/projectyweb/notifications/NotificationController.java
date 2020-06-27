@@ -22,4 +22,9 @@ public class NotificationController {
     public List<Notification> getNotifications() {
         return notificationService.getNotifications();
     }
+
+    @GetMapping("unseenCount")
+    public Long getUnseenNotificationsCount() {
+        return notificationService.getUnseenNotificationCount();
+    }
 }
