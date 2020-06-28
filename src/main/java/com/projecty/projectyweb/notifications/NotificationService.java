@@ -93,4 +93,8 @@ public class NotificationService {
             notificationRepository.save(notification);
         });
     }
+
+    public void deleteNotification(Notification notification) {
+        notificationRepository.delete(notification);
+    }
 }
