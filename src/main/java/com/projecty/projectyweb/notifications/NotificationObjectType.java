@@ -1,5 +1,5 @@
 package com.projecty.projectyweb.notifications;
 
 public enum NotificationObjectType {
-    USER, PROJECT
+    USER, PROJECT, TEAM
 }

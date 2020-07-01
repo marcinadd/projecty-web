@@ -2,6 +2,8 @@ package com.projecty.projectyweb.notifications;
 
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
+import com.projecty.projectyweb.team.Team;
+import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -18,13 +20,15 @@ public class NotificationService {
     private final UserService userService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TeamRepository teamRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, MessageSource messageSource, UserService userService, ProjectRepository projectRepository, UserRepository userRepository) {
+    public NotificationService(NotificationRepository notificationRepository, MessageSource messageSource, UserService userService, ProjectRepository projectRepository, UserRepository userRepository, TeamRepository teamRepository) {
         this.notificationRepository = notificationRepository;
         this.messageSource = messageSource;
         this.userService = userService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.teamRepository = teamRepository;
     }
 
     public Notification createNotificationAndSave(
@@ -58,21 +62,25 @@ public class NotificationService {
 
     public String buildNotificationString(Notification notification) {
         Map<NotificationObjectType, Long> ids = notification.getIds();
-        String msg = null;
         try {
+            String[] values = null;
             switch (notification.getNotificationType()) {
                 case ADDED_TO_PROJECT:
-                    User user = userRepository.findById(ids.get(NotificationObjectType.USER)).get();
+                    User user1 = userRepository.findById(ids.get(NotificationObjectType.USER)).get();
                     Project project = projectRepository.findById(ids.get(NotificationObjectType.PROJECT)).get();
-                    String[] values = {user.getUsername(), project.getName()};
-                    msg = getMessageFromMessageSource(notification.getNotificationType(), values);
+                    values = new String[]{user1.getUsername(), project.getName()};
                     break;
+                case ADDED_TO_TEAM:
+                    User user2 = userRepository.findById(ids.get(NotificationObjectType.USER)).get();
+                    Team team = teamRepository.findById(ids.get(NotificationObjectType.TEAM)).get();
+                    values = new String[]{user2.getUsername(), team.getName()};
             }
+            return getMessageFromMessageSource(notification.getNotificationType(), values);
         } catch (NoSuchElementException e) {
             // Remove orphans
             notificationRepository.delete(notification);
         }
-        return msg;
+        return null;
     }
 
     public String getMessageFromMessageSource(NotificationType type, String[] values) {
