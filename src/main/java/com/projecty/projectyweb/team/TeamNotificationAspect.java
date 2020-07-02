@@ -50,9 +50,9 @@ public class TeamNotificationAspect {
     }
 
     public void createAddedToTeamNotification(User currentUser, Team team, User notifiedUser) {
-        Map<NotificationObjectType, Long> map = new LinkedHashMap<>();
-        map.put(NotificationObjectType.USER, currentUser.getId());
-        map.put(NotificationObjectType.TEAM, team.getId());
+        Map<NotificationObjectType, String> map = new LinkedHashMap<>();
+        map.put(NotificationObjectType.USER, String.valueOf(currentUser.getId()));
+        map.put(NotificationObjectType.TEAM, String.valueOf(team.getId()));
         notificationService.createNotificationAndSave(notifiedUser, NotificationType.ADDED_TO_TEAM, map);
     }
 }

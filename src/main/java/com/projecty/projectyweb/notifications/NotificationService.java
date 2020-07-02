@@ -2,6 +2,7 @@ package com.projecty.projectyweb.notifications;
 
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
+import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.user.User;
@@ -34,12 +35,12 @@ public class NotificationService {
     public Notification createNotificationAndSave(
             User user,
             NotificationType notificationType,
-            Map<NotificationObjectType, Long> map) {
+            Map<NotificationObjectType, String> map) {
         return notificationRepository.save(
                 Notification.builder()
                         .user(user)
                         .notificationType(notificationType)
-                        .ids(map)
+                        .values(map)
                         .seen(false)
                         .build()
         );
@@ -61,19 +62,25 @@ public class NotificationService {
     }
 
     public String buildNotificationString(Notification notification) {
-        Map<NotificationObjectType, Long> ids = notification.getIds();
+        Map<NotificationObjectType, String> ids = notification.getValues();
         try {
             String[] values = null;
             switch (notification.getNotificationType()) {
                 case ADDED_TO_PROJECT:
-                    User user1 = userRepository.findById(ids.get(NotificationObjectType.USER)).get();
-                    Project project = projectRepository.findById(ids.get(NotificationObjectType.PROJECT)).get();
+                    User user1 = userRepository.findById(Long.parseLong(ids.get(NotificationObjectType.USER))).get();
+                    Project project = projectRepository.findById(Long.parseLong(ids.get(NotificationObjectType.PROJECT))).get();
                     values = new String[]{user1.getUsername(), project.getName()};
                     break;
                 case ADDED_TO_TEAM:
-                    User user2 = userRepository.findById(ids.get(NotificationObjectType.USER)).get();
-                    Team team = teamRepository.findById(ids.get(NotificationObjectType.TEAM)).get();
+                    User user2 = userRepository.findById(Long.parseLong(ids.get(NotificationObjectType.USER))).get();
+                    Team team = teamRepository.findById(Long.parseLong(ids.get(NotificationObjectType.TEAM))).get();
                     values = new String[]{user2.getUsername(), team.getName()};
+                    break;
+                case CHANGED_PROJECT_ROLE:
+                    User user3 = userRepository.findById(Long.parseLong(ids.get(NotificationObjectType.USER))).get();
+                    Project project3 = projectRepository.findById(Long.parseLong(ids.get(NotificationObjectType.PROJECT))).get();
+                    ProjectRoles projectRole3 = ProjectRoles.valueOf(ids.get(NotificationObjectType.PROJECT_ROLE_NAME));
+                    values = new String[]{user3.getUsername(), project3.getName(), projectRole3.toString()};
             }
             return getMessageFromMessageSource(notification.getNotificationType(), values);
         } catch (NoSuchElementException e) {

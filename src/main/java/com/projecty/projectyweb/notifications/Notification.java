@@ -30,7 +30,7 @@ public class Notification {
     @ElementCollection
     @MapKeyColumn(name = "object_class")
     @Column(name = "id")
-    private Map<NotificationObjectType, Long> ids;
+    private Map<NotificationObjectType, String> values;
 
     @Transient
     private String stringValue;

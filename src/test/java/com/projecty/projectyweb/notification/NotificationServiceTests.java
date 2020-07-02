@@ -50,9 +50,9 @@ public class NotificationServiceTests {
         final String USERNAME = "notificationServiceUsernameA";
         User user = userRepository.save(User.builder().username(USERNAME).build());
         Project project = projectRepository.save(Project.builder().name(PROJECT_NAME).build());
-        Map<NotificationObjectType, Long> ids = new LinkedHashMap<>();
-        ids.put(NotificationObjectType.USER, user.getId());
-        ids.put(NotificationObjectType.PROJECT, project.getId());
+        Map<NotificationObjectType, String> ids = new LinkedHashMap<>();
+        ids.put(NotificationObjectType.USER, String.valueOf(user.getId()));
+        ids.put(NotificationObjectType.PROJECT, String.valueOf(project.getId()));
         Notification notification = notificationService.createNotificationAndSave(user, NotificationType.ADDED_TO_PROJECT, ids);
         String stringValue = notificationService.buildNotificationString(notification);
         assertThat(stringValue, is("User " + USERNAME + " added you to project " + PROJECT_NAME));
@@ -64,9 +64,9 @@ public class NotificationServiceTests {
     public void whenGetAllNotifications_shouldReturnAllNotifications() {
         User user = userRepository.save(User.builder().username(USERNAME_B).build());
         Project project = projectRepository.save(Project.builder().name(PROJECT_NAME).build());
-        Map<NotificationObjectType, Long> ids = new LinkedHashMap<>();
-        ids.put(NotificationObjectType.USER, user.getId());
-        ids.put(NotificationObjectType.PROJECT, project.getId());
+        Map<NotificationObjectType, String> ids = new LinkedHashMap<>();
+        ids.put(NotificationObjectType.USER, String.valueOf(user.getId()));
+        ids.put(NotificationObjectType.PROJECT, String.valueOf(project.getId()));
         Notification notification = notificationService.createNotificationAndSave(user, NotificationType.ADDED_TO_PROJECT, ids);
         assertTrue(notificationService.getNotifications().contains(notification));
     }

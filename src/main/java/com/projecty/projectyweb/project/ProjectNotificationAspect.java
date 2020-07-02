@@ -48,9 +48,21 @@ public class ProjectNotificationAspect {
     }
 
     public void createAddedToProjectNotification(User currentUser, Project project, User notifiedUser) {
-        Map<NotificationObjectType, Long> map = new LinkedHashMap<>();
-        map.put(NotificationObjectType.USER, currentUser.getId());
-        map.put(NotificationObjectType.PROJECT, project.getId());
+        Map<NotificationObjectType, String> map = new LinkedHashMap<>();
+        map.put(NotificationObjectType.USER, String.valueOf(currentUser.getId()));
+        map.put(NotificationObjectType.PROJECT, String.valueOf(project.getId()));
         notificationService.createNotificationAndSave(notifiedUser, NotificationType.ADDED_TO_PROJECT, map);
+    }
+
+    @AfterReturning(value = "execution (* com.projecty.projectyweb.project.role.ProjectRoleService.patchProjectRole(..))", returning = "projectRole")
+    public void afterProjectRolePatched(ProjectRole projectRole) {
+        User currentUser = userService.getCurrentUser();
+        if (projectRole != null) {
+            Map<NotificationObjectType, String> map = new LinkedHashMap<>();
+            map.put(NotificationObjectType.USER, String.valueOf(currentUser.getId()));
+            map.put(NotificationObjectType.PROJECT, String.valueOf(projectRole.getProject().getId()));
+            map.put(NotificationObjectType.PROJECT_ROLE_NAME, projectRole.getName().toString());
+            notificationService.createNotificationAndSave(projectRole.getUser(), NotificationType.CHANGED_PROJECT_ROLE, map);
+        }
     }
 }

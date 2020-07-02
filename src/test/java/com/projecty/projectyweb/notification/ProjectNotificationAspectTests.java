@@ -7,6 +7,7 @@ import com.projecty.projectyweb.project.ProjectNotificationAspect;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
+import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class ProjectNotificationAspectTests {
     @Transactional
     public void whenCreateProject_shouldSendNotifications() {
         Project project = projectRepository.save(new Project());
-        User savedUser = userRepository.save(User.builder().username("aspectProjectUser").build());
+        User savedUser = userRepository.save(User.builder().username("aspectProjectUser1").build());
         ProjectRole projectRole = new ProjectRole();
         projectRole.setProject(project);
         projectRole.setUser(savedUser);
@@ -64,7 +65,7 @@ public class ProjectNotificationAspectTests {
     @WithMockUser("aspectCurrentUser")
     public void whenAddRolesToExistingProject_shouldSendNotifications() {
         Project project = projectRepository.save(new Project());
-        User savedUser = userRepository.save(User.builder().username("otherProjectNotificationUser").build());
+        User savedUser = userRepository.save(User.builder().username("aspectProjectUser2").build());
         ProjectRole projectRole = new ProjectRole();
         projectRole.setProject(project);
         projectRole.setUser(savedUser);
@@ -72,6 +73,22 @@ public class ProjectNotificationAspectTests {
         List<ProjectRole> projectRoles = new ArrayList<>();
         projectRoles.add(projectRole);
         projectNotificationAspect.afterProjectRolesAdded(projectRoles);
+        assertThat(notificationRepository.findByUser(savedUser).size(), is(1));
+    }
+
+    @Test
+    @WithMockUser("aspectCurrentUser")
+    @Transactional
+    public void whenChangeProjectRole_shouldSendNotifications() {
+        Project project = projectRepository.save(new Project());
+        User savedUser = userRepository.save(User.builder().username("aspectProjectUser3").build());
+        ProjectRole projectRole = new ProjectRole();
+        projectRole.setProject(project);
+        projectRole.setUser(savedUser);
+        projectRole.setName(ProjectRoles.ADMIN);
+        projectRole = projectRoleRepository.save(projectRole);
+        project.setProjectRoles(Collections.singletonList(projectRole));
+        projectNotificationAspect.afterProjectRolePatched(projectRole);
         assertThat(notificationRepository.findByUser(savedUser).size(), is(1));
     }
 }
