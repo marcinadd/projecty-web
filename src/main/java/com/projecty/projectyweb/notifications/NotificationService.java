@@ -5,6 +5,7 @@ import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.team.TeamRepository;
+import com.projecty.projectyweb.team.role.TeamRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -81,6 +82,13 @@ public class NotificationService {
                     Project project3 = projectRepository.findById(Long.parseLong(ids.get(NotificationObjectType.PROJECT))).get();
                     ProjectRoles projectRole3 = ProjectRoles.valueOf(ids.get(NotificationObjectType.PROJECT_ROLE_NAME));
                     values = new String[]{user3.getUsername(), project3.getName(), projectRole3.toString()};
+                    break;
+                case CHANGED_TEAM_ROLE:
+                    User user4 = userRepository.findById(Long.parseLong(ids.get(NotificationObjectType.USER))).get();
+                    Team team4 = teamRepository.findById(Long.parseLong(ids.get(NotificationObjectType.TEAM))).get();
+                    TeamRoles teamRole4 = TeamRoles.valueOf(ids.get(NotificationObjectType.TEAM_ROLE_NAME));
+                    values = new String[]{user4.getUsername(), team4.getName(), teamRole4.toString()};
+                    break;
             }
             return getMessageFromMessageSource(notification.getNotificationType(), values);
         } catch (NoSuchElementException e) {

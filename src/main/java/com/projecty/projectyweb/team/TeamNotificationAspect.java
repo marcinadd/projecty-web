@@ -55,4 +55,16 @@ public class TeamNotificationAspect {
         map.put(NotificationObjectType.TEAM, String.valueOf(team.getId()));
         notificationService.createNotificationAndSave(notifiedUser, NotificationType.ADDED_TO_TEAM, map);
     }
+
+    @AfterReturning(value = "execution (* com.projecty.projectyweb.team.role.TeamRoleService.patchTeamRole(..))", returning = "teamRole")
+    public void afterTeamRolePatched(TeamRole teamRole) {
+        User currentUser = userService.getCurrentUser();
+        if (teamRole != null) {
+            Map<NotificationObjectType, String> map = new LinkedHashMap<>();
+            map.put(NotificationObjectType.USER, String.valueOf(currentUser.getId()));
+            map.put(NotificationObjectType.TEAM, String.valueOf(teamRole.getTeam().getId()));
+            map.put(NotificationObjectType.TEAM_ROLE_NAME, teamRole.getName().toString());
+            notificationService.createNotificationAndSave(teamRole.getUser(), NotificationType.CHANGED_TEAM_ROLE, map);
+        }
+    }
 }

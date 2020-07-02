@@ -7,6 +7,7 @@ import com.projecty.projectyweb.team.TeamNotificationAspect;
 import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
+import com.projecty.projectyweb.team.role.TeamRoles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class TeamNotificationAspectTests {
     @Transactional
     public void whenCreateTeam_shouldSendNotifications() {
         Team team = teamRepository.save(new Team());
-        User savedUser = userRepository.save(User.builder().username("aspectTeamUser").build());
+        User savedUser = userRepository.save(User.builder().username("aspectTeamUser1").build());
         TeamRole teamRole = new TeamRole();
         teamRole.setTeam(team);
         teamRole.setUser(savedUser);
@@ -64,7 +65,7 @@ public class TeamNotificationAspectTests {
     @WithMockUser("aspectCurrentUser")
     public void whenAddRolesToExistingTeam_shouldSendNotifications() {
         Team team = teamRepository.save(new Team());
-        User savedUser = userRepository.save(User.builder().username("otherTeamNotificationUser").build());
+        User savedUser = userRepository.save(User.builder().username("aspectTeamUser2").build());
         TeamRole teamRole = new TeamRole();
         teamRole.setTeam(team);
         teamRole.setUser(savedUser);
@@ -72,6 +73,22 @@ public class TeamNotificationAspectTests {
         List<TeamRole> teamRoles = new ArrayList<>();
         teamRoles.add(teamRole);
         teamNotificationAspect.afterTeamRolesAdded(teamRoles);
+        assertThat(notificationRepository.findByUser(savedUser).size(), is(1));
+    }
+
+    @Test
+    @WithMockUser("aspectCurrentUser")
+    @Transactional
+    public void whenChangeTeamRole_shouldSendNotifications() {
+        Team team = teamRepository.save(new Team());
+        User savedUser = userRepository.save(User.builder().username("aspectTeamUser3").build());
+        TeamRole teamRole = new TeamRole();
+        teamRole.setTeam(team);
+        teamRole.setUser(savedUser);
+        teamRole.setName(TeamRoles.MANAGER);
+        teamRole = teamRoleRepository.save(teamRole);
+        team.setTeamRoles(Collections.singletonList(teamRole));
+        teamNotificationAspect.afterTeamRolePatched(teamRole);
         assertThat(notificationRepository.findByUser(savedUser).size(), is(1));
     }
 }

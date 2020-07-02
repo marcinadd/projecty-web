@@ -85,7 +85,7 @@ public class TeamRoleService {
         }
     }
 
-    public TeamRole changeTeamRole(TeamRole teamRole, TeamRole patchedValues) throws IllegalArgumentException {
+    public TeamRole patchTeamRole(TeamRole teamRole, TeamRole patchedValues) throws IllegalArgumentException {
         if (patchedValues.getName() != null)
             teamRole.setName(patchedValues.getName());
         return teamRoleRepository.save(teamRole);
