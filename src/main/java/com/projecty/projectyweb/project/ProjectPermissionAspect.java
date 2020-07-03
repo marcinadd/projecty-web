@@ -15,13 +15,13 @@ import java.util.logging.Logger;
 
 @Aspect
 @Component
-public class ProjectAspect {
+public class ProjectPermissionAspect {
     private final UserService userService;
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
-    private Logger logger = Logger.getLogger(getClass().getName());
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
-    public ProjectAspect(UserService userService, ProjectRepository projectRepository, ProjectService projectService) {
+    public ProjectPermissionAspect(UserService userService, ProjectRepository projectRepository, ProjectService projectService) {
         this.userService = userService;
         this.projectRepository = projectRepository;
         this.projectService = projectService;

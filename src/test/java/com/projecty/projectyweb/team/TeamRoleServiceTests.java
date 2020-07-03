@@ -130,12 +130,16 @@ public class TeamRoleServiceTests {
     }
 
     @Test
+    @Transactional
     public void whenChangeTeamRole_shouldReturnRoleWithNewName() {
+        Team team = teamRepository.save(new Team());
         TeamRole teamRole = new TeamRole();
         teamRole.setName(TeamRoles.MANAGER);
+        teamRole.setTeam(team);
+        teamRole.setUser(user);
         TeamRole patched = new TeamRole();
         patched.setName(TeamRoles.MEMBER);
-        teamRoleService.changeTeamRole(teamRole, patched);
+        teamRoleService.patchTeamRole(teamRole, patched);
         assertThat(teamRole.getName(), is(TeamRoles.MEMBER));
     }
 

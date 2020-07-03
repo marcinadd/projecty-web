@@ -46,7 +46,7 @@ public class TeamRoleController {
         if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam()) &&
                 !optionalTeamRole.get().getUser().equals(current)
         ) {
-            return teamRoleService.changeTeamRole(optionalTeamRole.get(), patchedValues);
+            return teamRoleService.patchTeamRole(optionalTeamRole.get(), patchedValues);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

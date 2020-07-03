@@ -5,8 +5,7 @@ import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.task.TaskStatus;
 import com.projecty.projectyweb.team.Team;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -18,6 +17,9 @@ import java.util.Map;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Project {
     @Id
     @GeneratedValue
