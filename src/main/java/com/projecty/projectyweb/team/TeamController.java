@@ -142,4 +142,14 @@ public class TeamController {
         User current = userService.getCurrentUser();
         teamRoleService.leaveTeam(optionalTeam.get(), current);
     }
+
+    @GetMapping("/{teamId}/teamRole")
+    @AnyPermission
+    public TeamRoleData getTeamRoleForCurrentUserByTeamId(@PathVariable Long teamId) {
+        TeamRoleData teamRoleData = teamService.getTeamRoleForCurrentUserByTeamId(teamId);
+        if (teamRoleData != null) {
+            return teamRoleData;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
 }

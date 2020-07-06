@@ -4,6 +4,7 @@ import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
+import com.projecty.projectyweb.team.role.TeamRoles;
 import com.projecty.projectyweb.team.role.dto.TeamRoleData;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
@@ -15,6 +16,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -107,6 +109,18 @@ public class TeamServiceTests {
         List<TeamRoleData> teamRoles = teamService.getTeams();
         assertThat(teamRoles.size(), is(1));
         assertThat(teamRoles.get(0).getTeam(), is(teamRepository.findById(team.getId()).get()));
+    }
+
+    private static final String USERNAME_1 = "teamServiceUser1";
+
+    @Test
+    @WithMockUser(USERNAME_1)
+    public void whenGetTeamRoleForCurrentUserByTeamId_shouldReturnTeamRoleData() {
+        userRepository.save(User.builder().username(USERNAME_1).build());
+        Team team = teamService.createTeamAndSave(new Team(), null);
+        TeamRoleData teamRoleData = teamService.getTeamRoleForCurrentUserByTeamId(team.getId());
+        assertThat(teamRoleData.getTeam().getId(), is(team.getId()));
+        assertThat(teamRoleData.getName(), is(TeamRoles.MANAGER));
     }
 
 }

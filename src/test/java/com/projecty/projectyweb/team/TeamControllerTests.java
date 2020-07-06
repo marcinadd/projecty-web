@@ -246,4 +246,13 @@ public class TeamControllerTests {
                 .content("{\"name\":\"" + TeamRoles.MEMBER + "\"}"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnGetTeamRoleForCurrentUserByTeamId_shouldReturnTeamRoleData() throws Exception {
+        mockMvc.perform(get("/teams/1/teamRole"))
+                .andExpect(jsonPath("$.id").value(4L))
+                .andExpect(jsonPath("$.team.id").value(team.getId()))
+                .andExpect(jsonPath("$.team.name").value(team.getName()));
+    }
 }

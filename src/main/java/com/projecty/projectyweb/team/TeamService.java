@@ -5,9 +5,11 @@ import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.team.misc.TeamSummaryService;
 import com.projecty.projectyweb.team.role.TeamRole;
+import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
 import com.projecty.projectyweb.team.role.dto.TeamProjectsData;
 import com.projecty.projectyweb.team.role.dto.TeamRoleData;
+import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,13 +23,15 @@ import java.util.Optional;
 public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamRoleService teamRoleService;
+    private final TeamRoleRepository teamRoleRepository;
     private final ProjectRepository projectRepository;
     private final UserService userService;
 
     @Autowired
-    public TeamService(TeamRepository teamRepository, TeamRoleService teamRoleService, ProjectRepository projectRepository, UserService userService) {
+    public TeamService(TeamRepository teamRepository, TeamRoleService teamRoleService, TeamRoleRepository teamRoleRepository, ProjectRepository projectRepository, UserService userService) {
         this.teamRepository = teamRepository;
         this.teamRoleService = teamRoleService;
+        this.teamRoleRepository = teamRoleRepository;
         this.projectRepository = projectRepository;
         this.userService = userService;
     }
@@ -79,5 +83,15 @@ public class TeamService {
         List<TeamRoleData> teamRoleData = new ArrayList<>();
         teamRoles.forEach(t -> teamRoleData.add(new TeamRoleData(t)));
         return teamRoleData;
+    }
+
+    public TeamRoleData getTeamRoleForCurrentUserByTeamId(Long teamId) {
+        User currentUser = userService.getCurrentUser();
+        Optional<Team> optionalTeam = teamRepository.findById(teamId);
+        if (optionalTeam.isPresent()) {
+            Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(optionalTeam.get(), currentUser);
+            return optionalTeamRole.map(TeamRoleData::new).orElse(null);
+        }
+        return null;
     }
 }

@@ -35,20 +35,20 @@ public class UserController {
         return userService.getCurrentUser();
     }
 
-    @GetMapping("user/{userName}/avatar")
+    @GetMapping("user/{username}/avatar")
     @AnyPermission
     public @ResponseBody
     byte[] getAvatar(
-            @PathVariable("userName") String userName,
+            @PathVariable String username,
             HttpServletResponse response
     ) throws IOException, SQLException {
-        Optional<User> maybeUser = userRepository.findByUsername(userName);
+        Optional<User> maybeUser = userRepository.findByUsername(username);
         User user = maybeUser.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (user.getAvatar() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         response.setContentType(user.getAvatar().getContentType());
-        response.setHeader("Content-Disposition", "attachment; filename=avatar-" + userName);
+        response.setHeader("Content-Disposition", "attachment; filename=avatar-" + username);
         response.flushBuffer();
         return IOUtils.toByteArray(user.getAvatar().getFile().getBinaryStream());
     }
