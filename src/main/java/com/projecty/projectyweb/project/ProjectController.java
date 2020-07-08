@@ -6,6 +6,7 @@ import com.projecty.projectyweb.project.dto.ProjectData;
 import com.projecty.projectyweb.project.dto.ProjectsData;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
+import com.projecty.projectyweb.project.role.dto.ProjectRoleData;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -112,5 +113,15 @@ public class ProjectController {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/{projectId}/projectRole")
+    @AnyPermission
+    public ProjectRoleData getProjectRoleForCurrentUserByProjectId(@PathVariable Long projectId) {
+        ProjectRoleData projectRoleData = projectService.getProjectRoleForCurrentUserByProjectId(projectId);
+        if (projectRoleData != null) {
+            return projectRoleData;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 }

@@ -3,7 +3,11 @@ package com.projecty.projectyweb.project;
 import com.projecty.projectyweb.project.dto.ProjectData;
 import com.projecty.projectyweb.project.dto.ProjectsData;
 import com.projecty.projectyweb.project.dto.ProjectsTeamData;
-import com.projecty.projectyweb.project.role.*;
+import com.projecty.projectyweb.project.role.ProjectRole;
+import com.projecty.projectyweb.project.role.ProjectRoleRepository;
+import com.projecty.projectyweb.project.role.ProjectRoleService;
+import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.project.role.dto.ProjectRoleData;
 import com.projecty.projectyweb.task.TaskRepository;
 import com.projecty.projectyweb.task.TaskStatus;
 import com.projecty.projectyweb.team.role.TeamRole;
@@ -78,8 +82,8 @@ public class ProjectService {
 
     public ProjectsData getProjectsForCurrentUser() {
         User user = userService.getCurrentUser();
-        List<ProjectRoleDataDTO> projectRoles = new ArrayList<>();
-        user.getProjectRoles().forEach(projectRole -> projectRoles.add(new ProjectRoleDataDTO(projectRole)));
+        List<ProjectRoleData> projectRoles = new ArrayList<>();
+        user.getProjectRoles().forEach(projectRole -> projectRoles.add(new ProjectRoleData(projectRole)));
 
         List<ProjectsTeamData> teamRoles = new ArrayList<>();
         user.getTeamRoles().forEach(teamRole -> teamRoles.add(new ProjectsTeamData(teamRole)));
@@ -97,7 +101,7 @@ public class ProjectService {
     }
 
     private ProjectsData addSummaryToProjectsData(ProjectsData projectsData) {
-        projectsData.getProjectRoles().forEach(projectRoleDataDTO -> addSummaryToProject(projectRoleDataDTO.getProject()));
+        projectsData.getProjectRoles().forEach(projectRoleData -> addSummaryToProject(projectRoleData.getProject()));
         projectsData.getTeamProjects().forEach(projectsTeamData -> projectsTeamData.getProjects().forEach(this::addSummaryToProject));
         return projectsData;
     }
@@ -108,5 +112,15 @@ public class ProjectService {
         map.put(TaskStatus.IN_PROGRESS, taskRepository.countByProjectAndStatus(project, TaskStatus.IN_PROGRESS));
         map.put(TaskStatus.DONE, taskRepository.countByProjectAndStatus(project, TaskStatus.DONE));
         project.setTaskSummary(map);
+    }
+
+    public ProjectRoleData getProjectRoleForCurrentUserByProjectId(Long projectId) {
+        User currentUser = userService.getCurrentUser();
+        Optional<Project> optionalProject = projectRepository.findById(projectId);
+        if (optionalProject.isPresent()) {
+            Optional<ProjectRole> optionalProjectRole = projectRoleRepository.findRoleByUserAndProject(currentUser, optionalProject.get());
+            return optionalProjectRole.map(ProjectRoleData::new).orElse(null);
+        }
+        return null;
     }
 }

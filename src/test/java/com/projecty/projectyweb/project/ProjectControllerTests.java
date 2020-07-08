@@ -197,4 +197,13 @@ public class ProjectControllerTests {
                 .content("{\"name\":\"" + ProjectRoles.ADMIN + "\"}"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnGetProjectRoleForCurrentUserByProjectId_shouldReturnProjectRoleData() throws Exception {
+        mockMvc.perform(get("/projects/1/projectRole"))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.project.id").value(project.getId()))
+                .andExpect(jsonPath("$.project.name").value(project.getName()));
+    }
 }
