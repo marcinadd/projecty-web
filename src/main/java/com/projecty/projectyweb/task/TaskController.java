@@ -14,6 +14,7 @@ import org.springframework.validation.DataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -120,5 +121,10 @@ public class TaskController {
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         taskService.removeAssignmentByUsername(optionalTask.get(), username);
+    }
+
+    @GetMapping("assigned")
+    public List<Task> getUndoneAssignedTasksForCurrentUser() {
+        return taskService.getUndoneAssignedTasksForCurrentUser();
     }
 }

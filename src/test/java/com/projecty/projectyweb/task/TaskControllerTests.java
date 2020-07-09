@@ -195,4 +195,13 @@ public class TaskControllerTests {
         mockMvc.perform(delete("/tasks/1/assign/user1").with(csrf()))
                 .andExpect(status().isOk());
     }
+
+
+    @Test
+    @WithMockUser
+    public void givenRequestOnGetUndoneAssignedTasks_shouldReturnUndoneAssignedTasks() throws Exception {
+        mockMvc.perform(get("/tasks/assigned"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
 }

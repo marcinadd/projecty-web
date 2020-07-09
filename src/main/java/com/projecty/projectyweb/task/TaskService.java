@@ -168,5 +168,10 @@ public class TaskService {
         task.setProject(project);
         return taskRepository.save(task);
     }
+
+    public List<Task> getUndoneAssignedTasksForCurrentUser() {
+        User user = userService.getCurrentUser();
+        return taskRepository.findByAssignedUsersContainsAndStatusIsNot(user, TaskStatus.DONE);
+    }
 }
 
