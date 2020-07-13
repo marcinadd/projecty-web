@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.email;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import java.util.Map;
 public class EmailService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine springTemplateEngine;
+    @Value("${spring.mail.username}")
+    private String from;
 
     public EmailService(JavaMailSender javaMailSender, SpringTemplateEngine springTemplateEngine) {
         this.javaMailSender = javaMailSender;
@@ -23,10 +26,10 @@ public class EmailService {
     public void sendEmail(String to, String subject, String text) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setFrom("projecty");
+        helper.setFrom(from);
         helper.setTo(to);
         helper.setSubject(subject);
-        message.setText(text);
+        helper.setText(text, true);
         javaMailSender.send(message);
     }
 
