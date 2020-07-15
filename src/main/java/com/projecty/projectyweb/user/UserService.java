@@ -3,6 +3,7 @@ package com.projecty.projectyweb.user;
 import com.projecty.projectyweb.user.avatar.Avatar;
 import com.projecty.projectyweb.user.avatar.AvatarService;
 import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -30,10 +31,13 @@ public class UserService {
 
     public User getCurrentUser() {
         String currentUsername = null;
+        String email = null;
         Object principal = SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
         if (principal instanceof KeycloakPrincipal) {
-            currentUsername = ((KeycloakPrincipal) principal).getName();
+            KeycloakPrincipal<KeycloakSecurityContext> keycloakPrincipal = (KeycloakPrincipal<KeycloakSecurityContext>) principal;
+            currentUsername = keycloakPrincipal.getName();
+            email = getEmailFromKeycloakPrincipal(keycloakPrincipal);
         } else if (principal instanceof UserDetails) {
             // Legacy code for testing
             //TODO Move this part of code to test package
@@ -41,12 +45,17 @@ public class UserService {
         }
         Optional<User> user = userRepository.findByUsername(currentUsername);
         String finalCurrentUsername = currentUsername;
-        return user.orElseGet(() -> createUserAndGet(finalCurrentUsername));
+        String finalEmail = email;
+        return user.orElseGet(() -> createUserAndGet(finalCurrentUsername, finalEmail));
+    }
+
+    private String getEmailFromKeycloakPrincipal(KeycloakPrincipal<KeycloakSecurityContext> keycloakPrincipal) {
+        return keycloakPrincipal.getKeycloakSecurityContext().getToken().getEmail();
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public User createUserAndGet(String username) {
-        User user = userRepository.save(User.builder().username(username).build());
+    public User createUserAndGet(String username, String email) {
+        User user = userRepository.save(User.builder().username(username).email(email).build());
         return userRepository.findById(user.getId()).get();
     }
 
