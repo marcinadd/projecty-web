@@ -39,7 +39,7 @@ public class UserServiceTests {
     @Test
     public void whenCreateNewUser_shouldReturnNewUser() {
         String username = "newUser";
-        User user = userService.createUserAndGet(username);
+        User user = userService.createUserAndGet(username, "projecty@example.com");
         assertThat(user.getUsername(), is(username));
         assertThat(user.getProjectRoles(), is(notNullValue()));
         assertThat(userRepository.findById(user.getId()).get(), is(user));
