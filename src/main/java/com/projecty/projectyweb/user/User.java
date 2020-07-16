@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.message.Message;
 import com.projecty.projectyweb.notifications.Notification;
 import com.projecty.projectyweb.project.role.ProjectRole;
+import com.projecty.projectyweb.settings.Settings;
 import com.projecty.projectyweb.task.Task;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.user.avatar.Avatar;
@@ -87,6 +88,9 @@ public class User implements Serializable {
             orphanRemoval = true
     )
     private Avatar avatar;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Settings settings;
 
     @Override
     public String toString() {

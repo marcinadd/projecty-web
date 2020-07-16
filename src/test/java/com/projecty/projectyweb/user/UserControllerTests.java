@@ -88,15 +88,6 @@ public class UserControllerTests {
 
     @Test
     @WithMockUser
-    public void givenRequestOnSettings_shouldReturnCurrentUser() throws Exception {
-        mockMvc.perform(get("/settings"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value(user.getUsername()))
-                .andExpect(jsonPath("$.id").value(user.getId()));
-    }
-
-    @Test
-    @WithMockUser
     public void givenRequestForAvatarOnMissingUser_shouldReturnNotFound() throws Exception {
         mockMvc.perform(get("/user/nouser/avatar"))
                 .andExpect(status().isNotFound());

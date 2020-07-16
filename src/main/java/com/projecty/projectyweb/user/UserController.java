@@ -25,11 +25,6 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("settings")
-    public User settings() {
-        return userService.getCurrentUser();
-    }
-
     @GetMapping("auth")
     public User getUser() {
         return userService.getCurrentUser();
