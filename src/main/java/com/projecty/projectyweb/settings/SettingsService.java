@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 public class SettingsService {
     private final UserService userService;
     private final UserRepository userRepository;
+    private final SettingsRepository settingsRepository;
 
-    public SettingsService(UserService userService, UserRepository userRepository) {
+    public SettingsService(UserService userService, UserRepository userRepository, SettingsRepository settingsRepository) {
         this.userService = userService;
         this.userRepository = userRepository;
+        this.settingsRepository = settingsRepository;
     }
 
     public Settings getSettingsForCurrentUser() {
@@ -27,5 +29,33 @@ public class SettingsService {
         user.setSettings(new Settings());
         user = userRepository.save(user);
         return user.getSettings();
+    }
+
+    public Settings patchSettings(Settings patchedSettings) {
+        User currentUser = userService.getCurrentUser();
+        Settings settings = currentUser.getSettings() != null ? currentUser.getSettings() : addSettingsForUser(currentUser);
+
+        // TODO Change this ugly code
+        Boolean isMessageEmailNotificationsEnabled = patchedSettings.getIsMessageEmailNotificationsEnabled();
+        if (isMessageEmailNotificationsEnabled != null) {
+            settings.setIsMessageEmailNotificationsEnabled(isMessageEmailNotificationsEnabled);
+        }
+        Boolean isProjectEmailNotificationsEnabled = patchedSettings.getIsProjectEmailNotificationsEnabled();
+        if (isProjectEmailNotificationsEnabled != null) {
+            settings.setIsProjectEmailNotificationsEnabled(isProjectEmailNotificationsEnabled);
+        }
+        Boolean isTeamEmailNotificationsEnabled = patchedSettings.getIsTeamEmailNotificationsEnabled();
+        if (isTeamEmailNotificationsEnabled != null) {
+            settings.setIsTeamEmailNotificationsEnabled(patchedSettings.getIsTeamEmailNotificationsEnabled());
+        }
+        Boolean canBeAddedToProject = patchedSettings.getCanBeAddedToProject();
+        if (canBeAddedToProject != null) {
+            settings.setCanBeAddedToProject(canBeAddedToProject);
+        }
+        Boolean canBeAddedToTeam = patchedSettings.getCanBeAddedToTeam();
+        if (canBeAddedToTeam != null) {
+            settings.setCanBeAddedToTeam(canBeAddedToTeam);
+        }
+        return settingsRepository.save(settings);
     }
 }

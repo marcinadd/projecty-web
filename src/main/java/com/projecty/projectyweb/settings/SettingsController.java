@@ -1,8 +1,6 @@
 package com.projecty.projectyweb.settings;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("settings")
@@ -16,5 +14,10 @@ public class SettingsController {
     @GetMapping
     public Settings getSettings() {
         return settingsService.getSettingsForCurrentUser();
+    }
+
+    @PatchMapping
+    public Settings patchSettings(@RequestBody Settings patchedSettings) {
+        return settingsService.patchSettings(patchedSettings);
     }
 }
