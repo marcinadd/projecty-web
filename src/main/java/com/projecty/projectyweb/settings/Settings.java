@@ -18,18 +18,16 @@ public class Settings {
     @GeneratedValue
     private Long id;
     //    Notifications
-    private Boolean isProjectEmailNotificationsEnabled;
-    private Boolean isTeamEmailNotificationsEnabled;
-    private Boolean isMessageEmailNotificationsEnabled;
+    private Boolean isEmailNotificationEnabled;
+    private Boolean isMessageEmailNotificationEnabled;
     //    Project/Teams
     private Boolean canBeAddedToProject;
     private Boolean canBeAddedToTeam;
 
     @PrePersist
     public void prePersist() {
-        if (isProjectEmailNotificationsEnabled == null) isProjectEmailNotificationsEnabled = true;
-        if (isTeamEmailNotificationsEnabled == null) isTeamEmailNotificationsEnabled = true;
-        if (isMessageEmailNotificationsEnabled == null) isMessageEmailNotificationsEnabled = true;
+        if (isEmailNotificationEnabled == null) isEmailNotificationEnabled = true;
+        if (isMessageEmailNotificationEnabled == null) isMessageEmailNotificationEnabled = true;
         if (canBeAddedToProject == null) canBeAddedToProject = true;
         if (canBeAddedToTeam == null) canBeAddedToTeam = true;
     }

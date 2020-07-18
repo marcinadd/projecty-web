@@ -36,17 +36,13 @@ public class SettingsService {
         Settings settings = currentUser.getSettings() != null ? currentUser.getSettings() : addSettingsForUser(currentUser);
 
         // TODO Change this ugly code
-        Boolean isMessageEmailNotificationsEnabled = patchedSettings.getIsMessageEmailNotificationsEnabled();
+        Boolean isMessageEmailNotificationsEnabled = patchedSettings.getIsMessageEmailNotificationEnabled();
         if (isMessageEmailNotificationsEnabled != null) {
-            settings.setIsMessageEmailNotificationsEnabled(isMessageEmailNotificationsEnabled);
+            settings.setIsMessageEmailNotificationEnabled(isMessageEmailNotificationsEnabled);
         }
-        Boolean isProjectEmailNotificationsEnabled = patchedSettings.getIsProjectEmailNotificationsEnabled();
-        if (isProjectEmailNotificationsEnabled != null) {
-            settings.setIsProjectEmailNotificationsEnabled(isProjectEmailNotificationsEnabled);
-        }
-        Boolean isTeamEmailNotificationsEnabled = patchedSettings.getIsTeamEmailNotificationsEnabled();
-        if (isTeamEmailNotificationsEnabled != null) {
-            settings.setIsTeamEmailNotificationsEnabled(patchedSettings.getIsTeamEmailNotificationsEnabled());
+        Boolean isEmailNotificationsEnabled = patchedSettings.getIsEmailNotificationEnabled();
+        if (isEmailNotificationsEnabled != null) {
+            settings.setIsEmailNotificationEnabled(isEmailNotificationsEnabled);
         }
         Boolean canBeAddedToProject = patchedSettings.getCanBeAddedToProject();
         if (canBeAddedToProject != null) {

@@ -92,6 +92,13 @@ public class User implements Serializable {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Settings settings;
 
+    @PrePersist
+    public void prePersist() {
+        if (settings == null) {
+            settings = new Settings();
+        }
+    }
+
     @Override
     public String toString() {
         return "User{" +

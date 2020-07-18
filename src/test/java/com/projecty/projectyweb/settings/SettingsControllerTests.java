@@ -40,7 +40,7 @@ public class SettingsControllerTests {
         User user = User.builder()
                 .id(1L)
                 .username("user")
-                .settings(Settings.builder().isProjectEmailNotificationsEnabled(true).build())
+                .settings(Settings.builder().isEmailNotificationEnabled(true).build())
                 .build();
         Mockito.when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(java.util.Optional.of(user));
@@ -51,7 +51,7 @@ public class SettingsControllerTests {
     @WithMockUser()
     public void givenRequestOnGetSettings_shouldReturnSettings() throws Exception {
         mockMvc.perform(get("/settings"))
-                .andExpect(jsonPath("$.isProjectEmailNotificationsEnabled").isBoolean())
+                .andExpect(jsonPath("$.isEmailNotificationEnabled").isBoolean())
                 .andExpect(status().isOk());
     }
 

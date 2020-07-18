@@ -29,19 +29,21 @@ public class MessageEmailAspect {
     @AfterReturning(value = "execution (* com.projecty.projectyweb.message.MessageService.sendMessage(..))", returning = "message")
     @Async
     public void sendEmailNotificationAboutMessage(Message message) {
-        String title = messageSource.getMessage(
-                "received.message.title",
-                new String[]{message.getSender().getUsername()},
-                LocaleContextHolder.getLocale());
-        Map<String, Object> values = new HashMap<>();
-        values.put("text", messageSource.getMessage(
-                "message.text.hidden",
-                null,
-                LocaleContextHolder.getLocale()));
-        try {
-            emailService.sendMessageThymeleafTemplate(message.getRecipient().getEmail(), title, values);
-        } catch (Exception e) {
-            logger.warn(String.valueOf(e));
+        if (message.getRecipient().getSettings().getIsMessageEmailNotificationEnabled()) {
+            String title = messageSource.getMessage(
+                    "received.message.title",
+                    new String[]{message.getSender().getUsername()},
+                    LocaleContextHolder.getLocale());
+            Map<String, Object> values = new HashMap<>();
+            values.put("text", messageSource.getMessage(
+                    "message.text.hidden",
+                    null,
+                    LocaleContextHolder.getLocale()));
+            try {
+                emailService.sendMessageThymeleafTemplate(message.getRecipient().getEmail(), title, values);
+            } catch (Exception e) {
+                logger.warn(String.valueOf(e));
+            }
         }
     }
 }

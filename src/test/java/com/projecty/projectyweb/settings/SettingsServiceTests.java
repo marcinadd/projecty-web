@@ -48,17 +48,15 @@ public class SettingsServiceTests {
         Settings patched = Settings.builder()
                 .canBeAddedToProject(false)
                 .canBeAddedToTeam(false)
-                .isMessageEmailNotificationsEnabled(false)
-                .isProjectEmailNotificationsEnabled(false)
-                .isTeamEmailNotificationsEnabled(false)
+                .isMessageEmailNotificationEnabled(false)
+                .isEmailNotificationEnabled(false)
                 .build();
         settingsService.patchSettings(patched);
         User user = userService.getCurrentUser();
         assertFalse(user.getSettings().getCanBeAddedToProject());
         assertFalse(user.getSettings().getCanBeAddedToTeam());
-        assertFalse(user.getSettings().getIsTeamEmailNotificationsEnabled());
-        assertFalse(user.getSettings().getIsProjectEmailNotificationsEnabled());
-        assertFalse(user.getSettings().getIsMessageEmailNotificationsEnabled());
+        assertFalse(user.getSettings().getIsEmailNotificationEnabled());
+        assertFalse(user.getSettings().getIsMessageEmailNotificationEnabled());
         assertFalse(userService.getCurrentUser().getSettings().getCanBeAddedToProject());
     }
 }

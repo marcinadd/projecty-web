@@ -28,13 +28,15 @@ public class NotificationEmailAspect {
     @AfterReturning(value = "execution (* com.projecty.projectyweb.notifications.NotificationService.createNotificationAndSave(..))", returning = "notification")
     @Async
     public void sendEmailNotificationToSpecificUser(Notification notification) {
-        notification.setStringValue(notificationService.buildNotificationString(notification));
-        Map<String, Object> values = new HashMap<>();
-        values.put("text", notification.getStringValue());
-        try {
-            emailService.sendMessageThymeleafTemplate(notification.getUser().getEmail(), notification.getStringValue(), values);
-        } catch (Exception e) {
-            logger.warn(String.valueOf(e));
+        if (notification.getUser().getSettings().getIsEmailNotificationEnabled()) {
+            notification.setStringValue(notificationService.buildNotificationString(notification));
+            Map<String, Object> values = new HashMap<>();
+            values.put("text", notification.getStringValue());
+            try {
+                emailService.sendMessageThymeleafTemplate(notification.getUser().getEmail(), notification.getStringValue(), values);
+            } catch (Exception e) {
+                logger.warn(String.valueOf(e));
+            }
         }
     }
 }
