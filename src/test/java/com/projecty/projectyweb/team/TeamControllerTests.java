@@ -5,6 +5,7 @@ import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.message.MessageRepository;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
+import com.projecty.projectyweb.settings.Settings;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoleRepository;
 import com.projecty.projectyweb.team.role.TeamRoleService;
@@ -79,6 +80,7 @@ public class TeamControllerTests {
         User user1 = new User();
         user1.setId(3L);
         user1.setUsername("user1");
+        user1.setSettings(Settings.builder().canBeAddedToTeam(true).build());
 
         User user2 = new User();
         user2.setUsername("user2");

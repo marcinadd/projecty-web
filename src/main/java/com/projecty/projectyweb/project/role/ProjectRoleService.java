@@ -36,7 +36,11 @@ public class ProjectRoleService {
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
             removeExistingUsersInProjectFromSet(users, project);
-            users.forEach(user -> projectRoles.add(new ProjectRole(ProjectRoles.USER, user, project)));
+            users.forEach(user -> {
+                if (user.getSettings().getCanBeAddedToProject()) {
+                    projectRoles.add(new ProjectRole(ProjectRoles.USER, user, project));
+                }
+            });
         }
         if (project.getProjectRoles() == null) {
             project.setProjectRoles(projectRoles);

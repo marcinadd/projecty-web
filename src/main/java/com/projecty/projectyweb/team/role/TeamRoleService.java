@@ -25,7 +25,11 @@ public class TeamRoleService {
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
             removeExistingUsersInTeamFromSet(users, team);
-            users.forEach(user -> teamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team)));
+            users.forEach(user -> {
+                if (user.getSettings().getCanBeAddedToTeam()) {
+                    teamRoles.add(new TeamRole(TeamRoles.MEMBER, user, team));
+                }
+            });
         }
 
         if (team.getTeamRoles() == null) {
