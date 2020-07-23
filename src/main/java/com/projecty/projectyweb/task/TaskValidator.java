@@ -22,5 +22,8 @@ public class TaskValidator implements Validator {
         if (task.getStartDate() != null && task.getEndDate() != null && task.getStartDate().after(task.getEndDate())) {
             errors.rejectValue("startDate", "start.date.greater.than.end.date");
         }
+        if (task.getImportance() != null && (task.getImportance() < 1 || task.getImportance() > 3)) {
+            errors.rejectValue("importance", "importance.invalid");
+        }
     }
 }

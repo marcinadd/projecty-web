@@ -35,6 +35,8 @@ public class Task {
     @ManyToMany
     private List<User> assignedUsers;
 
+    private Integer importance;
+
     @Override
     public String toString() {
         return "Task{" +
