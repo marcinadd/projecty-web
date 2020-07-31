@@ -99,14 +99,16 @@ public class MessageService {
                          List<MultipartFile> multipartFiles) throws BindException {
         User user = userService.getCurrentUser();
         Optional<Message> optionalReplyToMessage = messageRepository.findById(replyToMessageId);
-        if (optionalReplyToMessage.isPresent()) {
+        if (optionalReplyToMessage.isPresent() && optionalReplyToMessage.get().getReply() == null) {
             Message replyToMessage = optionalReplyToMessage.get();
             if (replyToMessage.getSender().equals(user)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
             message.setRecipientUsername(replyToMessage.getSender().getUsername());
-            message.setReplyToMessage(replyToMessage);
-            return sendMessage(message, multipartFiles);
+            Message sentMessage = sendMessage(message, multipartFiles);
+            replyToMessage.setReply(sentMessage);
+            messageRepository.save(replyToMessage);
+            return sentMessage;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

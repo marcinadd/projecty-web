@@ -85,7 +85,7 @@ public class MessageController {
     }
 
     @PostMapping("{replyToMessageId}/reply")
-    public Message replyToAMessage(
+    public Message replyToMessage(
             @PathVariable Long replyToMessageId,
             @RequestParam String title,
             @RequestParam String text,
