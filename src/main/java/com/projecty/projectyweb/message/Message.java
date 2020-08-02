@@ -48,9 +48,10 @@ public class Message {
     private List<Attachment> attachments;
 
     @ManyToOne
-    @JoinColumn(name = "reply_message_id")
-    private Message reply;
+    @JoinColumn(name = "reply_to_message_id")
+    private Message replyTo;
 
+    private Boolean hasReply;
     @Transient
     private String recipientUsername;
 }

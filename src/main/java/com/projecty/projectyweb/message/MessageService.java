@@ -62,10 +62,10 @@ public class MessageService {
         User user = userService.getCurrentUser();
         switch (messageType) {
             case SENT:
-                return messageRepository.findBySenderOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
+                return messageRepository.findBySenderAndHasReplyIsFalseOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
             case RECEIVED:
             default:
-                return messageRepository.findByRecipientOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
+                return messageRepository.findByRecipientAndHasReplyIsFalseOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
         }
     }
 
@@ -85,6 +85,7 @@ public class MessageService {
 
         message.setSender(sender);
         message.setRecipient(recipient);
+        message.setHasReply(false);
         if (multipartFiles != null) {
             attachmentService.addFilesToMessage(multipartFiles, message);
         }
@@ -99,16 +100,16 @@ public class MessageService {
                          List<MultipartFile> multipartFiles) throws BindException {
         User user = userService.getCurrentUser();
         Optional<Message> optionalReplyToMessage = messageRepository.findById(replyToMessageId);
-        if (optionalReplyToMessage.isPresent() && optionalReplyToMessage.get().getReply() == null) {
+        if (optionalReplyToMessage.isPresent()) {
             Message replyToMessage = optionalReplyToMessage.get();
             if (replyToMessage.getSender().equals(user)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
             message.setRecipientUsername(replyToMessage.getSender().getUsername());
-            Message sentMessage = sendMessage(message, multipartFiles);
-            replyToMessage.setReply(sentMessage);
+            message.setReplyTo(replyToMessage);
+            replyToMessage.setHasReply(true);
             messageRepository.save(replyToMessage);
-            return sentMessage;
+            return sendMessage(message, multipartFiles);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
