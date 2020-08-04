@@ -64,8 +64,10 @@ public class MessageService {
             case SENT:
                 return messageRepository.findBySenderAndHasReplyIsFalseOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
             case RECEIVED:
-            default:
                 return messageRepository.findByRecipientAndHasReplyIsFalseOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
+            case ANY:
+            default:
+                return messageRepository.findBySenderOrRecipientAndHasReplyIsFalseOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
         }
     }
 
