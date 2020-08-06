@@ -7,6 +7,38 @@ I know that project data are really sensitive, so you feel better when you are t
 And for, those who do not have a server, 
 Projecty will be available on the hosted server completely for free (in the future).
 
+## Features
+### Tasks
+* Tasks management (mark tasks as To do, In progress, Done)
+* Assign tasks to users
+* Task importance levels
+* Group tasks into projects
+### Projects
+* Project user management
+* Project roles (Admin/User)
+### Teams
+* Team user management
+* Team Roles (Manager/Member)
+### Chat
+* Real time chat via WebSockets
+### Messages
+* Send messages to users
+* Reply to messages
+* Send messages with multiple attachments
+### Notifications
+* Notify user about important activities
+* Optionally send E-mail notifications
+### Dashboard
+* Get assigned tasks for current user
+### Users
+* Avatars
+* Username completion
+* Personalize notifications
+* Block adding to new projects/teams
+
+### …and more
+
+
 ## Note
 **Projecty v2.0 is compatible only with Angular front-end so far. You cannot use this version with 
 Android or Vue.js clients due to differences in user authentication (and other minor things).**       

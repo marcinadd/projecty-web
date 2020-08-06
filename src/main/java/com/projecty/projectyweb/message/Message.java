@@ -47,10 +47,11 @@ public class Message {
     )
     private List<Attachment> attachments;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "reply_to_message_id")
-    private Message replyToMessage;
+    private Message replyTo;
 
+    private Boolean hasReply;
     @Transient
     private String recipientUsername;
 }

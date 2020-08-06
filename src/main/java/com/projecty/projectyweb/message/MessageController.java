@@ -38,7 +38,7 @@ public class MessageController {
 
     @GetMapping
     public Page<Message> getPageOfMessages(
-            @RequestParam(defaultValue = "RECEIVED") MessageType type,
+            @RequestParam(defaultValue = "ALL") MessageType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int itemsPerPage
     ) {
@@ -85,7 +85,7 @@ public class MessageController {
     }
 
     @PostMapping("{replyToMessageId}/reply")
-    public Message replyToAMessage(
+    public Message replyToMessage(
             @PathVariable Long replyToMessageId,
             @RequestParam String title,
             @RequestParam String text,

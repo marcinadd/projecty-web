@@ -62,10 +62,12 @@ public class MessageService {
         User user = userService.getCurrentUser();
         switch (messageType) {
             case SENT:
-                return messageRepository.findBySenderOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
+                return messageRepository.findBySenderAndHasReplyIsFalseOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
             case RECEIVED:
+                return messageRepository.findByRecipientAndHasReplyIsFalseOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
+            case ANY:
             default:
-                return messageRepository.findByRecipientOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
+                return messageRepository.findBySenderOrRecipientAndHasReplyIsFalseOrderBySendDateDesc(user, PageRequest.of(page, itemsPerPage));
         }
     }
 
@@ -85,6 +87,7 @@ public class MessageService {
 
         message.setSender(sender);
         message.setRecipient(recipient);
+        message.setHasReply(false);
         if (multipartFiles != null) {
             attachmentService.addFilesToMessage(multipartFiles, message);
         }
@@ -105,7 +108,9 @@ public class MessageService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
             message.setRecipientUsername(replyToMessage.getSender().getUsername());
-            message.setReplyToMessage(replyToMessage);
+            message.setReplyTo(replyToMessage);
+            replyToMessage.setHasReply(true);
+            messageRepository.save(replyToMessage);
             return sendMessage(message, multipartFiles);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
