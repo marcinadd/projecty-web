@@ -131,6 +131,12 @@ public class ProjectControllerTests {
                 .andExpect(jsonPath("teamProjects").exists());
     }
 
+    public void givenRequestOnGetMyProjectIntivations_shouldReturnProjectInvitations() throws Exception {
+        mockMvc.perform(get("/projects/invitations"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
     @Test
     @WithMockUser
     public void givenRequestOnPostFormWithoutOtherUsers_shouldReturnOk() throws Exception {

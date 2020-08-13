@@ -42,14 +42,14 @@ public class ProjectServiceTests {
     @Test
     @WithMockUser
     @Transactional
-    public void whenAddRolesToProjectSByUsernames_shouldReturnSavedProjectRoles() {
+    public void whenInviteToProjectByUsernames_shouldReturnSavedProjectRoles() {
         userRepository.save(User.builder().username(USERNAME_1).build());
         Project project = new Project();
         project = projectRepository.save(project);
         List<String> usernames = Collections.singletonList(USERNAME_1);
         List<ProjectRole> savedRoles = projectService.addProjectRolesByUsernames(project, usernames);
         assertThat(savedRoles.size(), is(1));
-        assertThat(projectRepository.findById(project.getId()).get().getProjectRoles().size(), is(1));
+        assertThat(projectRepository.findById(project.getId()).get().getInvitedProjectRoles().size(), is(1));
     }
 
     @Test

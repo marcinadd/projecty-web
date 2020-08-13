@@ -90,6 +90,11 @@ public class ProjectService {
         return addSummaryToProjectsData(new ProjectsData(projectRoles, teamRoles));
     }
 
+    public List<ProjectRole> getInvitationsForCurrentUser() {
+        User user = userService.getCurrentUser();
+        return user.getInvitedProjectRoles();
+    }
+
     public ProjectData getProjectData(Project project) {
         List<ProjectRole> projectRoles = project.getProjectRoles();
         projectRoles.sort(Comparator.comparing(ProjectRole::getId));

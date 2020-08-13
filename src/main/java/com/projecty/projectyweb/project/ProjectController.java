@@ -46,6 +46,11 @@ public class ProjectController {
         return projectService.getProjectsForCurrentUser();
     }
 
+    @GetMapping("invitations")
+    public List<ProjectRole> myInvitations() {
+        return projectService.getInvitationsForCurrentUser();
+    }
+
     @PostMapping("")
     public Project addProjectPost(
             @Valid @RequestBody Project project,

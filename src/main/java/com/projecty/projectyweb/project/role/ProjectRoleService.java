@@ -32,22 +32,22 @@ public class ProjectRoleService {
     }
 
     public List<ProjectRole> addRolesToProjectByUsernames(Project project, List<String> usernames) {
-        List<ProjectRole> projectRoles = new ArrayList<>();
+        List<ProjectRole> invitedRoles = new ArrayList<>();
         if (usernames != null) {
             Set<User> users = userService.getUserSetByUsernamesWithoutCurrentUser(usernames);
             removeExistingUsersInProjectFromSet(users, project);
             users.forEach(user -> {
                 if (user.getSettings().getCanBeAddedToProject()) {
-                    projectRoles.add(new ProjectRole(ProjectRoles.USER, user, project));
+                    invitedRoles.add(new ProjectRole(ProjectRoles.USER, user, project));
                 }
             });
         }
-        if (project.getProjectRoles() == null) {
-            project.setProjectRoles(projectRoles);
-        } else if (projectRoles.size() > 0) {
-            project.getProjectRoles().addAll(projectRoles);
+        if (project.getInvitedProjectRoles() == null) {
+            project.setInvitedProjectRoles(invitedRoles);
+        } else if (invitedRoles.size() > 0) {
+            project.getInvitedProjectRoles().addAll(invitedRoles);
         }
-        return projectRoles;
+        return invitedRoles;
     }
 
     public List<ProjectRole> saveProjectRoles(List<ProjectRole> projectRoles) {

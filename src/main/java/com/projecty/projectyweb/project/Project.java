@@ -37,6 +37,9 @@ public class Project {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectRole> projectRoles;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectRole> invitedProjectRoles;
+
     @ManyToOne
     private Team team;
 
