@@ -38,14 +38,14 @@ public class ProjectRoleService {
             removeExistingUsersInProjectFromSet(users, project);
             users.forEach(user -> {
                 if (user.getSettings().getCanBeAddedToProject()) {
-                    invitedRoles.add(new ProjectRole(ProjectRoles.USER, user, project));
+                    invitedRoles.add(new ProjectRole(ProjectRoles.USER, user, project, true));
                 }
             });
         }
-        if (project.getInvitedProjectRoles() == null) {
-            project.setInvitedProjectRoles(invitedRoles);
+        if (project.getProjectRoleInvitations() == null) {
+            project.setProjectRoleInvitations(invitedRoles);
         } else if (invitedRoles.size() > 0) {
-            project.getInvitedProjectRoles().addAll(invitedRoles);
+            project.getProjectRoleInvitations().addAll(invitedRoles);
         }
         return invitedRoles;
     }

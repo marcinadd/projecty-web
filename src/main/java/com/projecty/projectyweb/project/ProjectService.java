@@ -90,9 +90,11 @@ public class ProjectService {
         return addSummaryToProjectsData(new ProjectsData(projectRoles, teamRoles));
     }
 
-    public List<ProjectRole> getInvitationsForCurrentUser() {
+    public List<ProjectRoleData> getInvitationsForCurrentUser() {
         User user = userService.getCurrentUser();
-        return user.getInvitedProjectRoles();
+        List<ProjectRoleData> projectRoleInvitations = new ArrayList<>();
+        user.getProjectRoleInvitations().forEach(projectRole -> projectRoleInvitations.add(new ProjectRoleData(projectRole)));
+        return projectRoleInvitations;
     }
 
     public ProjectData getProjectData(Project project) {

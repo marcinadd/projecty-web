@@ -37,19 +37,21 @@ public class ProjectServiceTests {
 
     private static final String USERNAME_1 = "projectServiceUser1";
     private static final String USERNAME_2 = "projectServiceUser2";
+    private static final String USERNAME_3 = "projectServiceUser3";
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
-    @WithMockUser
+    @WithMockUser(USERNAME_1)
     @Transactional
     public void whenInviteToProjectByUsernames_shouldReturnSavedProjectRoles() {
         userRepository.save(User.builder().username(USERNAME_1).build());
+        userRepository.save(User.builder().username(USERNAME_3).build());
         Project project = new Project();
         project = projectRepository.save(project);
-        List<String> usernames = Collections.singletonList(USERNAME_1);
+        List<String> usernames = Collections.singletonList(USERNAME_3);
         List<ProjectRole> savedRoles = projectService.addProjectRolesByUsernames(project, usernames);
         assertThat(savedRoles.size(), is(1));
-        assertThat(projectRepository.findById(project.getId()).get().getInvitedProjectRoles().size(), is(1));
+        assertThat(projectRepository.findById(project.getId()).get().getProjectRoleInvitations().size(), is(1));
     }
 
     @Test

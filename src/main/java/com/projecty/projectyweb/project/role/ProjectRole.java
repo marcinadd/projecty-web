@@ -15,10 +15,15 @@ import javax.persistence.*;
 @Getter
 @Setter
 public class ProjectRole {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private User invitedUser;
+
     public ProjectRole(ProjectRoles name, User user, Project project) {
         this.name = name;
-        this.user = user;
         this.project = project;
+        this.user = user;
     }
 
     public ProjectRole() {
@@ -33,6 +38,16 @@ public class ProjectRole {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
+    public ProjectRole(ProjectRoles name, User user, Project project, boolean isInvitation) {
+        this.name = name;
+        this.project = project;
+        if (isInvitation) {
+            this.invitedUser = user;
+        } else {
+            this.user = user;
+        }
+    }
 
     @ManyToOne
     @JsonIgnore

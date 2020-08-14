@@ -41,14 +41,14 @@ public class ProjectController {
         this.projectRoleService = projectRoleService;
     }
 
+    @GetMapping("invitations")
+    public List<ProjectRoleData> myInvitations() {
+        return projectService.getInvitationsForCurrentUser();
+    }
+
     @GetMapping("")
     public ProjectsData myProjects() {
         return projectService.getProjectsForCurrentUser();
-    }
-
-    @GetMapping("invitations")
-    public List<ProjectRole> myInvitations() {
-        return projectService.getInvitationsForCurrentUser();
     }
 
     @PostMapping("")
