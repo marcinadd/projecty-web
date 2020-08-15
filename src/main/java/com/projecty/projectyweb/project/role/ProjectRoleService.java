@@ -83,6 +83,10 @@ public class ProjectRoleService {
         projectRepository.save(project);
     }
 
+    public void deleteInvitationFromProject(ProjectRole projectRole) {
+        deleteRoleFromProject(projectRole);
+    }
+
     public void leaveProject(Project project) throws NoAdminsInProjectException {
         User user = userService.getCurrentUser();
         Optional<ProjectRole> optionalProjectRole = projectRoleRepository.findRoleByUserAndProject(user, project);

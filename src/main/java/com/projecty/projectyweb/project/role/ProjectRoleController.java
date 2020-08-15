@@ -24,13 +24,28 @@ public class ProjectRoleController {
     }
 
     @PostMapping("/{roleId}/accept")
-    //TODO Security check
     public ProjectRole acceptInvitation(@PathVariable Long roleId) {
+        User current = userService.getCurrentUser();
         Optional<ProjectRole> optionalProjectRole = projectRoleRepository.findById(roleId);
-        if (optionalProjectRole.isPresent() && optionalProjectRole.get().getInvitedUser() != null) {
+        if (optionalProjectRole.isPresent() && optionalProjectRole.get().getInvitedUser().equals(current)) {
             return projectRoleService.acceptInvitation(optionalProjectRole.get());
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+
+    @DeleteMapping("/{roleId}/delete")
+    @EditPermission
+    public void deleteInvitation(
+            @PathVariable Long roleId
+    ) {
+        User current = userService.getCurrentUser();
+        Optional<ProjectRole> toDeleteProjectRoleInvitation = projectRoleRepository.findById(roleId);
+        if (toDeleteProjectRoleInvitation.isPresent() && toDeleteProjectRoleInvitation.get().getInvitedUser().equals(current)) {
+            projectRoleService.deleteInvitationFromProject(toDeleteProjectRoleInvitation.get());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{roleId}")
