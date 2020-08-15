@@ -23,6 +23,16 @@ public class ProjectRoleController {
         this.projectRoleService = projectRoleService;
     }
 
+    @PostMapping("/{roleId}/accept")
+    //TODO Security check
+    public ProjectRole acceptInvitation(@PathVariable Long roleId) {
+        Optional<ProjectRole> optionalProjectRole = projectRoleRepository.findById(roleId);
+        if (optionalProjectRole.isPresent() && optionalProjectRole.get().getInvitedUser() != null) {
+            return projectRoleService.acceptInvitation(optionalProjectRole.get());
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
     @DeleteMapping("/{roleId}")
     @EditPermission
     public void deleteUserPost(

@@ -105,4 +105,20 @@ public class ProjectRoleService {
         }
         return projectRole;
     }
+
+    public ProjectRole acceptInvitation(ProjectRole projectRole) {
+        projectRole.setUser(projectRole.getInvitedUser());
+        projectRole.setInvitedUser(null);
+        projectRole = projectRoleRepository.save(projectRole);
+
+        Project project = projectRole.getProject();
+        List<ProjectRole> projectRoles = project.getProjectRoles();
+        List<ProjectRole> projectRoleInvitations = project.getProjectRoleInvitations();
+        projectRoles.add(projectRole);
+        projectRoleInvitations.remove(projectRole);
+        project.setProjectRoles(projectRoles);
+        project.setProjectRoleInvitations(projectRoleInvitations);
+        projectRepository.save(project);
+        return projectRole;
+    }
 }

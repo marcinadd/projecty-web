@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @ActiveProfiles("test")
@@ -82,5 +81,25 @@ public class ProjectRoleServiceTests {
         } else {
             assert false;
         }
+    }
+
+    @Test
+    @Transactional
+    public void whenAcceptInvitation_shouldBeAccepted() {
+        Project project = new Project();
+        project.setProjectRoles(new ArrayList<>());
+        project = projectRepository.save(project);
+        User user = userRepository.save(new User());
+        ProjectRole projectRole = new ProjectRole();
+        projectRole.setInvitedUser(user);
+        projectRole.setProject(project);
+        projectRole = projectRoleRepository.save(projectRole);
+        List<ProjectRole> projectRoleInvitations = new ArrayList<>();
+        projectRoleInvitations.add(projectRole);
+        project.setProjectRoleInvitations(projectRoleInvitations);
+        project = projectRepository.save(project);
+        projectRole = projectRoleService.acceptInvitation(projectRole);
+        assertThat(projectRole.getInvitedUser(), is(nullValue()));
+        assertThat(projectRole.getProject().getProjectRoleInvitations().size(), is(0));
     }
 }
