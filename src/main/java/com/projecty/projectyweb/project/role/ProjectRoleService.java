@@ -26,7 +26,7 @@ public class ProjectRoleService {
 
     private void removeExistingUsersInProjectFromSet(Set<User> users, Project project) {
         if (project.getId() != null) {
-            Set<User> existingUsers = getProjectRoleUsers(project);
+            Set<User> existingUsers = getProjectRoleUsersAndInvitedUsers(project);
             users.removeAll(existingUsers);
         }
     }
@@ -56,10 +56,16 @@ public class ProjectRoleService {
         return savedProjectRoles;
     }
 
-    public Set<User> getProjectRoleUsers(Project project) {
+    public Set<User> getProjectRoleUsersAndInvitedUsers(Project project) {
         List<ProjectRole> projectRoles = projectRoleRepository.findByProjectOrderByIdAsc(project);
         Set<User> users = new HashSet<>();
-        projectRoles.forEach(projectRole -> users.add(projectRole.getUser()));
+        projectRoles.forEach(projectRole -> {
+            if (projectRole.getUser() != null) {
+                users.add(projectRole.getUser());
+            } else {
+                users.add(projectRole.getInvitedUser());
+            }
+        });
         return users;
     }
 

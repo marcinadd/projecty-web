@@ -93,14 +93,14 @@ public class TaskService {
             teamRoleUsers.removeAll(task.getAssignedUsers());
             return userService.getUsernamesFromUserList(new ArrayList<>(teamRoleUsers));
         }
-        Set<User> projectRoleUsers = projectRoleService.getProjectRoleUsers(project);
+        Set<User> projectRoleUsers = projectRoleService.getProjectRoleUsersAndInvitedUsers(project);
         projectRoleUsers.removeAll(task.getAssignedUsers());
         return userService.getUsernamesFromUserList(new ArrayList<>(projectRoleUsers));
     }
 
     private boolean hasUserAccessToTask(Task task, User user) {
         return (task.getProject().getProjectRoles() != null &&
-                projectRoleService.getProjectRoleUsers(task.getProject()).contains(user))
+                projectRoleService.getProjectRoleUsersAndInvitedUsers(task.getProject()).contains(user))
                 || (task.getProject().getTeam() != null && (teamRoleService.getTeamRoleUsers(task.getProject().getTeam()).contains(user)));
     }
 
