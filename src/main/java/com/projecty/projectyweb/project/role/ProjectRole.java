@@ -4,21 +4,19 @@ package com.projecty.projectyweb.project.role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.role.Role;
 import com.projecty.projectyweb.user.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
 @Entity
 @JsonSerialize
 @Getter
 @Setter
-public class ProjectRole {
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private User invitedUser;
+public class ProjectRole extends Role {
 
     public ProjectRole(ProjectRoles name, User user, Project project) {
         this.name = name;
@@ -29,16 +27,6 @@ public class ProjectRole {
     public ProjectRole() {
     }
 
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    // TODO Remove this redundancy
-    private ProjectRoles name;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
-
     public ProjectRole(ProjectRoles name, User user, Project project, boolean isInvitation) {
         this.name = name;
         this.project = project;
@@ -48,6 +36,9 @@ public class ProjectRole {
             this.user = user;
         }
     }
+
+    // TODO Remove this redundancy
+    private ProjectRoles name;
 
     @ManyToOne
     @JsonIgnore
