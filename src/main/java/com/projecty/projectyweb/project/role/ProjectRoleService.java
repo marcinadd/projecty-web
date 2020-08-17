@@ -2,6 +2,7 @@ package com.projecty.projectyweb.project.role;
 
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class ProjectRoleService {
             removeExistingUsersInProjectFromSet(users, project);
             users.forEach(user -> {
                 if (user.getSettings().getCanBeAddedToProject()) {
-                    invitedRoles.add(new ProjectRole(ProjectRoles.USER, user, project, true));
+                    invitedRoles.add(new ProjectRole(Roles.MEMBER, user, project, true));
                 }
             });
         }
@@ -71,7 +72,7 @@ public class ProjectRoleService {
 
     public void addCurrentUserToProjectAsAdmin(Project project) {
         User current = userService.getCurrentUser();
-        ProjectRole projectRole = new ProjectRole(ProjectRoles.ADMIN, current, project);
+        ProjectRole projectRole = new ProjectRole(Roles.MANAGER, current, project);
         if (project.getProjectRoles() == null) {
             List<ProjectRole> projectRoles = new ArrayList<>();
             projectRoles.add(projectRole);
@@ -98,8 +99,8 @@ public class ProjectRoleService {
         Optional<ProjectRole> optionalProjectRole = projectRoleRepository.findRoleByUserAndProject(user, project);
         if (optionalProjectRole.isPresent()) {
             ProjectRole projectRole = optionalProjectRole.get();
-            int admins = projectRoleRepository.countByProjectAndName(project, ProjectRoles.ADMIN);
-            if ((projectRole.getName().equals(ProjectRoles.ADMIN) && admins - 1 > 0) || project.getName().equals(ProjectRoles.USER)) {
+            int admins = projectRoleRepository.countByProjectAndName(project, Roles.MANAGER);
+            if ((projectRole.getName().equals(Roles.MANAGER) && admins - 1 > 0)) {
                 project.getProjectRoles().remove(optionalProjectRole.get());
                 projectRepository.save(project);
             } else {

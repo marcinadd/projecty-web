@@ -21,4 +21,6 @@ public class Role {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     protected User invitedUser;
+
+    protected Roles name;
 }

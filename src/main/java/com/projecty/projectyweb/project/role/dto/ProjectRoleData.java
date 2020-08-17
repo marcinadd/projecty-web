@@ -2,7 +2,7 @@ package com.projecty.projectyweb.project.role.dto;
 
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.role.ProjectRole;
-import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.role.Roles;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +11,7 @@ import lombok.Setter;
 public class ProjectRoleData {
     private Long id;
     private Project project;
-    private ProjectRoles name;
+    private Roles name;
 
     public ProjectRoleData(ProjectRole projectRole) {
         this.id = projectRole.getId();

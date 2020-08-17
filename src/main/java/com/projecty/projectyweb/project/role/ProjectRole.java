@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.role.Role;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.user.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +19,7 @@ import javax.persistence.ManyToOne;
 @Setter
 public class ProjectRole extends Role {
 
-    public ProjectRole(ProjectRoles name, User user, Project project) {
+    public ProjectRole(Roles name, User user, Project project) {
         this.name = name;
         this.project = project;
         this.user = user;
@@ -27,7 +28,7 @@ public class ProjectRole extends Role {
     public ProjectRole() {
     }
 
-    public ProjectRole(ProjectRoles name, User user, Project project, boolean isInvitation) {
+    public ProjectRole(Roles name, User user, Project project, boolean isInvitation) {
         this.name = name;
         this.project = project;
         if (isInvitation) {
@@ -36,9 +37,6 @@ public class ProjectRole extends Role {
             this.user = user;
         }
     }
-
-    // TODO Remove this redundancy
-    private ProjectRoles name;
 
     @ManyToOne
     @JsonIgnore

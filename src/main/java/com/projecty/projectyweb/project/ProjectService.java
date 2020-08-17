@@ -6,8 +6,8 @@ import com.projecty.projectyweb.project.dto.ProjectsTeamData;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
-import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.project.role.dto.ProjectRoleData;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.task.TaskRepository;
 import com.projecty.projectyweb.task.TaskStatus;
 import com.projecty.projectyweb.team.role.TeamRole;
@@ -48,7 +48,7 @@ public class ProjectService {
             return optionalTeamRole.isPresent() && optionalTeamRole.get().getName().equals(TeamRoles.MANAGER);
         }
         Optional<ProjectRole> optionalRole = projectRoleRepository.findRoleByUserAndProject(current, project);
-        return optionalRole.isPresent() && optionalRole.get().getName().equals(ProjectRoles.ADMIN);
+        return optionalRole.isPresent() && optionalRole.get().getName().equals(Roles.MANAGER);
     }
 
     public boolean hasCurrentUserPermissionToView(Project project) {
