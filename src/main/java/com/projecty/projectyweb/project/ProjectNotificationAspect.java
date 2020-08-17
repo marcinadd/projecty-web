@@ -29,8 +29,8 @@ public class ProjectNotificationAspect {
     @AfterReturning(value = "execution (* com.projecty.projectyweb.project.ProjectController.addProjectPost(..))", returning = "project")
     public void afterNewProjectCreated(Project project) {
         User currentUser = userService.getCurrentUser();
-        if (project.getProjectRoles() != null) {
-            project.getProjectRoles().forEach(projectRole -> {
+        if (project.getRoles() != null) {
+            project.getRoles().forEach(projectRole -> {
                 User projectRoleUser = projectRole.getUser();
                 if (!projectRoleUser.equals(currentUser)) {
                     createAddedToProjectNotification(currentUser, project, projectRoleUser);

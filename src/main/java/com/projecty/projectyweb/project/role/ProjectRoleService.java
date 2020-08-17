@@ -73,20 +73,20 @@ public class ProjectRoleService {
     public void addCurrentUserToProjectAsAdmin(Project project) {
         User current = userService.getCurrentUser();
         ProjectRole projectRole = new ProjectRole(Roles.MANAGER, current, project);
-        if (project.getProjectRoles() == null) {
+        if (project.getRoles() == null) {
             List<ProjectRole> projectRoles = new ArrayList<>();
             projectRoles.add(projectRole);
-            project.setProjectRoles(projectRoles);
+            project.setRoles(projectRoles);
         } else {
-            project.getProjectRoles().add(projectRole);
+            project.getRoles().add(projectRole);
         }
     }
 
     public void deleteRoleFromProject(ProjectRole role) {
         Project project = role.getProject();
-        List<ProjectRole> projectRoles = project.getProjectRoles();
+        List<ProjectRole> projectRoles = project.getRoles();
         projectRoles.remove(role);
-        project.setProjectRoles(projectRoles);
+        project.setRoles(projectRoles);
         projectRepository.save(project);
     }
 
@@ -101,7 +101,7 @@ public class ProjectRoleService {
             ProjectRole projectRole = optionalProjectRole.get();
             int admins = projectRoleRepository.countByProjectAndName(project, Roles.MANAGER);
             if ((projectRole.getName().equals(Roles.MANAGER) && admins - 1 > 0)) {
-                project.getProjectRoles().remove(optionalProjectRole.get());
+                project.getRoles().remove(optionalProjectRole.get());
                 projectRepository.save(project);
             } else {
                 throw new NoAdminsInProjectException();
@@ -123,11 +123,11 @@ public class ProjectRoleService {
         projectRole = projectRoleRepository.save(projectRole);
 
         Project project = projectRole.getProject();
-        List<ProjectRole> projectRoles = project.getProjectRoles();
+        List<ProjectRole> projectRoles = project.getRoles();
         List<ProjectRole> projectRoleInvitations = project.getProjectRoleInvitations();
         projectRoles.add(projectRole);
         projectRoleInvitations.remove(projectRole);
-        project.setProjectRoles(projectRoles);
+        project.setRoles(projectRoles);
         project.setProjectRoleInvitations(projectRoleInvitations);
         projectRepository.save(project);
         return projectRole;

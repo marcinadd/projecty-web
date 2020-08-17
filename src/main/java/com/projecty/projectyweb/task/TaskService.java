@@ -99,7 +99,7 @@ public class TaskService {
     }
 
     private boolean hasUserAccessToTask(Task task, User user) {
-        return (task.getProject().getProjectRoles() != null &&
+        return (task.getProject().getRoles() != null &&
                 projectRoleService.getProjectRoleUsersAndInvitedUsers(task.getProject()).contains(user))
                 || (task.getProject().getTeam() != null && (teamRoleService.getTeamRoleUsers(task.getProject().getTeam()).contains(user)));
     }

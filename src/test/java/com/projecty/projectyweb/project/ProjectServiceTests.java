@@ -2,8 +2,8 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.role.ProjectRole;
-import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.project.role.dto.ProjectRoleData;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.hamcrest.core.Is;
@@ -61,6 +61,6 @@ public class ProjectServiceTests {
         Project project = projectService.createNewProjectAndSave(new Project(), null);
         ProjectRoleData projectRoleData = projectService.getProjectRoleForCurrentUserByProjectId(project.getId());
         assertThat(projectRoleData.getProject().getId(), Is.is(project.getId()));
-        assertThat(projectRoleData.getName(), Is.is(ProjectRoles.ADMIN));
+        assertThat(projectRoleData.getName(), Is.is(Roles.MANAGER));
     }
 }

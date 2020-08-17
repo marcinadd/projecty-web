@@ -49,7 +49,9 @@ public class NotificationServiceTests {
     public void whenBuildNotificationString_shouldReturnNotificationString() {
         final String USERNAME = "notificationServiceUsernameA";
         User user = userRepository.save(User.builder().username(USERNAME).build());
-        Project project = projectRepository.save(Project.builder().name(PROJECT_NAME).build());
+        Project project = new Project();
+        project.setName(PROJECT_NAME);
+        project = projectRepository.save(project);
         Map<NotificationObjectType, String> ids = new LinkedHashMap<>();
         ids.put(NotificationObjectType.USER, String.valueOf(user.getId()));
         ids.put(NotificationObjectType.PROJECT, String.valueOf(project.getId()));
@@ -63,7 +65,9 @@ public class NotificationServiceTests {
     @Transactional
     public void whenGetAllNotifications_shouldReturnAllNotifications() {
         User user = userRepository.save(User.builder().username(USERNAME_B).build());
-        Project project = projectRepository.save(Project.builder().name(PROJECT_NAME).build());
+        Project project = new Project();
+        project.setName(PROJECT_NAME);
+        project = projectRepository.save(project);
         Map<NotificationObjectType, String> ids = new LinkedHashMap<>();
         ids.put(NotificationObjectType.USER, String.valueOf(user.getId()));
         ids.put(NotificationObjectType.PROJECT, String.valueOf(project.getId()));

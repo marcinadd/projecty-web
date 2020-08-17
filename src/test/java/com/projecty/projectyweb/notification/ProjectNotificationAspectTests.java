@@ -7,7 +7,7 @@ import com.projecty.projectyweb.project.ProjectNotificationAspect;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
-import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class ProjectNotificationAspectTests {
         projectRole.setProject(project);
         projectRole.setUser(savedUser);
         projectRole = projectRoleRepository.save(projectRole);
-        project.setProjectRoles(Collections.singletonList(projectRole));
+        project.setRoles(Collections.singletonList(projectRole));
         project = projectRepository.findById(project.getId()).get();
         projectNotificationAspect.afterNewProjectCreated(project);
         assertThat(notificationRepository.findByUser(savedUser).size(), is(1));
@@ -85,9 +85,9 @@ public class ProjectNotificationAspectTests {
         ProjectRole projectRole = new ProjectRole();
         projectRole.setProject(project);
         projectRole.setUser(savedUser);
-        projectRole.setName(ProjectRoles.ADMIN);
+        projectRole.setName(Roles.MANAGER);
         projectRole = projectRoleRepository.save(projectRole);
-        project.setProjectRoles(Collections.singletonList(projectRole));
+        project.setRoles(Collections.singletonList(projectRole));
         projectNotificationAspect.afterProjectRolePatched(projectRole);
         assertThat(notificationRepository.findByUser(savedUser).size(), is(1));
     }

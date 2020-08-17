@@ -41,6 +41,7 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
+    // -
     public boolean hasCurrentUserPermissionToEdit(Project project) {
         User current = userService.getCurrentUser();
         if (project.getTeam() != null) {
@@ -59,10 +60,12 @@ public class ProjectService {
         return hasUserRoleInProject(current, project);
     }
 
+    // +
     public boolean hasUserRoleInProject(User user, Project project) {
         return projectRoleRepository.findRoleByUserAndProject(user, project).isPresent();
     }
 
+    // +
     Project createNewProjectAndSave(Project project, List<String> usernames) {
         projectRoleService.addCurrentUserToProjectAsAdmin(project);
         projectRoleService.addRolesToProjectByUsernames(project, usernames);
@@ -98,7 +101,7 @@ public class ProjectService {
     }
 
     public ProjectData getProjectData(Project project) {
-        List<ProjectRole> projectRoles = project.getProjectRoles();
+        List<ProjectRole> projectRoles = project.getRoles();
         projectRoles.sort(Comparator.comparing(ProjectRole::getId));
         return ProjectData.builder()
                 .project(project)

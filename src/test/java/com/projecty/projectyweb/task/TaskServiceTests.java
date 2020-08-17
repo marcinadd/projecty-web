@@ -6,7 +6,7 @@ import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
-import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import com.projecty.projectyweb.user.UserService;
@@ -171,14 +171,14 @@ public class TaskServiceTests {
         project = projectRepository.save(project);
 
         ProjectRole projectRole = new ProjectRole();
-        projectRole.setName(ProjectRoles.ADMIN);
+        projectRole.setName(Roles.MANAGER);
         projectRole.setUser(user);
         projectRole.setProject(project);
         projectRoleRepository.save(projectRole);
 
         List<ProjectRole> projectRoles = new ArrayList<>();
         projectRoles.add(projectRole);
-        project.setProjectRoles(projectRoles);
+        project.setRoles(projectRoles);
         project = projectRepository.save(project);
 
         Task task = new Task();
@@ -213,13 +213,13 @@ public class TaskServiceTests {
         project = projectRepository.save(project);
 
         ProjectRole projectRole = new ProjectRole();
-        projectRole.setName(ProjectRoles.ADMIN);
+        projectRole.setName(Roles.MANAGER);
         projectRole.setUser(user);
         projectRole.setProject(project);
         projectRoleRepository.save(projectRole);
 
         ProjectRole projectRole1 = new ProjectRole();
-        projectRole1.setName(ProjectRoles.ADMIN);
+        projectRole1.setName(Roles.MANAGER);
         projectRole1.setUser(notAssigned);
         projectRole1.setProject(project);
         projectRoleRepository.save(projectRole1);
@@ -295,7 +295,7 @@ public class TaskServiceTests {
         ProjectRole projectRole = new ProjectRole();
         projectRole.setUser(currentUser);
         projectRole.setProject(project);
-        projectRole.setName(ProjectRoles.ADMIN);
+        projectRole.setName(Roles.MANAGER);
         projectRoleService.save(projectRole);
 
         Task task = new Task();

@@ -12,7 +12,7 @@ import java.util.List;
 @MappedSuperclass
 @Getter
 @Setter
-public class Group {
+public class Group<R> {
     @Id
     @GeneratedValue
     protected Long id;
@@ -26,4 +26,7 @@ public class Group {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     protected Date modifyDate;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    protected List<R> roles;
 }

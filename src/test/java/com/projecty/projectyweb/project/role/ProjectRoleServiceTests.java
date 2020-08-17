@@ -87,7 +87,7 @@ public class ProjectRoleServiceTests {
     @Transactional
     public void whenAcceptInvitation_shouldBeAccepted() {
         Project project = new Project();
-        project.setProjectRoles(new ArrayList<>());
+        project.setRoles(new ArrayList<>());
         project = projectRepository.save(project);
         User user = userRepository.save(new User());
         ProjectRole projectRole = new ProjectRole();

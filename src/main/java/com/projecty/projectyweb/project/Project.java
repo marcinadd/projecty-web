@@ -18,12 +18,9 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Project extends Group {
+public class Project extends Group<ProjectRole> {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "project")
     private List<Task> tasks;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectRole> projectRoles;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectRole> projectRoleInvitations;
@@ -40,7 +37,7 @@ public class Project extends Group {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", tasks=" + tasks +
-                ", projectRoles=" + projectRoles +
+                ", projectRoles=" + roles +
                 '}';
     }
 }

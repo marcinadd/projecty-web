@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
-import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.team.role.TeamRole;
 import com.projecty.projectyweb.team.role.TeamRoles;
@@ -70,11 +70,11 @@ public class ProjectControllerTests {
 
         List<ProjectRole> projectRoles = new ArrayList<>();
 
-        ProjectRole projectRole = new ProjectRole(ProjectRoles.ADMIN, user, project);
+        ProjectRole projectRole = new ProjectRole(Roles.MANAGER, user, project);
         projectRole.setId(1L);
         projectRoles.add(projectRole);
 
-        ProjectRole projectRole1 = new ProjectRole(ProjectRoles.USER, user1, project);
+        ProjectRole projectRole1 = new ProjectRole(Roles.MEMBER, user1, project);
         projectRole1.setId(2L);
         projectRoles.add(projectRole1);
 
@@ -94,7 +94,7 @@ public class ProjectControllerTests {
         rolesUser1.add(projectRole1);
         user1.setProjectRoles(rolesUser1);
 
-        project.setProjectRoles(projectRoles);
+        project.setRoles(projectRoles);
 
         Mockito.when(userRepository.findByUsername(user.getUsername()))
                 .thenReturn(Optional.of(user));
@@ -141,7 +141,7 @@ public class ProjectControllerTests {
     @WithMockUser
     public void givenRequestOnPostFormWithoutOtherUsers_shouldReturnOk() throws Exception {
         Project project1 = project;
-        project1.setProjectRoles(null);
+        project1.setRoles(null);
         mockMvc.perform(post("/projects").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new Gson().toJson(project1)))
@@ -200,7 +200,7 @@ public class ProjectControllerTests {
     public void givenRequestOnChangeRole_shouldReturnOk() throws Exception {
         mockMvc.perform(patch("/projectRoles/2").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"" + ProjectRoles.ADMIN + "\"}"))
+                .content("{\"name\":\"" + Roles.MANAGER + "\"}"))
                 .andExpect(status().isOk());
     }
 

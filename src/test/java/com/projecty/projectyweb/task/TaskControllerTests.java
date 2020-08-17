@@ -7,7 +7,7 @@ import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
-import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.junit.Before;
@@ -77,14 +77,14 @@ public class TaskControllerTests {
         projectRole.setId(1L);
         projectRole.setUser(user);
         projectRole.setProject(project);
-        projectRole.setName(ProjectRoles.ADMIN);
+        projectRole.setName(Roles.MANAGER);
         projectRoles.add(projectRole);
 
         ProjectRole projectRole1 = new ProjectRole();
         projectRole1.setId(2L);
         projectRole1.setUser(user1);
         projectRole1.setProject(project);
-        projectRole1.setName(ProjectRoles.USER);
+        projectRole1.setName(Roles.MEMBER);
         projectRoles.add(projectRole1);
 
 
@@ -96,7 +96,7 @@ public class TaskControllerTests {
         rolesUser1.add(projectRole1);
         user1.setProjectRoles(rolesUser1);
 
-        project.setProjectRoles(projectRoles);
+        project.setRoles(projectRoles);
 
 
         List<Task> tasks = new ArrayList<>();
