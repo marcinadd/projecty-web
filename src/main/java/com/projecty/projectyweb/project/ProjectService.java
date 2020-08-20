@@ -1,5 +1,7 @@
 package com.projecty.projectyweb.project;
 
+import com.projecty.projectyweb.group.GroupRepository;
+import com.projecty.projectyweb.group.GroupService;
 import com.projecty.projectyweb.project.dto.ProjectData;
 import com.projecty.projectyweb.project.dto.ProjectsData;
 import com.projecty.projectyweb.project.dto.ProjectsTeamData;
@@ -20,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class ProjectService {
+public class ProjectService extends GroupService<ProjectRole> {
     private final ProjectRepository projectRepository;
     private final UserService userService;
     private final ProjectRoleRepository projectRoleRepository;
@@ -28,7 +30,8 @@ public class ProjectService {
     private final TeamRoleRepository teamRoleRepository;
     private final TaskRepository taskRepository;
 
-    public ProjectService(ProjectRepository projectRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectRoleService projectRoleService, TeamRoleRepository teamRoleRepository, TaskRepository taskRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectRoleService projectRoleService, TeamRoleRepository teamRoleRepository, TaskRepository taskRepository, GroupRepository groupRepository) {
+        super(groupRepository);
         this.projectRepository = projectRepository;
         this.userService = userService;
         this.projectRoleRepository = projectRoleRepository;
@@ -70,12 +73,6 @@ public class ProjectService {
         projectRoleService.addCurrentUserToProjectAsAdmin(project);
         projectRoleService.addRolesToProjectByUsernames(project, usernames);
         return projectRepository.save(project);
-    }
-
-    Project patchProject(Project existingProject, Project patchedProject) {
-        if (!patchedProject.getName().isEmpty())
-            existingProject.setName(patchedProject.getName());
-        return projectRepository.save(existingProject);
     }
 
     public List<ProjectRole> addProjectRolesByUsernames(Project project, List<String> usernames) {

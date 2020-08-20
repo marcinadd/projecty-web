@@ -2,6 +2,7 @@ package com.projecty.projectyweb.project;
 
 import com.google.gson.Gson;
 import com.projecty.projectyweb.ProjectyWebApplication;
+import com.projecty.projectyweb.group.GroupRepository;
 import com.projecty.projectyweb.project.role.ProjectRole;
 import com.projecty.projectyweb.project.role.ProjectRoleRepository;
 import com.projecty.projectyweb.role.Roles;
@@ -50,11 +51,15 @@ public class ProjectControllerTests {
     ProjectRoleRepository projectRoleRepository;
     @MockBean
     UserService userService;
+
+    @MockBean
+    GroupRepository groupRepository;
     @Autowired
     private MockMvc mockMvc;
 
     private Project project;
     private User user;
+
     @Before
     public void setup() {
         user = new User();
@@ -104,7 +109,7 @@ public class ProjectControllerTests {
                 .thenReturn(Optional.of(user));
         Mockito.when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.of(user1));
-        Mockito.when(projectRepository.save(project))
+        Mockito.when(groupRepository.save(project))
                 .thenReturn(project);
         Mockito.when(projectRepository.save(any(Project.class)))
                 .thenReturn(project);
@@ -176,7 +181,7 @@ public class ProjectControllerTests {
 
 
     @Test
-    @WithMockUser
+    @WithMockUser("projectUser")
     public void givenRequestOnChangeName_shouldReturnOk() throws Exception {
         Project editedProject = new Project();
         editedProject.setId(1L);

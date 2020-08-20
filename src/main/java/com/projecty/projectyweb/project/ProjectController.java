@@ -2,6 +2,7 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.configurations.AnyPermission;
 import com.projecty.projectyweb.configurations.EditPermission;
+import com.projecty.projectyweb.group.Group;
 import com.projecty.projectyweb.project.dto.ProjectData;
 import com.projecty.projectyweb.project.dto.ProjectsData;
 import com.projecty.projectyweb.project.role.ProjectRole;
@@ -24,13 +25,9 @@ import java.util.Optional;
 @RequestMapping("projects")
 public class ProjectController {
     private final ProjectService projectService;
-
     private final ProjectRepository projectRepository;
-
     private final UserService userService;
-
     private final ProjectValidator projectValidator;
-
     private final ProjectRoleService projectRoleService;
 
     public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserService userService, ProjectValidator projectValidator, ProjectRoleService projectRoleService) {
@@ -96,13 +93,13 @@ public class ProjectController {
     }
 
     @PatchMapping("/{projectId}")
-    public Project patchProject(
+    public Group<ProjectRole> patchProject(
             @PathVariable("projectId") Long projectId,
             @RequestBody Project patchedProject
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
-            return projectService.patchProject(optionalProject.get(), patchedProject);
+            return projectService.patchGroup(optionalProject.get(), patchedProject);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
