@@ -38,27 +38,12 @@ public class UserControllerTests {
     @MockBean
     MessageRepository messageRepository;
 
-
-    private RegisterForm registerForm;
-    private RegisterForm registerFormExistingUser;
     private User user;
     private User userWithAvatar;
 
     @Before
     public void init() {
-        registerForm = new RegisterForm();
-        registerForm.setUsername("user2");
-        registerForm.setEmail("admin2@example.com");
-        registerForm.setPassword("password123");
-        registerForm.setPasswordRepeat("password123");
         byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
-        registerForm.setAvatar(new MockMultipartFile("test", bytes));
-
-        registerFormExistingUser = new RegisterForm();
-        registerFormExistingUser.setUsername("user");
-        registerFormExistingUser.setEmail("admin@example.com");
-        registerFormExistingUser.setPassword("password123");
-        registerFormExistingUser.setPasswordRepeat("password123");
 
         user = User.builder()
                 .username("user")
