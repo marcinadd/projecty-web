@@ -2,8 +2,8 @@ package com.projecty.projectyweb.project;
 
 import com.projecty.projectyweb.ProjectyWebApplication;
 import com.projecty.projectyweb.project.role.ProjectRole;
-import com.projecty.projectyweb.project.role.ProjectRoles;
 import com.projecty.projectyweb.project.role.dto.ProjectRoleData;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserRepository;
 import org.hamcrest.core.Is;
@@ -37,19 +37,21 @@ public class ProjectServiceTests {
 
     private static final String USERNAME_1 = "projectServiceUser1";
     private static final String USERNAME_2 = "projectServiceUser2";
+    private static final String USERNAME_3 = "projectServiceUser3";
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
-    @WithMockUser
+    @WithMockUser(USERNAME_1)
     @Transactional
-    public void whenAddRolesToProjectSByUsernames_shouldReturnSavedProjectRoles() {
+    public void whenInviteToProjectByUsernames_shouldReturnSavedProjectRoles() {
         userRepository.save(User.builder().username(USERNAME_1).build());
+        userRepository.save(User.builder().username(USERNAME_3).build());
         Project project = new Project();
         project = projectRepository.save(project);
-        List<String> usernames = Collections.singletonList(USERNAME_1);
+        List<String> usernames = Collections.singletonList(USERNAME_3);
         List<ProjectRole> savedRoles = projectService.addProjectRolesByUsernames(project, usernames);
         assertThat(savedRoles.size(), is(1));
-        assertThat(projectRepository.findById(project.getId()).get().getProjectRoles().size(), is(1));
+        assertThat(projectRepository.findById(project.getId()).get().getProjectRoleInvitations().size(), is(1));
     }
 
     @Test
@@ -59,6 +61,6 @@ public class ProjectServiceTests {
         Project project = projectService.createNewProjectAndSave(new Project(), null);
         ProjectRoleData projectRoleData = projectService.getProjectRoleForCurrentUserByProjectId(project.getId());
         assertThat(projectRoleData.getProject().getId(), Is.is(project.getId()));
-        assertThat(projectRoleData.getName(), Is.is(ProjectRoles.ADMIN));
+        assertThat(projectRoleData.getName(), Is.is(Roles.MANAGER));
     }
 }

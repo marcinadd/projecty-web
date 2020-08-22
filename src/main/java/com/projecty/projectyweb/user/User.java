@@ -49,6 +49,14 @@ public class User implements Serializable {
     private List<ProjectRole> projectRoles;
 
     @OneToMany(
+            mappedBy = "invitedUser",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @JsonIgnore
+    private List<ProjectRole> projectRoleInvitations;
+
+    @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true

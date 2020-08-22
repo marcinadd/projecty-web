@@ -2,7 +2,7 @@ package com.projecty.projectyweb.notifications;
 
 import com.projecty.projectyweb.project.Project;
 import com.projecty.projectyweb.project.ProjectRepository;
-import com.projecty.projectyweb.project.role.ProjectRoles;
+import com.projecty.projectyweb.role.Roles;
 import com.projecty.projectyweb.team.Team;
 import com.projecty.projectyweb.team.TeamRepository;
 import com.projecty.projectyweb.team.role.TeamRoles;
@@ -80,7 +80,7 @@ public class NotificationService {
                 case CHANGED_PROJECT_ROLE:
                     User user3 = userRepository.findById(Long.parseLong(ids.get(NotificationObjectType.USER))).get();
                     Project project3 = projectRepository.findById(Long.parseLong(ids.get(NotificationObjectType.PROJECT))).get();
-                    ProjectRoles projectRole3 = ProjectRoles.valueOf(ids.get(NotificationObjectType.PROJECT_ROLE_NAME));
+                    Roles projectRole3 = Roles.valueOf(ids.get(NotificationObjectType.PROJECT_ROLE_NAME));
                     values = new String[]{user3.getUsername(), project3.getName(), projectRole3.toString()};
                     break;
                 case CHANGED_TEAM_ROLE:
