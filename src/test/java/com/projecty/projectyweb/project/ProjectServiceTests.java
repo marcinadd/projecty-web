@@ -40,7 +40,7 @@ public class ProjectServiceTests {
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
-    @WithMockUser
+    @WithMockUser(USERNAME_2)
     @Transactional
     public void whenAddRolesToProjectSByUsernames_shouldReturnSavedProjectRoles() {
         userRepository.save(User.builder().username(USERNAME_1).build());

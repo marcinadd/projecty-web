@@ -30,7 +30,7 @@ public class UserServiceTests {
 
     @Before
     public void init() {
-        if (userRepository.findByUsername("user").isEmpty())
+        if (!userRepository.findByUsername("user").isPresent())
             userRepository.save(User.builder().username("user").build());
     }
 
