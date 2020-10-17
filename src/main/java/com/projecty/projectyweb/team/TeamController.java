@@ -11,6 +11,7 @@ import com.projecty.projectyweb.team.role.dto.TeamRoleData;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,7 @@ public class TeamController {
     }
 
     @PostMapping("")
-    public Team addTeam(
+    public ResponseEntity<Team> addTeam(
             @RequestBody Team team,
             BindingResult bindingResult
     ) throws BindException {
@@ -50,32 +51,32 @@ public class TeamController {
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
-        return teamService.createTeamAndSave(team, team.getUsernames());
+        return new ResponseEntity<>(teamService.createTeamAndSave(team, team.getUsernames()), HttpStatus.OK);
     }
 
     @GetMapping("")
-    public List<TeamRoleData> myTeams() {
-        return teamService.getTeams();
+    public ResponseEntity<List<TeamRoleData>> myTeams() {
+        return new ResponseEntity<>(teamService.getTeams(), HttpStatus.OK);
     }
 
     @GetMapping(value = "", params = "manager")
-    public List<TeamRole> getTeamRolesWhereManager() {
-        return teamRoleService.getTeamRolesWhereManager(userService.getCurrentUser());
+    public ResponseEntity<List<TeamRole>> getTeamRolesWhereManager() {
+        return new ResponseEntity<>(teamRoleService.getTeamRolesWhereManager(userService.getCurrentUser()), HttpStatus.OK);
     }
 
     @GetMapping("/{teamId}/name")
     @EditPermission
-    public Map<String, String> getTeamName(
+    public ResponseEntity<Map<String, String>> getTeamName(
             @PathVariable Long teamId
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         Map<String, String> map = new LinkedHashMap<>();
         map.put("name", optionalTeam.get().getName());
-        return map;
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     @PostMapping("/{teamId}/projects")
-    public Project addProjectToTeamPost(
+    public ResponseEntity<Project> addProjectToTeamPost(
             @Valid @RequestBody Project project,
             @PathVariable Long teamId,
             BindingResult bindingResult
@@ -86,7 +87,7 @@ public class TeamController {
             throw new BindException(bindingResult);
         }
         if (optionalTeam.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeam.get())) {
-            return teamService.createProjectForTeam(optionalTeam.get(), project);
+            return new ResponseEntity<>(teamService.createProjectForTeam(optionalTeam.get(), project), HttpStatus.OK);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -94,38 +95,38 @@ public class TeamController {
 
     @GetMapping(value = "/{teamId}")
     @EditPermission
-    public Team findTeamById(
+    public ResponseEntity<Team> findTeamById(
             @PathVariable Long teamId
     ) {
-        return teamService.findById(teamId).get();
+        return new ResponseEntity<>(teamService.findById(teamId).get(), HttpStatus.OK);
     }
 
     @PatchMapping("/{teamId}")
     @EditPermission
-    public Team patchTeam(
+    public ResponseEntity<Team> patchTeam(
             @PathVariable Long teamId,
             @RequestBody Team team
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        return teamService.editTeam(optionalTeam.get(), team);
+        return new ResponseEntity<>(teamService.editTeam(optionalTeam.get(), team), HttpStatus.OK);
     }
 
     @PostMapping("/{teamId}/roles")
     @EditPermission
-    public List<TeamRole> addUsersPost(
+    public ResponseEntity<List<TeamRole>> addUsersPost(
             @PathVariable Long teamId,
             @RequestBody List<String> usernames
     ) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
         Team team = optionalTeam.get();
-        return teamRoleService.addTeamRolesByUsernames(team, usernames);
+        return new ResponseEntity<>(teamRoleService.addTeamRolesByUsernames(team, usernames), HttpStatus.OK);
     }
 
     @GetMapping("/{teamId}/projects")
     @AnyPermission
-    public TeamProjectsData projectList(@PathVariable Long teamId) {
+    public ResponseEntity<TeamProjectsData> projectList(@PathVariable Long teamId) {
         Optional<Team> optionalTeam = teamService.findById(teamId);
-        return teamService.getTeamProjects(optionalTeam.get());
+        return new ResponseEntity<>(teamService.getTeamProjects(optionalTeam.get()), HttpStatus.OK);
     }
 
     @DeleteMapping("/{teamId}")
@@ -145,10 +146,10 @@ public class TeamController {
 
     @GetMapping("/{teamId}/teamRole")
     @AnyPermission
-    public TeamRoleData getTeamRoleForCurrentUserByTeamId(@PathVariable Long teamId) {
+    public ResponseEntity<TeamRoleData> getTeamRoleForCurrentUserByTeamId(@PathVariable Long teamId) {
         TeamRoleData teamRoleData = teamService.getTeamRoleForCurrentUserByTeamId(teamId);
         if (teamRoleData != null) {
-            return teamRoleData;
+            return new ResponseEntity<>(teamRoleData, HttpStatus.OK);
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

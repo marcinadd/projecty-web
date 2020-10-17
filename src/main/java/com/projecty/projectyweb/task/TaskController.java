@@ -8,6 +8,7 @@ import com.projecty.projectyweb.task.dto.ProjectTasksData;
 import com.projecty.projectyweb.task.dto.TaskData;
 import com.projecty.projectyweb.user.User;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
@@ -37,7 +38,7 @@ public class TaskController {
     }
 
     @PostMapping("/project/{projectId}")
-    public Task addTaskPost(
+    public ResponseEntity<Task> addTaskPost(
             @PathVariable Long projectId,
             @RequestBody Task task,
             BindingResult bindingResult
@@ -48,19 +49,19 @@ public class TaskController {
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         } else if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
-            return taskService.addTaskToProject(task, optionalProject.get());
+            return new ResponseEntity<>(taskService.addTaskToProject(task, optionalProject.get()), HttpStatus.OK);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("/project/{projectId}")
-    public ProjectTasksData getProjectTaskData(
+    public ResponseEntity<ProjectTasksData> getProjectTaskData(
             @PathVariable Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         Project project = optionalProject.get();
-        return taskService.getProjectTasksData(project);
+        return new ResponseEntity<>(taskService.getProjectTasksData(project), HttpStatus.OK);
     }
 
     @DeleteMapping("/{taskId}")
@@ -74,15 +75,15 @@ public class TaskController {
 
     @GetMapping("/{taskId}")
     @EditPermission
-    public TaskData getTask(
+    public ResponseEntity<TaskData> getTask(
             @PathVariable Long taskId
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        return taskService.getTaskData(optionalTask.get());
+        return new ResponseEntity<>(taskService.getTaskData(optionalTask.get()), HttpStatus.OK);
     }
 
     @PatchMapping("/{taskId}")
-    public Task editTaskDetailsPatch(
+    public ResponseEntity<Task> editTaskDetailsPatch(
             @PathVariable Long taskId,
             @RequestBody Task task
     ) throws BindException {
@@ -96,7 +97,7 @@ public class TaskController {
             if (result.hasErrors()) {
                 throw new BindException(result);
             }
-            return taskRepository.save(newTaskCandidate);
+            return new ResponseEntity<>(taskRepository.save(newTaskCandidate), HttpStatus.OK);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -104,13 +105,13 @@ public class TaskController {
 
     @PostMapping("/{taskId}/assign")
     @EditPermission
-    public User assignUserPost(
+    public ResponseEntity<User> assignUserPost(
             @PathVariable Long taskId,
             @RequestBody String username
     ) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Task task = optionalTask.get();
-        return taskService.assignUserByUsername(task, username);
+        return new ResponseEntity<>(taskService.assignUserByUsername(task, username), HttpStatus.OK);
     }
 
     @DeleteMapping("/{taskId}/assign/{username}")
@@ -124,7 +125,7 @@ public class TaskController {
     }
 
     @GetMapping("assigned")
-    public List<Task> getUndoneAssignedTasksForCurrentUser() {
-        return taskService.getUndoneAssignedTasksForCurrentUser();
+    public ResponseEntity<List<Task>> getUndoneAssignedTasksForCurrentUser() {
+        return new ResponseEntity<>(taskService.getUndoneAssignedTasksForCurrentUser(), HttpStatus.OK);
     }
 }

@@ -1,5 +1,7 @@
 package com.projecty.projectyweb.settings;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,12 +14,12 @@ public class SettingsController {
     }
 
     @GetMapping
-    public Settings getSettings() {
-        return settingsService.getSettingsForCurrentUser();
+    public ResponseEntity<Settings> getSettings() {
+        return new ResponseEntity<>(settingsService.getSettingsForCurrentUser(), HttpStatus.OK);
     }
 
     @PatchMapping
-    public Settings patchSettings(@RequestBody Settings patchedSettings) {
-        return settingsService.patchSettings(patchedSettings);
+    public ResponseEntity<Settings> patchSettings(@RequestBody Settings patchedSettings) {
+        return new ResponseEntity<>(settingsService.patchSettings(patchedSettings), HttpStatus.OK);
     }
 }

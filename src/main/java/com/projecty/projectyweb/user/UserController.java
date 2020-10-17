@@ -3,6 +3,7 @@ package com.projecty.projectyweb.user;
 import com.projecty.projectyweb.configurations.AnyPermission;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,8 +27,8 @@ public class UserController {
     }
 
     @GetMapping("auth")
-    public User getUser() {
-        return userService.getCurrentUser();
+    public ResponseEntity<User> getUser() {
+        return new ResponseEntity<>(userService.getCurrentUser(), HttpStatus.OK);
     }
 
     @GetMapping("user/{username}/avatar")
@@ -54,7 +55,7 @@ public class UserController {
     }
 
     @GetMapping("users/usernames")
-    public List<String> getUsernamesStartWith(@RequestParam String usernameStartsWith) {
-        return userService.getUsernamesStartWith(usernameStartsWith);
+    public ResponseEntity<List<String>> getUsernamesStartWith(@RequestParam String usernameStartsWith) {
+        return new ResponseEntity<>(userService.getUsernamesStartWith(usernameStartsWith), HttpStatus.OK);
     }
 }
