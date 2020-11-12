@@ -1,4 +1,6 @@
 # Projecty Web v2.0
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fmarcinadd%2Fprojecty-web&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=PAGE+VIEWS&edge_flat=false)](https://hits.seeyoufarm.com)
+
 Projecty is a project management app based on spring.
 
 ## Motivation
