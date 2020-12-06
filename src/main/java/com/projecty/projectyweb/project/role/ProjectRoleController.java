@@ -4,6 +4,7 @@ import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,14 +40,14 @@ public class ProjectRoleController {
 
     @PatchMapping("/{roleId}")
     @EditPermission
-    public ProjectRole changeRolePatch(
+    public ResponseEntity<ProjectRole> changeRolePatch(
             @PathVariable Long roleId,
             @RequestBody ProjectRole patchedProjectRole
     ) {
         Optional<ProjectRole> optionalRole = projectRoleRepository.findById(roleId);
         User current = userService.getCurrentUser();
         if (optionalRole.isPresent() && !optionalRole.get().getUser().equals(current)) {
-            return projectRoleService.patchProjectRole(optionalRole.get(), patchedProjectRole);
+            return new ResponseEntity<>(projectRoleService.patchProjectRole(optionalRole.get(), patchedProjectRole), HttpStatus.OK);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

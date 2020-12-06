@@ -9,6 +9,7 @@ import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.project.role.dto.ProjectRoleData;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -42,12 +43,12 @@ public class ProjectController {
     }
 
     @GetMapping("")
-    public ProjectsData myProjects() {
-        return projectService.getProjectsForCurrentUser();
+    public ResponseEntity<ProjectsData> myProjects() {
+        return new ResponseEntity<>(projectService.getProjectsForCurrentUser(), HttpStatus.OK);
     }
 
     @PostMapping("")
-    public Project addProjectPost(
+    public ResponseEntity<Project> addProjectPost(
             @Valid @RequestBody Project project,
             BindingResult bindingResult
     ) throws BindException {
@@ -55,7 +56,7 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
-        return projectService.createNewProjectAndSave(project, project.getUsernames());
+        return new ResponseEntity<>(projectService.createNewProjectAndSave(project, project.getUsernames()), HttpStatus.OK);
     }
 
     @DeleteMapping("/{projectId}")
@@ -67,20 +68,20 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/roles")
     @EditPermission
-    public List<ProjectRole> addUsersToExistingProjectPost(
+    public ResponseEntity<List<ProjectRole>> addUsersToExistingProjectPost(
             @PathVariable Long projectId,
             @RequestBody List<String> usernames) {
         Project project = projectRepository.findById(projectId).get();
-        return projectService.addProjectRolesByUsernames(project, usernames);
+        return new ResponseEntity<>(projectService.addProjectRolesByUsernames(project, usernames), HttpStatus.OK);
     }
 
     @GetMapping(value = "/{projectId}", params = "roles")
     @EditPermission
-    public ProjectData getProjectWithProjectRoles(
+    public ResponseEntity<ProjectData> getProjectWithProjectRoles(
             @PathVariable Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        return projectService.getProjectData(optionalProject.get());
+        return new ResponseEntity<>(projectService.getProjectData(optionalProject.get()), HttpStatus.OK);
     }
 
     @PostMapping("/{projectId}/leave")
@@ -91,25 +92,25 @@ public class ProjectController {
     }
 
     @PatchMapping("/{projectId}")
-    public Project patchProject(
+    public ResponseEntity<Project> patchProject(
             @PathVariable("projectId") Long projectId,
             @RequestBody Project patchedProject
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
-            return projectService.patchProject(optionalProject.get(), patchedProject);
+            return new ResponseEntity<>(projectService.patchProject(optionalProject.get(), patchedProject), HttpStatus.OK);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("/{projectId}")
-    public Project getProjectData(
+    public ResponseEntity<Project> getProjectData(
             @PathVariable Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
-            return optionalProject.get();
+            return new ResponseEntity<>(optionalProject.get(), HttpStatus.OK);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -117,10 +118,10 @@ public class ProjectController {
 
     @GetMapping("/{projectId}/projectRole")
     @AnyPermission
-    public ProjectRoleData getProjectRoleForCurrentUserByProjectId(@PathVariable Long projectId) {
+    public ResponseEntity<ProjectRoleData> getProjectRoleForCurrentUserByProjectId(@PathVariable Long projectId) {
         ProjectRoleData projectRoleData = projectService.getProjectRoleForCurrentUserByProjectId(projectId);
         if (projectRoleData != null) {
-            return projectRoleData;
+            return new ResponseEntity<>(projectRoleData, HttpStatus.OK);
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

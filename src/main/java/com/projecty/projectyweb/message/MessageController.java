@@ -37,16 +37,16 @@ public class MessageController {
     }
 
     @GetMapping
-    public Page<Message> getPageOfMessages(
+    public ResponseEntity<Page<Message>> getPageOfMessages(
             @RequestParam(defaultValue = "ALL") MessageType type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int itemsPerPage
     ) {
-        return messageService.getPageOfMessagesForCurrentUser(type, page, itemsPerPage);
+        return new ResponseEntity<>(messageService.getPageOfMessagesForCurrentUser(type, page, itemsPerPage), HttpStatus.OK);
     }
 
     @PostMapping
-    public Message sendMessagePost(
+    public ResponseEntity<Message> sendMessagePost(
             @RequestParam String recipientUsername,
             @RequestParam String title,
             @RequestParam String text,
@@ -59,7 +59,7 @@ public class MessageController {
                 .text(text)
                 .recipientUsername(recipientUsername)
                 .build();
-        return messageService.sendMessage(message, multipartFiles);
+        return new ResponseEntity<>(messageService.sendMessage(message, multipartFiles), HttpStatus.OK);
     }
 
     @GetMapping("/{messageId}")
@@ -80,12 +80,12 @@ public class MessageController {
     }
 
     @GetMapping("getUnreadMessageCount")
-    public int getUnreadMessageCount() {
-        return messageService.getUnreadMessageCountForCurrentUser();
+    public ResponseEntity<Integer> getUnreadMessageCount() {
+        return new ResponseEntity<>(messageService.getUnreadMessageCountForCurrentUser(), HttpStatus.OK);
     }
 
     @PostMapping("{replyToMessageId}/reply")
-    public Message replyToMessage(
+    public ResponseEntity<Message> replyToMessage(
             @PathVariable Long replyToMessageId,
             @RequestParam String title,
             @RequestParam String text,
@@ -96,7 +96,7 @@ public class MessageController {
                 .title(title)
                 .text(text)
                 .build();
-        return messageService.reply(replyToMessageId, message, multipartFiles);
+        return new ResponseEntity<>(messageService.reply(replyToMessageId, message, multipartFiles), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "{id}")

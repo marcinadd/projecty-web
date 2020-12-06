@@ -1,6 +1,7 @@
 package com.projecty.projectyweb.notifications;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,13 +22,13 @@ public class NotificationController {
     }
 
     @GetMapping
-    public List<Notification> getNotifications() {
-        return notificationService.getNotifications();
+    public ResponseEntity<List<Notification>> getNotifications() {
+        return new ResponseEntity<>(notificationService.getNotifications(), HttpStatus.OK);
     }
 
     @GetMapping("unseenCount")
-    public Long getUnseenNotificationsCount() {
-        return notificationService.getUnseenNotificationCount();
+    public ResponseEntity<Long> getUnseenNotificationsCount() {
+        return new ResponseEntity<>(notificationService.getUnseenNotificationCount(), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

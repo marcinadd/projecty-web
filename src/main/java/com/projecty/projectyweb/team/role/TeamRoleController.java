@@ -3,6 +3,7 @@ package com.projecty.projectyweb.team.role;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -37,7 +38,7 @@ public class TeamRoleController {
     }
 
     @PatchMapping("/{teamRoleId}")
-    public TeamRole patchTeamRole(
+    public ResponseEntity<TeamRole> patchTeamRole(
             @PathVariable Long teamRoleId,
             @RequestBody TeamRole patchedValues
     ) {
@@ -46,7 +47,7 @@ public class TeamRoleController {
         if (optionalTeamRole.isPresent() && teamRoleService.isCurrentUserTeamManager(optionalTeamRole.get().getTeam()) &&
                 !optionalTeamRole.get().getUser().equals(current)
         ) {
-            return teamRoleService.patchTeamRole(optionalTeamRole.get(), patchedValues);
+            return new ResponseEntity<>(teamRoleService.patchTeamRole(optionalTeamRole.get(), patchedValues), HttpStatus.OK);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
