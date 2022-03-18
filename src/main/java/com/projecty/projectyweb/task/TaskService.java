@@ -152,7 +152,7 @@ public class TaskService {
     public void deleteTask(Task task) {
         Project project = task.getProject();
         project.getTasks().remove(task);
-        projectService.save(project);
+        projectService.saveProject(project);
         taskRepository.delete(task);
     }
 

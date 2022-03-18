@@ -37,7 +37,7 @@ public class ProjectService {
         this.taskRepository = taskRepository;
     }
 
-    public void save(Project project) {
+    public void saveProject(Project project) {
         projectRepository.save(project);
     }
 
@@ -107,11 +107,11 @@ public class ProjectService {
     }
 
     void addSummaryToProject(Project project) {
-        Map<TaskStatus, Long> map = new LinkedHashMap<>();
-        map.put(TaskStatus.TO_DO, taskRepository.countByProjectAndStatus(project, TaskStatus.TO_DO));
-        map.put(TaskStatus.IN_PROGRESS, taskRepository.countByProjectAndStatus(project, TaskStatus.IN_PROGRESS));
-        map.put(TaskStatus.DONE, taskRepository.countByProjectAndStatus(project, TaskStatus.DONE));
-        project.setTaskSummary(map);
+        Map<TaskStatus, Long> taskStatusLongLinkedHashMap = new LinkedHashMap<>();
+        taskStatusLongLinkedHashMap.put(TaskStatus.TO_DO, taskRepository.countByProjectAndStatus(project, TaskStatus.TO_DO));
+        taskStatusLongLinkedHashMap.put(TaskStatus.IN_PROGRESS, taskRepository.countByProjectAndStatus(project, TaskStatus.IN_PROGRESS));
+        taskStatusLongLinkedHashMap.put(TaskStatus.DONE, taskRepository.countByProjectAndStatus(project, TaskStatus.DONE));
+        project.setTaskSummary(taskStatusLongLinkedHashMap);
     }
 
     public ProjectRoleData getProjectRoleForCurrentUserByProjectId(Long projectId) {

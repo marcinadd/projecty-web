@@ -40,11 +40,11 @@ public class ProjectPermissionAspect {
     @Before("inProjectControllerAndWithEditPermission()")
     public void checkEditPermission(JoinPoint joinPoint) {
         Long projectId = (Long) joinPoint.getArgs()[0];
-        User current = userService.getCurrentUser();
+        User editPermissionOfCurrentUser = userService.getCurrentUser();
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (!(optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get()))) {
             logger.warning("User: "
-                    + current.getUsername()
+                    + editPermissionOfCurrentUser.getUsername()
                     + " tried to execute "
                     + joinPoint.getSignature().toString()
                     + " without edit permission");
@@ -55,10 +55,10 @@ public class ProjectPermissionAspect {
     @Before("inProjectControllerAndWithAnyPermission()")
     public void checkAnyPermission(JoinPoint joinPoint) {
         Long projectId = (Long) joinPoint.getArgs()[0];
-        User current = userService.getCurrentUser();
+        User allServiceListOfUser = userService.getCurrentUser();
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (!(optionalProject.isPresent() && projectService.hasCurrentUserPermissionToView(optionalProject.get()))) {
-            logger.warning("User: " + current.getUsername()
+            logger.warning("User: " + allServiceListOfUser.getUsername()
                     + " tried to execute "
                     + joinPoint.getSignature().toString()
                     + " without any permission");

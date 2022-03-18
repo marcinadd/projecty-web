@@ -20,7 +20,7 @@ public class AssociationService {
         this.associationRepository = associationRepository;
     }
 
-    public void recordMessage(Message mesage){
+    public void recordMessageOfSenderAndRecipient(Message mesage){
         Association senderAssociation = new Association();
         senderAssociation.setMessage(mesage);
         senderAssociation.setUser(mesage.getSender());

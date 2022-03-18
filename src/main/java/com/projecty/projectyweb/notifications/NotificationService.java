@@ -24,7 +24,12 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, MessageSource messageSource, UserService userService, ProjectRepository projectRepository, UserRepository userRepository, TeamRepository teamRepository) {
+    public NotificationService(NotificationRepository notificationRepository,
+                               MessageSource messageSource,
+                               UserService userService,
+                               ProjectRepository projectRepository,
+                               UserRepository userRepository,
+                               TeamRepository teamRepository) {
         this.notificationRepository = notificationRepository;
         this.messageSource = messageSource;
         this.userService = userService;

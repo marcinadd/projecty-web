@@ -92,7 +92,7 @@ public class MessageService {
             attachmentService.addFilesToMessage(multipartFiles, message);
         }
         Message saved = messageRepository.save(message);
-        associationService.recordMessage(message);
+        associationService.recordMessageOfSenderAndRecipient(message);
         return saved;
     }
 
