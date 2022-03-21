@@ -33,12 +33,20 @@ public class ProjectController {
 
     private final ProjectRoleService projectRoleService;
 
-    public ProjectController(ProjectService projectService, ProjectRepository projectRepository, UserService userService, ProjectValidator projectValidator, ProjectRoleService projectRoleService) {
+    private final ProjectPermissionAspect projectPermissionAspect;
+
+    public ProjectController(ProjectService projectService,
+                             ProjectRepository projectRepository,
+                             UserService userService,
+                             ProjectValidator projectValidator,
+                             ProjectRoleService projectRoleService,
+                             ProjectPermissionAspect projectPermissionAspect) {
         this.projectService = projectService;
         this.projectRepository = projectRepository;
         this.userService = userService;
         this.projectValidator = projectValidator;
         this.projectRoleService = projectRoleService;
+        this.projectPermissionAspect = projectPermissionAspect;
     }
 
     @GetMapping("")
@@ -96,7 +104,7 @@ public class ProjectController {
             @RequestBody Project patchedProject
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+        if (optionalProject.isPresent() && projectPermissionAspect.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             return projectService.patchProject(optionalProject.get(), patchedProject);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -108,7 +116,7 @@ public class ProjectController {
             @PathVariable Long projectId
     ) {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
-        if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+        if (optionalProject.isPresent() && projectPermissionAspect.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             return optionalProject.get();
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
