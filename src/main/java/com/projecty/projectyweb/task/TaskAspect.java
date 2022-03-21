@@ -1,5 +1,6 @@
 package com.projecty.projectyweb.task;
 
+import com.projecty.projectyweb.project.ProjectPermissionAspect;
 import com.projecty.projectyweb.project.ProjectService;
 import com.projecty.projectyweb.user.User;
 import com.projecty.projectyweb.user.UserService;
@@ -20,12 +21,14 @@ public class TaskAspect {
     private final UserService userService;
     private final TaskRepository taskRepository;
     private final ProjectService projectService;
+    private final ProjectPermissionAspect projectPermissionAspect;
     private Logger logger = Logger.getLogger(getClass().getName());
 
-    public TaskAspect(UserService userService, TaskRepository taskRepository, ProjectService projectService) {
+    public TaskAspect(UserService userService, TaskRepository taskRepository, ProjectService projectService,  ProjectPermissionAspect projectPermissionAspect ) {
         this.userService = userService;
         this.taskRepository = taskRepository;
         this.projectService = projectService;
+        this.projectPermissionAspect = projectPermissionAspect;
     }
 
     @Pointcut("execution (* com.projecty.projectyweb.task.TaskController.*(Long,..))" +
@@ -43,7 +46,7 @@ public class TaskAspect {
         Long taskId = (Long) joinPoint.getArgs()[0];
         User current = userService.getCurrentUser();
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (!(optionalTask.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalTask.get().getProject()))) {
+        if (!(optionalTask.isPresent() && projectPermissionAspect.hasCurrentUserPermissionToEdit(optionalTask.get().getProject()))) {
             logger.warning("User: "
                     + current.getUsername()
                     + " tried to execute "
@@ -58,7 +61,7 @@ public class TaskAspect {
         Long taskId = (Long) joinPoint.getArgs()[0];
         User current = userService.getCurrentUser();
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        if (!(optionalTask.isPresent() && projectService.hasCurrentUserPermissionToView(optionalTask.get().getProject()))) {
+        if (!(optionalTask.isPresent() && projectPermissionAspect.hasCurrentUserPermissionToView(optionalTask.get().getProject()))) {
             logger.warning("User: " + current.getUsername()
                     + " tried to execute "
                     + joinPoint.getSignature().toString()

@@ -41,28 +41,6 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
-    public boolean hasCurrentUserPermissionToEdit(Project project) {
-        User current = userService.getCurrentUser();
-        if (project.getTeam() != null) {
-            Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current);
-            return optionalTeamRole.isPresent() && optionalTeamRole.get().getName().equals(TeamRoles.MANAGER);
-        }
-        Optional<ProjectRole> optionalRole = projectRoleRepository.findRoleByUserAndProject(current, project);
-        return optionalRole.isPresent() && optionalRole.get().getName().equals(ProjectRoles.ADMIN);
-    }
-
-    public boolean hasCurrentUserPermissionToView(Project project) {
-        User current = userService.getCurrentUser();
-        if (project.getTeam() != null) {
-            return teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current).isPresent();
-        }
-        return hasUserRoleInProject(current, project);
-    }
-
-    public boolean hasUserRoleInProject(User user, Project project) {
-        return projectRoleRepository.findRoleByUserAndProject(user, project).isPresent();
-    }
-
     Project createNewProjectAndSave(Project project, List<String> usernames) {
         projectRoleService.addCurrentUserToProjectAsAdmin(project);
         projectRoleService.addRolesToProjectByUsernames(project, usernames);

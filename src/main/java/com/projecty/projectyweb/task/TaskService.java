@@ -2,6 +2,7 @@ package com.projecty.projectyweb.task;
 
 
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.project.ProjectPermissionAspect;
 import com.projecty.projectyweb.project.ProjectService;
 import com.projecty.projectyweb.project.role.ProjectRoleService;
 import com.projecty.projectyweb.task.dto.ProjectTasksData;
@@ -25,14 +26,16 @@ public class TaskService {
     private final TeamRoleService teamRoleService;
     private final UserService userService;
     private final ProjectService projectService;
+    private final ProjectPermissionAspect projectPermissionAspect;
 
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository, ProjectRoleService projectRoleService, TeamRoleService teamRoleService, UserService userService, ProjectService projectService) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, ProjectRoleService projectRoleService, TeamRoleService teamRoleService, UserService userService, ProjectService projectService, ProjectPermissionAspect projectPermissionAspect) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.projectRoleService = projectRoleService;
         this.teamRoleService = teamRoleService;
         this.userService = userService;
         this.projectService = projectService;
+        this.projectPermissionAspect = projectPermissionAspect;
     }
 
     public void changeTaskStatus(Task task, String status) {
@@ -115,7 +118,7 @@ public class TaskService {
     public boolean hasCurrentUserPermissionToEditOrIsAssignedToTask(Task task) {
         User user = userService.getCurrentUser();
         Project project = task.getProject();
-        return projectService.hasCurrentUserPermissionToEdit(project) || task.getAssignedUsers().contains(user);
+        return projectPermissionAspect.hasCurrentUserPermissionToEdit(project) || task.getAssignedUsers().contains(user);
     }
 
     public Task findTaskInRepositoryAndUpdateFields(Task newTask) {
@@ -138,7 +141,7 @@ public class TaskService {
         List<Task> toDoTasks = taskRepository.findByProjectAndStatusOrderByStartDate(project, TaskStatus.TO_DO);
         List<Task> inProgressTasks = taskRepository.findByProjectAndStatusOrderByEndDate(project, TaskStatus.IN_PROGRESS);
         List<Task> doneTasks = taskRepository.findByProjectAndStatus(project, TaskStatus.DONE);
-        boolean hasPermissionToEdit = projectService.hasCurrentUserPermissionToEdit(project);
+        boolean hasPermissionToEdit = projectPermissionAspect.hasCurrentUserPermissionToEdit(project);
         return ProjectTasksData.builder()
                 .toDoTasks(toDoTasks)
                 .inProgressTasks(inProgressTasks)
