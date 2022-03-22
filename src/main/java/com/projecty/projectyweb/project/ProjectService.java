@@ -20,17 +20,16 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class ProjectService {
+public class ProjectService extends UserServiceField{
     private final ProjectRepository projectRepository;
-    private final UserService userService;
     private final ProjectRoleRepository projectRoleRepository;
     private final ProjectRoleService projectRoleService;
     private final TeamRoleRepository teamRoleRepository;
     private final TaskRepository taskRepository;
 
     public ProjectService(ProjectRepository projectRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectRoleService projectRoleService, TeamRoleRepository teamRoleRepository, TaskRepository taskRepository) {
+        super(userService);
         this.projectRepository = projectRepository;
-        this.userService = userService;
         this.projectRoleRepository = projectRoleRepository;
         this.projectRoleService = projectRoleService;
         this.teamRoleRepository = teamRoleRepository;
@@ -39,28 +38,6 @@ public class ProjectService {
 
     public void save(Project project) {
         projectRepository.save(project);
-    }
-
-    public boolean hasCurrentUserPermissionToEdit(Project project) {
-        User current = userService.getCurrentUser();
-        if (project.getTeam() != null) {
-            Optional<TeamRole> optionalTeamRole = teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current);
-            return optionalTeamRole.isPresent() && optionalTeamRole.get().getName().equals(TeamRoles.MANAGER);
-        }
-        Optional<ProjectRole> optionalRole = projectRoleRepository.findRoleByUserAndProject(current, project);
-        return optionalRole.isPresent() && optionalRole.get().getName().equals(ProjectRoles.ADMIN);
-    }
-
-    public boolean hasCurrentUserPermissionToView(Project project) {
-        User current = userService.getCurrentUser();
-        if (project.getTeam() != null) {
-            return teamRoleRepository.findByTeamAndAndUser(project.getTeam(), current).isPresent();
-        }
-        return hasUserRoleInProject(current, project);
-    }
-
-    public boolean hasUserRoleInProject(User user, Project project) {
-        return projectRoleRepository.findRoleByUserAndProject(user, project).isPresent();
     }
 
     Project createNewProjectAndSave(Project project, List<String> usernames) {

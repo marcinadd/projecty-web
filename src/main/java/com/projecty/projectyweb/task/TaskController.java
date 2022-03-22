@@ -2,6 +2,7 @@ package com.projecty.projectyweb.task;
 
 import com.projecty.projectyweb.configurations.EditPermission;
 import com.projecty.projectyweb.project.Project;
+import com.projecty.projectyweb.project.ProjectPermissionAspect;
 import com.projecty.projectyweb.project.ProjectRepository;
 import com.projecty.projectyweb.project.ProjectService;
 import com.projecty.projectyweb.task.dto.ProjectTasksData;
@@ -27,13 +28,15 @@ public class TaskController {
     private final TaskValidator taskValidator;
     private final TaskRepository taskRepository;
     private final TaskService taskService;
+    private final ProjectPermissionAspect projectPermissionAspect;
 
-    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, TaskService taskService) {
+    public TaskController(ProjectRepository projectRepository, ProjectService projectService, TaskValidator taskValidator, TaskRepository taskRepository, TaskService taskService, ProjectPermissionAspect projectPermissionAspect) {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.taskValidator = taskValidator;
         this.taskRepository = taskRepository;
         this.taskService = taskService;
+        this.projectPermissionAspect = projectPermissionAspect;
     }
 
     @PostMapping("/project/{projectId}")
@@ -47,7 +50,7 @@ public class TaskController {
         Optional<Project> optionalProject = projectRepository.findById(projectId);
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } else if (optionalProject.isPresent() && projectService.hasCurrentUserPermissionToEdit(optionalProject.get())) {
+        } else if (optionalProject.isPresent() && projectPermissionAspect.hasCurrentUserPermissionToEdit(optionalProject.get())) {
             return taskService.addTaskToProject(task, optionalProject.get());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -88,7 +91,7 @@ public class TaskController {
     ) throws BindException {
         task.setId(taskId);
         Task newTaskCandidate = taskService.findTaskInRepositoryAndUpdateFields(task);
-        if (newTaskCandidate != null && projectService.hasCurrentUserPermissionToEdit(newTaskCandidate.getProject())) {
+        if (newTaskCandidate != null && projectPermissionAspect.hasCurrentUserPermissionToEdit(newTaskCandidate.getProject())) {
             DataBinder dataBinder = new DataBinder(newTaskCandidate);
             dataBinder.setValidator(taskValidator);
             dataBinder.validate();

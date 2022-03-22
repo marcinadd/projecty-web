@@ -77,7 +77,7 @@ public class MessageService {
     ) throws BindException {
         BindException bindException = new BindException(message, "message");
         messageValidator.validate(message, bindException);
-//
+
         if (bindException.hasErrors()) {
             throw bindException;
         }
@@ -103,18 +103,24 @@ public class MessageService {
         User user = userService.getCurrentUser();
         Optional<Message> optionalReplyToMessage = messageRepository.findById(replyToMessageId);
         if (optionalReplyToMessage.isPresent()) {
-            Message replyToMessage = optionalReplyToMessage.get();
-            if (replyToMessage.getSender().equals(user)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-            }
-            message.setRecipientUsername(replyToMessage.getSender().getUsername());
-            message.setReplyTo(replyToMessage);
-            replyToMessage.setHasReply(true);
-            messageRepository.save(replyToMessage);
-            return sendMessage(message, multipartFiles);
+            return saveReply(user, message, optionalReplyToMessage.get(), multipartFiles);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
+
+    public Message saveReply(User user,
+                             Message message,
+                             Message replyToMessage,
+                             List<MultipartFile> multipartFiles) throws BindException {
+        if (replyToMessage.getSender().equals(user)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        message.setRecipientUsername(replyToMessage.getSender().getUsername());
+        message.setReplyTo(replyToMessage);
+        replyToMessage.setHasReply(true);
+        messageRepository.save(replyToMessage);
+        return sendMessage(message, multipartFiles);
     }
 
     public void deleteMessage(Message message) {

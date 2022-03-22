@@ -17,12 +17,11 @@ import java.util.Map;
 
 @Aspect
 @Component
-public class ProjectNotificationAspect {
-    private final UserService userService;
+public class ProjectNotificationAspect extends UserServiceField{
     private final NotificationService notificationService;
 
     public ProjectNotificationAspect(UserService userService, UserRepository userRepository, NotificationService notificationService) {
-        this.userService = userService;
+        super(userService);
         this.notificationService = notificationService;
     }
 
