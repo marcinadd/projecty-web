@@ -20,17 +20,16 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class ProjectService {
+public class ProjectService extends UserServiceField{
     private final ProjectRepository projectRepository;
-    private final UserService userService;
     private final ProjectRoleRepository projectRoleRepository;
     private final ProjectRoleService projectRoleService;
     private final TeamRoleRepository teamRoleRepository;
     private final TaskRepository taskRepository;
 
     public ProjectService(ProjectRepository projectRepository, UserService userService, ProjectRoleRepository projectRoleRepository, ProjectRoleService projectRoleService, TeamRoleRepository teamRoleRepository, TaskRepository taskRepository) {
+        super(userService);
         this.projectRepository = projectRepository;
-        this.userService = userService;
         this.projectRoleRepository = projectRoleRepository;
         this.projectRoleService = projectRoleService;
         this.teamRoleRepository = teamRoleRepository;

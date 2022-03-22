@@ -21,8 +21,7 @@ import java.util.logging.Logger;
 
 @Aspect
 @Component
-public class ProjectPermissionAspect {
-    private final UserService userService;
+public class ProjectPermissionAspect extends UserServiceField {
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
     private final ProjectRoleRepository projectRoleRepository;
@@ -30,7 +29,7 @@ public class ProjectPermissionAspect {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     public ProjectPermissionAspect(UserService userService, ProjectRepository projectRepository, ProjectService projectService,TeamRoleRepository teamRoleRepository, ProjectRoleRepository projectRoleRepository) {
-        this.userService = userService;
+        super(userService);
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.teamRoleRepository = teamRoleRepository;
